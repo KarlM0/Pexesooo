@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-20
+
+### Added
+- Game: **folder picker** alongside the existing file picker — choose a folder and the game scans its top level for valid `.json` set files, lists them all, and lets the player select one by clicking.
+- Game: folder set list displays **name, description, pair count, creation date, and card back thumbnail** (at half the standard size, no caption) for each found set; selected row is highlighted with an accent border.
+- Game: **creation date** (`createdAt`) shown in set previews for both file and folder modes, formatted as `yyyy-mm-dd HH:mm` (UTC, language-neutral).
+
+### Changed
+- Game: set picker area is now a **side-by-side pair** of pickers (file left, folder right); each resets the other when used.
+
+## [1.3.0] - 2026-06-20
+
+### Added
+- Both apps: **source attribution** — HTML comment `<!-- Source: https://github.com/KarlM0/Pexesooo/ -->` on line 2 of each file.
+- Both apps: **GitHub link** ("View on GitHub" / "Zobrazit na GitHubu") below the version string in each app's header, linking to `https://github.com/KarlM0/Pexesooo/`.
+- Generator: generated JSON files include a `"_source": "https://github.com/KarlM0/Pexesooo/"` field.
+
+### Changed
+- Both apps: **set format identifier** changed from `"pexeso"` to `"pexesooo"`. This is a breaking change — sets produced by v1.2.0 or earlier cannot be loaded in v1.3.0 or later.
+- Both apps: **TXT file support removed** from both the generator and the game. Only image cards (`kind: "image"`) are produced and accepted going forward. Sets containing text cards (produced by earlier versions) are rejected as invalid.
+- Generator: **description field** expanded from 128 to 256 characters.
+- Both apps display **v1.3.0**; the generator identifier in produced sets is now `PexesoooGenerator/1.3.0`.
+
 ## [1.2.0] - 2026-06-20
 
 ### Added
@@ -56,7 +79,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/USERNAME/REPO/compare/v1.2.0...HEAD
-[1.2.0]: https://github.com/USERNAME/REPO/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/USERNAME/REPO/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/USERNAME/REPO/releases/tag/v1.0.0
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/KarlM0/Pexesooo/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/KarlM0/Pexesooo/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/KarlM0/Pexesooo/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/KarlM0/Pexesooo/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/KarlM0/Pexesooo/releases/tag/v1.0.0
