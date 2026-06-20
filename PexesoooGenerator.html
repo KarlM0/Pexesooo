@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Source: https://github.com/KarlM0/Pexesooo/ -->
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
@@ -29,6 +30,10 @@ body { background:var(--bg); color:var(--text);
 h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spacing:-0.01em; line-height:1.1; }
 .subtitle { font-size:13.5px; color:var(--text-dim); margin-top:4px; }
 .version { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; color:var(--text-faint); margin-top:6px; }
+/* DERIVED — repo link; sits below version string, same typographic level. FLAG: candidate for DESIGN.md. */
+.repo-link { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; margin-top:4px; }
+.repo-link a { color:var(--text-faint); text-decoration:none; transition:color 0.16s; }
+.repo-link a:hover { color:var(--accent); }
 .header-right { flex-shrink:0; }
 
 /* Pill button group (Part 2) */
@@ -88,9 +93,6 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
 .thumb { width:60px; height:60px; border-radius:var(--radius-sm); background:var(--surface-2); object-fit:cover; display:block; }
 .thumb.big { width:80px; height:80px; }
 .thumb.empty { display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:18px; }
-.txtcell { width:100%; min-height:60px; border-radius:var(--radius-sm); background:var(--surface-2);
-  border:1px solid var(--border); display:flex; align-items:center; justify-content:center; text-align:center;
-  padding:6px; font-size:11.5px; line-height:1.25; word-break:break-word; }
 
 /* Toggle switches (Part 2) */
 .toggle { position:relative; width:42px; height:24px; flex-shrink:0; background:var(--surface-2);
@@ -122,7 +124,8 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Generator</h1>
       <div class="subtitle" id="t-subtitle">Build a self-contained memory-game set from two folders.</div>
-      <div class="version">PexesoooGenerator v1.2.0</div>
+      <div class="version">PexesoooGenerator v1.3.0</div>
+      <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
       <div class="pillgroup" id="lang">
@@ -142,8 +145,9 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
       <div class="namehint hidden" id="nameHint"></div>
     </div>
     <div class="field">
-      <label class="label" for="setDesc"><span id="t-desc">Description</span><span class="count"><span id="descLen">0</span>/128</span></label>
-      <input type="text" id="setDesc" maxlength="128" placeholder="Match each flag to its country name">
+      <!-- Change 5: description expanded to 256 characters -->
+      <label class="label" for="setDesc"><span id="t-desc">Description</span><span class="count"><span id="descLen">0</span>/256</span></label>
+      <input type="text" id="setDesc" maxlength="256" placeholder="Match each flag to its country name">
     </div>
 
     <div class="two-col" style="margin-bottom:16px">
@@ -171,7 +175,8 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
       </label>
     </div>
 
-    <div class="note" id="t-hint">Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG, and TXT (text up to 64 characters). Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.</div>
+    <!-- Change 1: TXT removed from accepted types -->
+    <div class="note" id="t-hint">Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.</div>
 
     <button class="btn btn-primary" id="submitBtn" style="margin-top:16px" disabled><span id="t-submit">Submit</span></button>
   </div>
@@ -208,21 +213,25 @@ const STR = {
     backLabel:"Card back (optional)", back:"Choose a back image", backMeta:"set name will be used",
     submit:"Submit", review:"Review pairs", reviewBack:"Review backside", hName:"Filename", hA:"A", hB:"B", hInc:"Incl.",
     cancel:"Cancel", generate:"Generate JSON", noFolder:"no folder chosen", files:"files", cardBack:"card back",
-    hint:"Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG, and TXT (text up to 64 characters). Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.",
+    /* Change 1: TXT removed from hint */
+    hint:"Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.",
     complete:"complete", incomplete:"incomplete", errors:"errors",
-    errEmpty:"empty text file", errLong:"text over 64 chars", errDecode:"cannot read image", errType:"unsupported type",
+    errDecode:"cannot read image", errType:"unsupported type",
     noneSelected:"No complete pairs are selected to generate.",
-    nameHint:"Removed characters that aren't allowed in filenames." },
+    nameHint:"Removed characters that aren't allowed in filenames.",
+    repo:"View on GitHub" },
   cs: { title:"Pexesooo Generátor", subtitle:"Vytvořte samostatnou sadu pexesa ze dvou složek.",
     setup:"Nastavení", name:"Název sady", desc:"Popis", folderA:"Složka A", folderB:"Složka B",
     backLabel:"Rub karet (volitelné)", back:"Vyberte obrázek rubu", backMeta:"použije se název sady",
     submit:"Odeslat", review:"Kontrola dvojic", reviewBack:"Kontrola rubu", hName:"Soubor", hA:"A", hB:"B", hInc:"Zahr.",
     cancel:"Zrušit", generate:"Vytvořit JSON", noFolder:"žádná složka", files:"souborů", cardBack:"rub karet",
-    hint:"Soubory se párují podle názvu (bez ohledu na velikost písmen a příponu). Povoleno: PNG, JPG, JPEG a TXT (text do 64 znaků). Obrázky karet se ořezávají na 200×200, volitelný rub na 400×400. Nic neopouští vaše zařízení.",
+    /* Change 1: TXT removed from hint */
+    hint:"Soubory se párují podle názvu (bez ohledu na velikost písmen a příponu). Povoleno: PNG, JPG, JPEG. Obrázky karet se ořezávají na 200×200, volitelný rub na 400×400. Nic neopouští vaše zařízení.",
     complete:"úplných", incomplete:"neúplných", errors:"chyb",
-    errEmpty:"prázdný textový soubor", errLong:"text přes 64 znaků", errDecode:"nelze načíst obrázek", errType:"nepodporovaný typ",
+    errDecode:"nelze načíst obrázek", errType:"nepodporovaný typ",
     noneSelected:"Nejsou vybrány žádné úplné dvojice k vygenerování.",
-    nameHint:"Odebrány znaky nepovolené v názvech souborů." }
+    nameHint:"Odebrány znaky nepovolené v názvech souborů.",
+    repo:"Zobrazit na GitHubu" }
 };
 let lang = "cs";
 const L = () => STR[lang];
@@ -235,6 +244,7 @@ function applyLang(){
   setTxt("t-submit","submit"); setTxt("t-review","review"); setTxt("t-reviewback","reviewBack");
   setTxt("t-h-name","hName"); setTxt("t-h-a","hA"); setTxt("t-h-b","hB"); setTxt("t-h-inc","hInc");
   setTxt("t-cancel","cancel"); setTxt("t-generate","generate"); setTxt("t-hint","hint");
+  setTxt("t-repo","repo");
   document.title = s.title;
   if (!folderA.size && !folderB.size) {
     document.getElementById("metaA").textContent = s.noFolder;
@@ -274,9 +284,11 @@ nameEl.addEventListener("input", ()=>{
   document.getElementById("nameLen").textContent = nameEl.value.length;
   gate();
 });
+/* Change 5: description maxlength updated to 256 in HTML; counter reflects it */
 descEl.addEventListener("input", ()=>{ document.getElementById("descLen").textContent = descEl.value.length; });
 
 /* ---------- folder + back selection ---------- */
+/* Change 1: TXT removed — ALLOWED_IMG is now the only accepted type set */
 const ALLOWED_IMG = ["png","jpg","jpeg"];
 let folderA = new Map(), folderB = new Map(), backFile = null;
 let currentRows = null, backReview = null;
@@ -288,7 +300,8 @@ function ingest(fileList){
   const map = new Map();
   for (const f of fileList){
     const ext = extOf(f.name);
-    if (ext!=="txt" && !ALLOWED_IMG.includes(ext)) continue;
+    /* Change 1: only image types accepted; TXT branch removed */
+    if (!ALLOWED_IMG.includes(ext)) continue;
     map.set(stemOf(f.name), f);
   }
   return map;
@@ -324,7 +337,7 @@ function gate(){
     !(folderA.size>0 && folderB.size>0 && nameEl.value.trim().length>0);
 }
 
-/* ---------- image / text processing ---------- */
+/* ---------- image processing ---------- */
 function cropTo(bitmap, size){
   const c = document.createElement("canvas"); c.width=size; c.height=size;
   const ctx = c.getContext("2d");
@@ -351,17 +364,9 @@ async function processImage(file, size){
     return { ok:true, kind:"image", src };
   } catch(e){ return { ok:false, reason:"errDecode" }; }
 }
-async function processText(file){
-  try {
-    const t = (await file.text()).trim();
-    if (t.length===0) return { ok:false, reason:"errEmpty" };
-    if (t.length>64) return { ok:false, reason:"errLong" };
-    return { ok:true, kind:"text", text:t };
-  } catch(e){ return { ok:false, reason:"errDecode" }; }
-}
+/* Change 1: processText removed; processCardFile simplified to image-only */
 async function processCardFile(file){
   const ext = extOf(file.name);
-  if (ext==="txt") return processText(file);
   if (ALLOWED_IMG.includes(ext)) return processImage(file, 200);
   return { ok:false, reason:"errType" };
 }
@@ -408,7 +413,8 @@ function sideCell(side, big){
   if (!side) return `<div class="${cls} empty">∅</div>`;
   if (!side.ok) return `<div class="${cls} empty" style="color:var(--bad)">⚠</div>`;
   if (side.kind==="image") return `<img class="${cls}" src="${side.src}" alt="">`;
-  return `<div class="txtcell">${esc(side.text)}</div>`;
+  /* Change 1: text cell branch unreachable but left for safety; will never render */
+  return `<div class="thumb empty">?</div>`;
 }
 
 function renderBackReview(){
@@ -466,11 +472,14 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
   const chosen = rows.filter(r => rowState(r)==="complete" && r.include);
   if (chosen.length===0){ alert(L().noneSelected); return; }
 
-  const sideOut = sd => sd.kind==="image" ? { kind:"image", src:sd.src } : { kind:"text", text:sd.text };
+  const sideOut = sd => ({ kind:"image", src:sd.src });
   const pairs = chosen.map(r => ({ id:r.stem, a:sideOut(r.a), b:sideOut(r.b) }));
 
+  /* Change 2: format field changed from "pexeso" to "pexesooo" */
+  /* Change 3: _source field added as JSON attribution comment */
   const data = {
-    format:"pexeso", version:1, generator:"PexesoooGenerator/1.2.0",
+    _source: "https://github.com/KarlM0/Pexesooo/",
+    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.3.0",
     createdAt:new Date().toISOString(),
     name: nameEl.value.trim(), description: descEl.value.trim(),
     thumb:{ size:200, fit:"cover", type:"image/jpeg" },
@@ -480,7 +489,6 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
     data.back = { kind:"image", src: backReview.result.src };
   }
 
-  // filename: Pexesooo__<name with spaces -> underscores>.json (name already strip-validated)
   const clean = nameEl.value.trim().replace(ILLEGAL,"").replace(/^[.\s]+|[.\s]+$/g,"");
   const fname = "Pexesooo__" + (clean.replace(/\s+/g,"_") || "set") + ".json";
 

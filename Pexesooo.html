@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Source: https://github.com/KarlM0/Pexesooo/ -->
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
@@ -29,6 +30,10 @@ body { background:var(--bg); color:var(--text);
 h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spacing:-0.01em; line-height:1.1; }
 .subtitle { font-size:13.5px; color:var(--text-dim); margin-top:4px; }
 .version { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; color:var(--text-faint); margin-top:6px; }
+/* DERIVED — repo link; sits below version string, same typographic level. FLAG: candidate for DESIGN.md. */
+.repo-link { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; margin-top:4px; }
+.repo-link a { color:var(--text-faint); text-decoration:none; transition:color 0.16s; }
+.repo-link a:hover { color:var(--accent); }
 .header-right { flex-shrink:0; }
 
 .pillgroup { display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px; }
@@ -139,6 +144,7 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
 .face-back .backname { padding:6px; text-align:center; font-family:'Fraunces',serif; font-weight:600; font-size:13px; line-height:1.15; color:var(--text-dim); word-break:break-word; }
 .face-front { background:var(--surface); border:1px solid var(--border); transform:rotateY(180deg); }
 .face-front img { width:100%; height:100%; object-fit:cover; }
+/* Change 1: .face-front .txt kept for any legacy text cards that somehow load; they'll display correctly */
 .face-front .txt { padding:6px; text-align:center; font-family:'Manrope'; font-weight:600; font-size:13px; line-height:1.2; word-break:break-word; color:var(--text); }
 .card3d.matched .face-front { border-color:var(--ok); box-shadow:0 0 0 2px var(--ok) inset; }
 .card3d.nomatch .face-front { border-color:var(--bad); box-shadow:0 0 0 2px var(--bad) inset; }
@@ -176,7 +182,8 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
     <div>
       <h1 id="t-title">Pexesooo</h1>
       <div class="subtitle" id="t-subtitle">A memory game for 1–6 players.</div>
-      <div class="version">Pexesooo v1.2.0</div>
+      <div class="version">Pexesooo v1.3.0</div>
+      <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
       <div class="pillgroup" id="lang">
@@ -277,7 +284,9 @@ const STR = {
     liveScore:"Show score during play", liveScoreD:"Off: scores are revealed only in the results.",
     start:"Start game", game:"Game", results:"Results", totalTime:"Total time", again:"Different game", replay:"Play again",
     pairs:"pairs", endTurn:"tap to end turn", timeLeft:"Time left", back:"Card back", turns:"Turns",
-    badFile:"That file isn't a valid Pexesooo set." },
+    /* Change 2: error message updated to reflect new format string */
+    badFile:"That file isn't a valid Pexesooo set.",
+    repo:"View on GitHub" },
   cs: { title:"Pexesooo", subtitle:"Pexeso pro 1–6 hráčů.",
     settings:"Nastavení", setlabel:"Sada karet", pick:"Vyberte soubor sady (.json)", noFile:"žádný soubor",
     players:"Hráči", names:"Jména", player:"Hráč", timer:"Časomíra na tah",
@@ -285,7 +294,8 @@ const STR = {
     liveScore:"Zobrazovat skóre během hry", liveScoreD:"Vypnuto: skóre se ukáže až ve výsledcích.",
     start:"Spustit hru", game:"Hra", results:"Výsledky", totalTime:"Celkový čas", again:"Jiná hra", replay:"Hrát znovu",
     pairs:"dvojic", endTurn:"klepnutím ukončíte tah", timeLeft:"Zbývá", back:"Rub karet", turns:"Tahy",
-    badFile:"Tento soubor není platná sada Pexesooo." }
+    badFile:"Tento soubor není platná sada Pexesooo.",
+    repo:"Zobrazit na GitHubu" }
 };
 let lang = "cs";
 const L = () => STR[lang];
@@ -297,6 +307,7 @@ function applyLang(){
   txt("t-livescore","liveScore"); txt("t-livescore-d","liveScoreD"); txt("t-start","start");
   txt("t-game","game"); txt("t-results","results"); txt("t-totaltime","totalTime"); txt("t-again","again"); txt("t-replay","replay");
   txt("t-timeleft","timeLeft");
+  txt("t-repo","repo");
   document.title = L().title;
   if (!setData) document.getElementById("pmeta").textContent = L().noFile;
   buildNames(); if (setData) renderPreview();
@@ -360,7 +371,7 @@ fileIn.addEventListener("change", async ()=>{
   try {
     const data = JSON.parse(await f.text());
     if (!validSet(data)) throw new Error("invalid");
-    if (data.back && !sideValidImage(data.back)) delete data.back;  // lenient: drop a bad back, keep the set
+    if (data.back && !sideValidImage(data.back)) delete data.back;
     setData = data;
     document.getElementById("pmeta").textContent = f.name;
     document.getElementById("picker").classList.add("loaded");
@@ -373,17 +384,21 @@ fileIn.addEventListener("change", async ()=>{
   gate();
 });
 function validSet(d){
-  if (!d || d.format!=="pexeso" || !Array.isArray(d.pairs) || d.pairs.length<2) return false;
+  /* Change 2: format check updated from "pexeso" to "pexesooo" — clean break, old sets rejected */
+  if (!d || d.format!=="pexesooo" || !Array.isArray(d.pairs) || d.pairs.length<2) return false;
   return d.pairs.every(p => p && p.a && p.b && sideValid(p.a) && sideValid(p.b));
 }
 function sideValid(s){
-  if (!s || (s.kind!=="image" && s.kind!=="text")) return false;
-  if (s.kind==="image") return typeof s.src==="string" && s.src.startsWith("data:image");
-  return typeof s.text==="string" && s.text.length>0 && s.text.length<=64;
+  /* Change 1: text kind removed — only image cards are valid going forward */
+  if (!s || s.kind!=="image") return false;
+  return typeof s.src==="string" && s.src.startsWith("data:image");
 }
 function sideValidImage(s){ return s && s.kind==="image" && typeof s.src==="string" && s.src.startsWith("data:image"); }
 function escHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
-function sideMini(s){ return s.kind==="image" ? `<img class="mini" src="${s.src}" alt="">` : `<div class="mini">${escHtml(s.text)}</div>`; }
+function sideMini(s){
+  /* Change 1: text mini removed; all cards are now images */
+  return `<img class="mini" src="${s.src}" alt="">`;
+}
 function renderPreview(){
   const d = setData;
   const samples = d.pairs.slice(0,2).map(p=>`<div class="sample-pair">${sideMini(p.a)}${sideMini(p.b)}</div>`).join("");
@@ -419,7 +434,7 @@ document.getElementById("replayBtn").addEventListener("click", ()=>{
   if (setData){ rotationIndex = (rotationIndex + 1) % playerCount; startGame(); }
 });
 
-let rotationIndex = 0;  // which player starts; reset by Start Game, advanced by Play again
+let rotationIndex = 0;
 
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
@@ -461,7 +476,8 @@ function renderBoard(){
     const slot = document.createElement("div");
     slot.className = "slot rise" + (c.won?" won":"");
     slot.style.animationDelay = (c.i*18)+"ms";
-    const front = c.side.kind==="image" ? `<img src="${c.side.src}" alt="">` : `<div class="txt">${escHtml(c.side.text)}</div>`;
+    /* Change 1: all cards are images; text branch removed */
+    const front = `<img src="${c.side.src}" alt="">`;
     slot.innerHTML =
       `<div class="card3d ${c.up?"up":""}" data-i="${c.i}">
          <div class="card-face face-back">${back}</div>
@@ -512,7 +528,7 @@ function updateTimerUI(){
   document.getElementById("timerNum").textContent = Math.ceil(state.timeLeft)+"s";
 }
 function onTimeout(){
-  state.players[state.cur].turns += 1;   // a timed-out turn still counts (decision B)
+  state.players[state.cur].turns += 1;
   state.flipped.forEach(i=>{ state.cards[i].up=false; const el=cardEl(i); if(el) el.classList.remove("up","nomatch"); });
   state.flipped=[]; state.awaitEnd=false; advance();
 }
@@ -523,7 +539,7 @@ function onFlip(i){
   if (c.won || c.up || state.flipped.length>=2) return;
   c.up = true; cardEl(i).classList.add("up"); state.flipped.push(i);
   if (state.flipped.length===2){
-    state.lock = true; stopTimer();   // move is made; evaluation isn't on the clock
+    state.lock = true; stopTimer();
     document.getElementById("board").classList.add("locked");
     const [a,b] = state.flipped;
     const match = state.cards[a].pid === state.cards[b].pid;
@@ -542,13 +558,13 @@ function resolveMatch(a,b){
     state.flipped=[]; state.lock=false; state.awaitEnd=false;
     document.getElementById("board").classList.remove("locked");
     if (state.liveScore) renderPlayers();
-    if (state.useTimer) startTimer();   // bonus turn, fresh clock
+    if (state.useTimer) startTimer();
   }, 520);
 }
 function resolveNoMatch(a,b){
   cardEl(a).classList.add("nomatch"); cardEl(b).classList.add("nomatch");
   state.awaitEnd = true; renderPlayers();
-  if (state.useTimer) startTimer();   // expiry here auto-ends the turn
+  if (state.useTimer) startTimer();
 }
 function endTurn(){
   if (!state.awaitEnd) return;
@@ -570,7 +586,8 @@ function finishGame(){
   const host = document.getElementById("resultLines"); host.innerHTML = "";
   ranked.forEach((p,idx)=>{
     const isWin = p.score===max && players.length>1;
-    const wonHtml = p.won.map(w=>`<div class="won-pair">${sideMini(w.a)}${sideMini(w.b)}</div>`).join("");
+    /* Change 1: won pairs are now always images */
+    const wonHtml = p.won.map(w=>`<div class="won-pair"><img class="mini" src="${w.a.src}" alt=""><img class="mini" src="${w.b.src}" alt=""></div>`).join("");
     const line = document.createElement("div");
     line.className = "result-line rise"; line.style.animationDelay = (idx*40)+"ms";
     line.innerHTML =
