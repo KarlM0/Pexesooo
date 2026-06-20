@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.0] - 2026-06-07
+## [1.2.0] - 2026-06-20
 
 ### Added
 - Game: **Play again / Hrát znovu** result button — immediately restarts with the current set, players, and options (reshuffled board).
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Game: **Show score during play** now defaults to **off** — scores are revealed in the Results.
 - Both apps display **v1.2.0**; the generator identifier in produced sets is now `PexesoooGenerator/1.2.0`.
 
-## [1.1.0] - 2026-06-07
+## [1.1.0] - 2026-06-20
 
 ### Added
 - Generator: optional **card-back image** (single PNG/JPG/JPEG, center-cropped to 400×400).
@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set schema: added the optional **`back`** field. Backward compatible — sets without it fall back to rendering the set name as the card back; schema `version` stays `1`.
 - Generator identifier bumped to `PexesoooGenerator/1.1.0`; both apps display `v1.1.0`.
 
-## [1.0.0] - 2026-06-07
+## [1.0.0] - 2026-06-20
 
 ### Added
 - **`Pexesooo.html`** — the game:
