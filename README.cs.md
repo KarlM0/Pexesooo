@@ -4,7 +4,7 @@
 
 Samostatná, prohlížečová **hra pexeso** (v angličtině známá jako *Concentration* nebo *Pairs*) a doprovodný **generátor sad**. Vytvořte vlastní sadu karet ze dvou složek obrázků, získejte jeden přenosný soubor JSON a hrajte — bez serveru, bez sestavení, bez instalace.
 
-> **Stav:** v1.4.0 · dva statické soubory HTML · funguje offline z `file://`
+> **Stav:** v1.5.0 · dva statické soubory HTML · funguje offline z `file://`
 
 ---
 
@@ -24,7 +24,7 @@ Oba soubory jsou samostatné soubory HTML bez závislostí. Stačí je otevřít
 ## Funkce
 
 - **Vytvářejte vlastní sady** ze svých obrázků — vlajky, zvířata, slovní zásobu, rodinné fotky, cokoliv.
-- **Pouze obrázkové páry karet:** podporovány jsou soubory PNG, JPG a JPEG.
+- **Pouze obrázkové páry karet:** jsou podporovány soubory PNG, JPG a JPEG.
 - **Samostatné sady:** obrázky jsou vloženy přímo do souboru JSON, takže sada tvoří jeden soubor, který lze sdílet, poslat e-mailem nebo uložit do repozitáře.
 - **1–6 hráčů** s vlastními jmény a přehledným indikátorem tahu.
 - **Spravedlivé pořadí:** každé *Hrát znovu* posune startujícího hráče o jednu pozici dál; *Spustit hru* pořadí resetuje.
@@ -32,7 +32,7 @@ Oba soubory jsou samostatné soubory HTML bez závislostí. Stačí je otevřít
 - **Živé nebo skryté skóre** — zobrazujte skóre průběžně, nebo (výchozí) odhalte jej až ve výsledcích.
 - **Celkový čas** a **počet tahů každého hráče** jsou zobrazeny ve výsledcích, v sólo i vícehráčském módu.
 - **Vlastní rub karet** (volitelně) — nebo se jako rub použije název sady.
-- **Čeština / angličtina** — výchozí jazyk je čeština, přepínatelné kdykoliv.
+- **Čeština / angličtina** — přepínatelné kdykoliv (výchozí je čeština).
 - **Soukromé ze své podstaty:** vše probíhá lokálně v prohlížeči. Žádné nahrávání, žádné sledování, žádná síťová komunikace (kromě načítání webových fontů).
 
 ---
@@ -41,7 +41,7 @@ Oba soubory jsou samostatné soubory HTML bez závislostí. Stačí je otevřít
 
 ### 1. Vytvořte sadu (`PexesoooGenerator.html`)
 
-1. Připravte **dvě složky** obrázkových souborů. Pár vznikne, když soubor ve složce A a soubor ve složce B sdílejí **stejný název** (bez ohledu na velikost písmen a příponu). Například `france.png` ve složce A tvoří pár s `france.jpg` ve složce B.
+1. Připravte **dvě složky** souborů obrázků. Pár vznikne, když soubor ve složce A a soubor ve složce B sdílejí **stejný název** (bez ohledu na velikost písmen a příponu). Například `france.png` ve složce A tvoří pár s `france.jpg` ve složce B.
 2. Otevřete `PexesoooGenerator.html`.
 3. Zadejte **název sady** a **popis** (až 256 znaků).
 4. Vyberte **Složku A** a **Složku B** (otevře se dialog pro výběr složky — vybíráte celou složku, ne jednotlivé soubory).
@@ -49,14 +49,15 @@ Oba soubory jsou samostatné soubory HTML bez závislostí. Stačí je otevřít
 6. Klikněte na **Odeslat**. Zkontrolujte nalezené páry — neúplné nebo nečitelné páry jsou označeny a vyřazeny; odškrtněte ty, které nechcete zahrnout.
 7. Klikněte na **Vytvořit JSON**. Získáte soubor pojmenovaný `Pexesooo__<Název_sady>.json`.
 
-**Podporované soubory:** `PNG`, `JPG`, `JPEG`. **Zpracování:** obrázky karet jsou ořezány na střed na 200×200; volitelný rub na 400×400.
+**Podporované soubory:** `PNG`, `JPG`, `JPEG`.
+**Zpracování:** obrázky karet jsou ořezány na střed na 200×200; volitelný rub na 400×400.
 
 ### 2. Hrajte (`Pexesooo.html`)
 
 1. Otevřete `Pexesooo.html`.
 2. V sekci **Nastavení** načtěte sadu jedním ze dvou způsobů:
-   - **Soubor** — vyberte přímo jeden soubor `.json`. Náhled zobrazí název, popis, počet párů, datum vytvoření, ukázkové páry a rub karet.
-   - **Složka** — vyberte složku; hra prohledá její nejvyšší úroveň (bez podsložek) a zobrazí seznam všech nalezených platných souborů `.json`. Kliknutím na řádek sadu vyberete.
+   - **Soubor** — vyberte přímo jeden soubor sady `.json`. Náhled zobrazí název, popis, počet dvojic, datum vytvoření, ukázkové páry a rub karet.
+   - **Složka** — vyberte složku; hra prohledá její nejvyšší úroveň (bez rekurze) pro platné soubory sad `.json` a zobrazí seznam všech nalezených. Kliknutím na řádek sadu vyberete.
 3. Zvolte počet hráčů, zadejte jména a nastavte časomíru a zobrazení skóre.
 4. Klikněte na **Spustit hru**.
 
@@ -81,7 +82,7 @@ Sada je jeden soubor JSON. Obrázky jsou uloženy přímo jako base64 data URI, 
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.4.0",
+  "generator": "PexesoooGenerator/1.5.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "Vlajky světa",
   "description": "Přiřaďte každou vlajku k názvu její země",
@@ -101,21 +102,33 @@ Sada je jeden soubor JSON. Obrázky jsou uloženy přímo jako base64 data URI, 
 Poznámky:
 
 - Každý pár vytvoří **dvě karty**; shoda jsou dvě karty se stejným `id` páru.
-- Obě strany karty mají formát `{ "kind": "image", "src": "data:image/…" }`.
+- Obě strany karty jsou `{ "kind": "image", "src": "data:image/…" }`.
 - `back` je **volitelný**. Pokud chybí (nebo je nečitelný), hra zobrazí **název sady** jako rub karet.
-- `_source` identifikuje URL projektu a slouží pouze jako informace; hra jej ignoruje.
+- `_source` identifikuje URL projektu a je pouze informační; hra jej ignoruje.
 - `format` musí být `"pexesooo"`. Sady vytvořené staršími verzemi generátoru (které používaly `"pexeso"`) nejsou kompatibilní.
 
 ---
 
 ## Design
 
-Oba soubory HTML sdílejí společný vizuální jazyk pro tmavý motiv definovaný v `DESIGN.md` (CSS custom properties, tři písma — Fraunces / Manrope / JetBrains Mono — a malá knihovna komponent). Některé prvky jsou záměrná, zdokumentovaná rozšíření tohoto systému:
+Oba soubory HTML sdílejí společný vizuální jazyk definovaný v `DESIGN.md` (CSS custom properties, tři písma — Fraunces / Manrope / JetBrains Mono — a malá knihovna komponent). Některé prvky jsou záměrná, zdokumentovaná rozšíření tohoto systému:
 
 - **Překlápění karet** — střídmý přechod `rotateY` trvající 0,3 s, výslovná výjimka ze základního pravidla jedné vstupní animace.
-- **Dvojice výběru souboru/složky, seznam sad, pruh tahů hráčů, odkaz na repozitář a indikátor načítání** — odvozeno ze základních tokenů tam, kde knihovna komponent nemá existující vzor.
+- **Výběr souboru/složky, seznam sad, pruh tahů hráčů, odkaz na repozitář a indikátor načítání** — odvozeno ze základních tokenů tam, kde knihovna komponent nemá existující vzor.
 
 Tyto prvky jsou ve zdrojovém kódu označeny jako kandidáti na přidání do `DESIGN.md`.
+
+---
+
+## Zabezpečení
+
+Oba soubory jsou navrženy tak, aby běžely výhradně v prohlížeči bez zapojení serveru. Několik opatření omezuje dopad případně škodlivého souboru sady:
+
+- **Zásady zabezpečení obsahu (CSP)** — meta tag CSP blokuje veškerá odchozí síťová připojení ze stránky, omezuje obrázky na URI `data:` a `blob:` a fonty na Google Fonts.
+- **Bezpečné vykreslování obrázků** — obrázky karet jsou vždy nastaveny přes vlastnost DOM (`img.src = …`), nikdy interpolací do `innerHTML`, čímž se zabraňuje útokům vkládáním atributů z upravených souborů sad.
+- **Limity vstupu** — soubory sad s více než 500 páry nebo s jednotlivými zdroji obrázků většími než 3 MB jsou při validaci zamítnuty.
+
+Načítejte pouze soubory sad z důvěryhodných zdrojů.
 
 ---
 
@@ -127,17 +140,17 @@ Tyto prvky jsou ve zdrojovém kódu označeny jako kandidáti na přidání do `
 - Orientace obrázků: generátor aplikuje orientaci EXIF při překódování, ale ověřte funkčnost s otočenou fotografií z telefonu ve vašem prohlížeči.
 - **Bez ukládání** — hra nemá funkci uložení a obnovení; nastavení a průběh hry existují pouze v aktuální záložce.
 - **Offline:** oba soubory fungují z `file://`; bez připojení k internetu se webové fonty vrátí na systémová písma (rozvržení ani chování nejsou ovlivněny).
-- Výběr složky v aplikaci Pexesooo prohledává pouze **nejvyšší úroveň** zvolené složky; soubory JSON v podsložkách jsou ignorovány.
+- Výběr složky ve hře prohledává pouze **nejvyšší úroveň** vybrané složky; soubory JSON v podsložkách jsou ignorovány.
 
 ---
 
 ## Soukromí
 
-Vše probíhá ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zařízení; aplikace neprovádějí žádná API volání a nic neukládají vzdáleně.
+Vše probíhá ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zařízení; soubory neprovádějí žádná API volání a nic neukládají vzdáleně.
 
 ---
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každého souboru (`Pexesooo v1.4.0`, `PexesoooGenerator v1.4.0`).
+- Verze aplikace je zobrazena v záhlaví každého souboru (`Pexesooo v1.5.0`, `PexesoooGenerator v1.5.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
