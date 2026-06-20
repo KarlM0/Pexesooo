@@ -1,3 +1,5 @@
+> 🇨🇿 [Česká verze tohoto dokumentu](README.cs.md)
+
 # Pexesooo
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English) plus a companion **set generator**. Build your own card sets from two folders of images, get a single portable JSON file, and play — no server, no build step, no install.
