@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-06-20
+
+### Security
+- Both apps: **Content Security Policy** added via `<meta http-equiv="Content-Security-Policy">` restricting scripts to inline-only, images to `data:` and `blob:` URIs, fonts to Google Fonts, and blocking all outbound connections (`connect-src 'none'`).
+- Both apps: **XSS via image src injection fixed** — all image elements are now created with `document.createElement('img')` and `.src` assigned as a DOM property, replacing all previous template-literal interpolation of image data URIs into `innerHTML`. A shared `makeSafeImg()` helper enforces this throughout.
+- Both apps: all other user-data-derived content (set names, descriptions, pair stems) that previously flowed through `escHtml()` + `innerHTML` is now set via `textContent` directly.
+- Game: **memory DoS mitigated** — `validSet()` now rejects set files with more than 500 pairs (`MAX_PAIRS`) or any individual image `src` exceeding 3 MB (`MAX_SRC_BYTES`).
+
+### Changed
+- Both apps display **v1.5.0**; the generator identifier in produced sets is now `PexesoooGenerator/1.5.0`.
+
 ## [1.4.0] - 2026-06-20
 
 ### Added
@@ -79,7 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/KarlM0/Pexesooo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/KarlM0/Pexesooo/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/KarlM0/Pexesooo/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/KarlM0/Pexesooo/compare/v1.1.0...v1.2.0

@@ -4,7 +4,7 @@
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English) plus a companion **set generator**. Build your own card sets from two folders of images, get a single portable JSON file, and play — no server, no build step, no install.
 
-> **Status:** v1.4.0 · two static HTML files · runs offline from `file://`
+> **Status:** v1.5.0 · two static HTML files · runs offline from `file://`
 
 ---
 
@@ -82,7 +82,7 @@ A set is a single JSON file. Images are stored inline as base64 data URIs, so th
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.4.0",
+  "generator": "PexesoooGenerator/1.5.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -120,6 +120,18 @@ These are flagged in the source as candidates for inclusion in `DESIGN.md`.
 
 ---
 
+## Security
+
+Both apps are designed to run entirely in the browser with no server involvement. A few measures are in place to limit the impact of a malicious set file:
+
+- **Content Security Policy** — a `<meta>` CSP tag blocks all outbound network connections from the page, restricts images to `data:` and `blob:` URIs, and limits fonts to Google Fonts.
+- **Safe image rendering** — card images are always set via DOM property assignment (`img.src = …`), never interpolated into `innerHTML`, preventing attribute injection attacks from crafted set files.
+- **Input limits** — set files with more than 500 pairs or individual image sources larger than 3 MB are rejected during validation.
+
+Only load set files from sources you trust.
+
+---
+
 ## Browser support & limitations
 
 - Tested as standards-based HTML/CSS/JS; works in current Chromium, Firefox, and Safari.
@@ -140,7 +152,5 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`Pexesooo v1.4.0`, `PexesoooGenerator v1.4.0`).
+- App version is shown in each app's header (`Pexesooo v1.5.0`, `PexesoooGenerator v1.5.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.
-
----

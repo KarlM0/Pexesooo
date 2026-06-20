@@ -4,6 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SECURITY: CSP restricts script sources to inline only (required for self-contained file),
+     images to data: and blob: URIs only, fonts to Google Fonts, no other network. -->
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src 'none';">
 <title>Pexesooo Generator</title>
 
 <!-- DESIGN.md Part 1 — fonts from Google Fonts (per doc). Offline: system fallback accepted. -->
@@ -66,7 +70,7 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
 .btn:disabled { opacity:0.35; cursor:not-allowed; filter:none; }
 .btn-row { display:flex; gap:12px; margin-top:4px; }
 
-/* DERIVED — folder / file picker (FLAG: candidate for DESIGN.md). */
+/* DERIVED — folder / file picker pair (FLAG: candidate for DESIGN.md). */
 .picker { display:block; border:1.5px dashed var(--border); background:var(--surface-2);
   border-radius:var(--radius-sm); padding:18px; text-align:center; cursor:pointer; transition:0.16s; }
 .picker:hover, .picker.drag { border-color:var(--accent); }
@@ -124,7 +128,7 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Generator</h1>
       <div class="subtitle" id="t-subtitle">Build a self-contained memory-game set from two folders.</div>
-      <div class="version">PexesoooGenerator v1.3.0</div>
+      <div class="version">PexesoooGenerator v1.5.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -145,7 +149,6 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
       <div class="namehint hidden" id="nameHint"></div>
     </div>
     <div class="field">
-      <!-- Change 5: description expanded to 256 characters -->
       <label class="label" for="setDesc"><span id="t-desc">Description</span><span class="count"><span id="descLen">0</span>/256</span></label>
       <input type="text" id="setDesc" maxlength="256" placeholder="Match each flag to its country name">
     </div>
@@ -175,7 +178,6 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
       </label>
     </div>
 
-    <!-- Change 1: TXT removed from accepted types -->
     <div class="note" id="t-hint">Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.</div>
 
     <button class="btn btn-primary" id="submitBtn" style="margin-top:16px" disabled><span id="t-submit">Submit</span></button>
@@ -213,7 +215,6 @@ const STR = {
     backLabel:"Card back (optional)", back:"Choose a back image", backMeta:"set name will be used",
     submit:"Submit", review:"Review pairs", reviewBack:"Review backside", hName:"Filename", hA:"A", hB:"B", hInc:"Incl.",
     cancel:"Cancel", generate:"Generate JSON", noFolder:"no folder chosen", files:"files", cardBack:"card back",
-    /* Change 1: TXT removed from hint */
     hint:"Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.",
     complete:"complete", incomplete:"incomplete", errors:"errors",
     errDecode:"cannot read image", errType:"unsupported type",
@@ -225,7 +226,6 @@ const STR = {
     backLabel:"Rub karet (volitelné)", back:"Vyberte obrázek rubu", backMeta:"použije se název sady",
     submit:"Odeslat", review:"Kontrola dvojic", reviewBack:"Kontrola rubu", hName:"Soubor", hA:"A", hB:"B", hInc:"Zahr.",
     cancel:"Zrušit", generate:"Vytvořit JSON", noFolder:"žádná složka", files:"souborů", cardBack:"rub karet",
-    /* Change 1: TXT removed from hint */
     hint:"Soubory se párují podle názvu (bez ohledu na velikost písmen a příponu). Povoleno: PNG, JPG, JPEG. Obrázky karet se ořezávají na 200×200, volitelný rub na 400×400. Nic neopouští vaše zařízení.",
     complete:"úplných", incomplete:"neúplných", errors:"chyb",
     errDecode:"nelze načíst obrázek", errType:"nepodporovaný typ",
@@ -237,7 +237,6 @@ let lang = "cs";
 const L = () => STR[lang];
 function setTxt(id,key){ const e=document.getElementById(id); if(e) e.textContent=L()[key]; }
 function applyLang(){
-  const s = L();
   setTxt("t-title","title"); setTxt("t-subtitle","subtitle"); setTxt("t-setup","setup");
   setTxt("t-name","name"); setTxt("t-desc","desc"); setTxt("t-folderA","folderA"); setTxt("t-folderB","folderB");
   setTxt("t-backlabel","backLabel"); setTxt("t-back","back");
@@ -245,12 +244,12 @@ function applyLang(){
   setTxt("t-h-name","hName"); setTxt("t-h-a","hA"); setTxt("t-h-b","hB"); setTxt("t-h-inc","hInc");
   setTxt("t-cancel","cancel"); setTxt("t-generate","generate"); setTxt("t-hint","hint");
   setTxt("t-repo","repo");
-  document.title = s.title;
+  document.title = L().title;
   if (!folderA.size && !folderB.size) {
-    document.getElementById("metaA").textContent = s.noFolder;
-    document.getElementById("metaB").textContent = s.noFolder;
+    document.getElementById("metaA").textContent = L().noFolder;
+    document.getElementById("metaB").textContent = L().noFolder;
   }
-  if (!backFile) document.getElementById("metaBack").textContent = s.backMeta;
+  if (!backFile) document.getElementById("metaBack").textContent = L().backMeta;
   if (currentRows) render(currentRows);
   if (backReview) renderBackReview();
 }
@@ -284,11 +283,9 @@ nameEl.addEventListener("input", ()=>{
   document.getElementById("nameLen").textContent = nameEl.value.length;
   gate();
 });
-/* Change 5: description maxlength updated to 256 in HTML; counter reflects it */
 descEl.addEventListener("input", ()=>{ document.getElementById("descLen").textContent = descEl.value.length; });
 
 /* ---------- folder + back selection ---------- */
-/* Change 1: TXT removed — ALLOWED_IMG is now the only accepted type set */
 const ALLOWED_IMG = ["png","jpg","jpeg"];
 let folderA = new Map(), folderB = new Map(), backFile = null;
 let currentRows = null, backReview = null;
@@ -300,7 +297,6 @@ function ingest(fileList){
   const map = new Map();
   for (const f of fileList){
     const ext = extOf(f.name);
-    /* Change 1: only image types accepted; TXT branch removed */
     if (!ALLOWED_IMG.includes(ext)) continue;
     map.set(stemOf(f.name), f);
   }
@@ -364,7 +360,6 @@ async function processImage(file, size){
     return { ok:true, kind:"image", src };
   } catch(e){ return { ok:false, reason:"errDecode" }; }
 }
-/* Change 1: processText removed; processCardFile simplified to image-only */
 async function processCardFile(file){
   const ext = extOf(file.name);
   if (ALLOWED_IMG.includes(ext)) return processImage(file, 200);
@@ -375,7 +370,6 @@ async function processCardFile(file){
 document.getElementById("submitBtn").addEventListener("click", async ()=>{
   const btn = document.getElementById("submitBtn"); btn.disabled = true;
 
-  // backside (image only, 400x400)
   if (backFile){
     const res = await processImage(backFile, 400);
     backReview = { result: res, include: res.ok };
@@ -386,7 +380,6 @@ document.getElementById("submitBtn").addEventListener("click", async ()=>{
     document.getElementById("backReviewCard").classList.add("hidden");
   }
 
-  // pairs
   const stems = new Set([...folderA.keys(), ...folderB.keys()]);
   const rows = [];
   for (const stem of [...stems].sort()){
@@ -408,55 +401,174 @@ function rowState(r){
   return "missing";
 }
 function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
-function sideCell(side, big){
-  const cls = "thumb" + (big?" big":"");
-  if (!side) return `<div class="${cls} empty">∅</div>`;
-  if (!side.ok) return `<div class="${cls} empty" style="color:var(--bad)">⚠</div>`;
-  if (side.kind==="image") return `<img class="${cls}" src="${side.src}" alt="">`;
-  /* Change 1: text cell branch unreachable but left for safety; will never render */
-  return `<div class="thumb empty">?</div>`;
+
+/* SECURITY: makeSafeImg assigns src via DOM property, preventing attribute injection.
+   Used throughout review rendering instead of innerHTML with interpolated src values. */
+function makeSafeImg(src, cls, alt){
+  const img = document.createElement("img");
+  if (cls) img.className = cls;
+  if (alt !== undefined) img.alt = alt;
+  img.src = src;
+  return img;
 }
 
+/* SECURITY: sideCell builds image elements via makeSafeImg, never via innerHTML src interpolation. */
+function sideCell(side, big){
+  const cls = "thumb" + (big?" big":"");
+  if (!side){
+    const el = document.createElement("div");
+    el.className = cls + " empty";
+    el.textContent = "∅";
+    return el;
+  }
+  if (!side.ok){
+    const el = document.createElement("div");
+    el.className = cls + " empty";
+    el.style.color = "var(--bad)";
+    el.textContent = "⚠";
+    return el;
+  }
+  if (side.kind === "image"){
+    return makeSafeImg(side.src, cls, "");
+  }
+  // Fallback (should be unreachable with current image-only flow)
+  const el = document.createElement("div");
+  el.className = "thumb empty";
+  el.textContent = "?";
+  return el;
+}
+
+/* SECURITY: renderBackReview builds DOM nodes directly; back image via makeSafeImg. */
 function renderBackReview(){
   if (!backReview) return;
   const ok = backReview.result.ok;
   const host = document.getElementById("backReviewRow");
-  const ico = ok ? "" : ` <span class="err-ico">⚠</span>`;
+  host.innerHTML = "";
+
+  const row = document.createElement("div");
+  row.className = "review-row back-row" + (ok ? "" : " error");
+
+  // Name cell
+  const nameCell = document.createElement("div");
+  nameCell.className = "cell-name";
+  nameCell.textContent = L().cardBack;
+  if (!ok){
+    const ico = document.createElement("span");
+    ico.className = "err-ico";
+    ico.textContent = " ⚠";
+    nameCell.appendChild(ico);
+  }
+  row.appendChild(nameCell);
+
+  // Image cell
+  const imgCell = document.createElement("div");
+  if (ok){
+    imgCell.appendChild(makeSafeImg(backReview.result.src, "thumb big", ""));
+  } else {
+    const empty = document.createElement("div");
+    empty.className = "thumb big empty";
+    empty.style.color = "var(--bad)";
+    empty.textContent = "⚠";
+    imgCell.appendChild(empty);
+  }
+  row.appendChild(imgCell);
+
+  // Toggle cell
+  const toggleCell = document.createElement("div");
   const on = ok && backReview.include;
-  host.innerHTML =
-    `<div class="review-row back-row ${ok?"":"error"}">
-       <div class="cell-name">${esc(L().cardBack)}${ico}</div>
-       <div>${sideCell(backReview.result.ok?{ok:true,kind:"image",src:backReview.result.src}:null, true)}</div>
-       <div><div class="toggle ${on?"on":""} ${ok?"":"disabled"}" id="backToggle"><div class="knob"></div></div></div>
-     </div>`;
-  const t = document.getElementById("backToggle");
-  if (ok) t.addEventListener("click", ()=>{ backReview.include=!backReview.include; t.classList.toggle("on", backReview.include); });
+  const tog = document.createElement("div");
+  tog.className = "toggle" + (on ? " on" : "") + (ok ? "" : " disabled");
+  tog.id = "backToggle";
+  const knob = document.createElement("div");
+  knob.className = "knob";
+  tog.appendChild(knob);
+  toggleCell.appendChild(tog);
+  row.appendChild(toggleCell);
+
+  host.appendChild(row);
+
+  if (ok){
+    tog.addEventListener("click", ()=>{
+      backReview.include = !backReview.include;
+      tog.classList.toggle("on", backReview.include);
+    });
+  }
 }
 
+/* SECURITY: render builds review rows via DOM nodes; stem text set via textContent,
+   thumbnails via sideCell (which uses makeSafeImg). No user-data content via innerHTML. */
 function render(rows){
   const s = L();
   let nC=0,nM=0,nE=0;
   rows.forEach(r=>{ const st=rowState(r); st==="complete"?nC++:st==="missing"?nM++:nE++; });
+
+  // Summary line uses only integer counts — safe to set via innerHTML
   document.getElementById("summary").innerHTML =
-    `<b class="ok">${nC}</b> ${s.complete} · <b class="warn">${nM}</b> ${s.incomplete} · <b class="bad">${nE}</b> ${s.errors}`;
-  const host = document.getElementById("reviewRows"); host.innerHTML = "";
-  rows.forEach((r,i)=>{
+    `<b class="ok">${nC}</b> ${esc(s.complete)} · <b class="warn">${nM}</b> ${esc(s.incomplete)} · <b class="bad">${nE}</b> ${esc(s.errors)}`;
+
+  const host = document.getElementById("reviewRows");
+  host.innerHTML = "";
+
+  rows.forEach((r, i) => {
     const st = rowState(r);
     const div = document.createElement("div");
-    div.className = "review-row" + (st==="missing"?" missing":st==="error"?" error":"");
-    div.style.animationDelay = (i*32)+"ms";
-    let ico = ""; if (st==="missing") ico=` <span class="warn-ico">⚠</span>`; if (st==="error") ico=` <span class="err-ico">⚠</span>`;
-    const includable = st==="complete";
-    const on = includable && (r.include!==false); r.include = on;
-    div.innerHTML =
-      `<div class="cell-name" title="${esc(r.stem)}">${esc(r.stem)}${ico}</div>`+
-      `<div>${sideCell(r.a)}</div><div>${sideCell(r.b)}</div>`+
-      `<div><div class="toggle ${on?"on":""} ${includable?"":"disabled"}" data-i="${i}"><div class="knob"></div></div></div>`;
+    div.className = "review-row" + (st==="missing" ? " missing" : st==="error" ? " error" : "");
+    div.style.animationDelay = (i * 32) + "ms";
+
+    // Stem name cell — textContent prevents injection
+    const nameCell = document.createElement("div");
+    nameCell.className = "cell-name";
+    nameCell.title = r.stem;
+    nameCell.textContent = r.stem;
+    if (st === "missing"){
+      const ico = document.createElement("span");
+      ico.className = "warn-ico";
+      ico.textContent = " ⚠";
+      nameCell.appendChild(ico);
+    } else if (st === "error"){
+      const ico = document.createElement("span");
+      ico.className = "err-ico";
+      ico.textContent = " ⚠";
+      nameCell.appendChild(ico);
+    }
+    div.appendChild(nameCell);
+
+    // Side A cell
+    const cellA = document.createElement("div");
+    cellA.appendChild(sideCell(r.a, false));
+    div.appendChild(cellA);
+
+    // Side B cell
+    const cellB = document.createElement("div");
+    cellB.appendChild(sideCell(r.b, false));
+    div.appendChild(cellB);
+
+    // Toggle cell
+    const includable = st === "complete";
+    const on = includable && (r.include !== false);
+    r.include = on;
+
+    const toggleCell = document.createElement("div");
+    const tog = document.createElement("div");
+    tog.className = "toggle" + (on ? " on" : "") + (includable ? "" : " disabled");
+    tog.dataset.i = i;
+    const knob = document.createElement("div");
+    knob.className = "knob";
+    tog.appendChild(knob);
+    toggleCell.appendChild(tog);
+    div.appendChild(toggleCell);
+
     host.appendChild(div);
   });
-  host.querySelectorAll(".toggle").forEach(t=>{
+
+  // Wire toggles after DOM is built
+  host.querySelectorAll(".toggle").forEach(t => {
     if (t.classList.contains("disabled")) return;
-    t.addEventListener("click", ()=>{ const i=+t.dataset.i; rows[i].include=!rows[i].include; t.classList.toggle("on", rows[i].include); });
+    t.addEventListener("click", () => {
+      const i = +t.dataset.i;
+      rows[i].include = !rows[i].include;
+      t.classList.toggle("on", rows[i].include);
+    });
   });
 }
 
@@ -475,11 +587,9 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
   const sideOut = sd => ({ kind:"image", src:sd.src });
   const pairs = chosen.map(r => ({ id:r.stem, a:sideOut(r.a), b:sideOut(r.b) }));
 
-  /* Change 2: format field changed from "pexeso" to "pexesooo" */
-  /* Change 3: _source field added as JSON attribution comment */
   const data = {
     _source: "https://github.com/KarlM0/Pexesooo/",
-    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.3.0",
+    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.5.0",
     createdAt:new Date().toISOString(),
     name: nameEl.value.trim(), description: descEl.value.trim(),
     thumb:{ size:200, fit:"cover", type:"image/jpeg" },

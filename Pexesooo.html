@@ -4,6 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SECURITY: CSP restricts script sources to inline only (required for self-contained file),
+     images to data: and blob: URIs only, fonts to Google Fonts, no other network. -->
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src 'none';">
 <title>Pexesooo</title>
 
 <!-- DESIGN.md Part 1 — fonts from Google Fonts (per doc). Offline: system fallback accepted. -->
@@ -197,7 +201,7 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
     <div>
       <h1 id="t-title">Pexesooo</h1>
       <div class="subtitle" id="t-subtitle">A memory game for 1–6 players.</div>
-      <div class="version">Pexesooo v1.4.0</div>
+      <div class="version">Pexesooo v1.5.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -365,6 +369,11 @@ document.querySelectorAll(".chead").forEach(h=>{
 });
 function setCollapsed(id,v){ document.getElementById(id).classList.toggle("collapsed", v); }
 
+/* ---------------- security: validation limits ---------------- */
+/* SECURITY: cap pair count and per-image src size to prevent memory DoS. */
+const MAX_PAIRS = 500;
+const MAX_SRC_BYTES = 3 * 1024 * 1024; // 3 MB per image src (base64 ~4/3 of raw)
+
 /* ---------------- settings ---------------- */
 let setData = null, playerCount = 2;
 let folderSets = [];       // array of parsed set objects from folder mode
@@ -405,15 +414,20 @@ timerToggle.addEventListener("click", ()=>{
 scoreToggle.addEventListener("click", ()=> scoreToggle.classList.toggle("on"));
 
 /* ---------------- helpers ---------------- */
+/* SECURITY: sideValid enforces data:image prefix and per-src size cap to prevent DoS. */
+function sideValidImage(s){
+  if (!s || s.kind !== "image") return false;
+  if (typeof s.src !== "string") return false;
+  if (!s.src.startsWith("data:image")) return false;
+  if (s.src.length > MAX_SRC_BYTES) return false;
+  return true;
+}
 function validSet(d){
-  if (!d || d.format!=="pexesooo" || !Array.isArray(d.pairs) || d.pairs.length<2) return false;
-  return d.pairs.every(p => p && p.a && p.b && sideValid(p.a) && sideValid(p.b));
+  if (!d || d.format !== "pexesooo" || !Array.isArray(d.pairs) || d.pairs.length < 2) return false;
+  // SECURITY: cap total pairs to prevent memory DoS
+  if (d.pairs.length > MAX_PAIRS) return false;
+  return d.pairs.every(p => p && p.a && p.b && sideValidImage(p.a) && sideValidImage(p.b));
 }
-function sideValid(s){
-  if (!s || s.kind!=="image") return false;
-  return typeof s.src==="string" && s.src.startsWith("data:image");
-}
-function sideValidImage(s){ return s && s.kind==="image" && typeof s.src==="string" && s.src.startsWith("data:image"); }
 function escHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 
 /* Format ISO timestamp as "yyyy-mm-dd HH:mm" (language-neutral, per spec). */
@@ -443,6 +457,16 @@ function clearSet(){
   setData = null; folderSets = []; isFolderMode = false;
   document.getElementById("previewHost").innerHTML = "";
   gate();
+}
+
+/* SECURITY: safe image element factory — assigns src via DOM property, never innerHTML.
+   This prevents attribute injection (e.g. onerror= handlers) regardless of src content. */
+function makeSafeImg(src, cls, alt){
+  const img = document.createElement("img");
+  if (cls) img.className = cls;
+  if (alt !== undefined) img.alt = alt;
+  img.src = src; // DOM property assignment; browser never parses this as HTML
+  return img;
 }
 
 /* ---------------- file picker (single JSON) ---------------- */
@@ -488,7 +512,6 @@ folderIn.addEventListener("change", async ()=>{
   const jsonFiles = Array.from(files).filter(f => {
     const rel = f.webkitRelativePath || f.name;
     const parts = rel.split("/");
-    // parts = [folderName, filename] for top-level files; deeper = 3+ parts
     return parts.length === 2 && parts[1].toLowerCase().endsWith(".json");
   });
 
@@ -516,6 +539,7 @@ folderIn.addEventListener("change", async ()=>{
 });
 
 /* ---------------- folder set list rendering ---------------- */
+/* SECURITY: builds DOM nodes directly rather than via innerHTML for any user-data-derived content. */
 function renderFolderList(){
   const host = document.getElementById("previewHost");
   host.innerHTML = "";
@@ -527,23 +551,46 @@ function renderFolderList(){
     row.className = "preview rise" + (d === setData ? " selected" : "");
     row.style.animationDelay = (idx * 32) + "ms";
 
-    const backHtml = d.back && d.back.kind === "image"
-      ? `<div class="preview-back"><img src="${d.back.src}" alt=""></div>`
-      : "";
-    const dateStr = fmtCreatedAt(d.createdAt);
+    const main = document.createElement("div");
+    main.className = "preview-main";
 
-    row.innerHTML =
-      `<div class="preview-main">
-         <div class="pname">${escHtml(d.name || "Untitled set")}</div>
-         ${d.description ? `<div class="pdesc">${escHtml(d.description)}</div>` : ""}
-         <div class="pcount">${d.pairCount || d.pairs.length} ${L().pairs}</div>
-         ${dateStr ? `<div class="pdate">${dateStr}</div>` : ""}
-       </div>
-       ${backHtml}`;
+    const nameEl = document.createElement("div");
+    nameEl.className = "pname";
+    nameEl.textContent = d.name || "Untitled set";
+    main.appendChild(nameEl);
+
+    if (d.description){
+      const descEl = document.createElement("div");
+      descEl.className = "pdesc";
+      descEl.textContent = d.description;
+      main.appendChild(descEl);
+    }
+
+    const countEl = document.createElement("div");
+    countEl.className = "pcount";
+    countEl.textContent = (d.pairCount || d.pairs.length) + " " + L().pairs;
+    main.appendChild(countEl);
+
+    const dateStr = fmtCreatedAt(d.createdAt);
+    if (dateStr){
+      const dateEl = document.createElement("div");
+      dateEl.className = "pdate";
+      dateEl.textContent = dateStr;
+      main.appendChild(dateEl);
+    }
+
+    row.appendChild(main);
+
+    // SECURITY: back image uses makeSafeImg (DOM property assignment)
+    if (d.back && d.back.kind === "image"){
+      const backDiv = document.createElement("div");
+      backDiv.className = "preview-back";
+      backDiv.appendChild(makeSafeImg(d.back.src, null, ""));
+      row.appendChild(backDiv);
+    }
 
     row.addEventListener("click", () => {
       setData = d;
-      // Update selected state on all rows
       list.querySelectorAll(".preview").forEach(r => r.classList.remove("selected"));
       row.classList.add("selected");
       gate();
@@ -556,24 +603,74 @@ function renderFolderList(){
 }
 
 /* ---------------- single-set preview (file mode) ---------------- */
+/* SECURITY: builds DOM nodes directly for all user-data-derived content. */
 function renderPreview(d){
-  const backHtml = d.back && d.back.kind === "image"
-    ? `<div class="preview-back"><img src="${d.back.src}" alt=""><div class="cap">${L().back}</div></div>` : "";
-  const samples = d.pairs.slice(0,2).map(p =>
-    `<div class="sample-pair"><img class="mini" src="${p.a.src}" alt=""><img class="mini" src="${p.b.src}" alt=""></div>`
-  ).join("");
+  const wrap = document.createElement("div");
+  wrap.className = "preview rise";
+
+  const main = document.createElement("div");
+  main.className = "preview-main";
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "pname";
+  nameEl.textContent = d.name || "Untitled set";
+  main.appendChild(nameEl);
+
+  if (d.description){
+    const descEl = document.createElement("div");
+    descEl.className = "pdesc";
+    descEl.textContent = d.description;
+    main.appendChild(descEl);
+  }
+
+  const countEl = document.createElement("div");
+  countEl.className = "pcount";
+  countEl.textContent = d.pairs.length + " " + L().pairs;
+  main.appendChild(countEl);
+
   const dateStr = fmtCreatedAt(d.createdAt);
-  document.getElementById("previewHost").innerHTML =
-    `<div class="preview rise">
-       <div class="preview-main">
-         <div class="pname">${escHtml(d.name || "Untitled set")}</div>
-         ${d.description ? `<div class="pdesc">${escHtml(d.description)}</div>` : ""}
-         <div class="pcount">${d.pairs.length} ${L().pairs}</div>
-         ${dateStr ? `<div class="pdate">${dateStr}</div>` : ""}
-         <div class="samples">${samples}</div>
-       </div>
-       ${backHtml}
-     </div>`;
+  if (dateStr){
+    const dateEl = document.createElement("div");
+    dateEl.className = "pdate";
+    dateEl.textContent = dateStr;
+    main.appendChild(dateEl);
+  }
+
+  // Sample pairs — SECURITY: images via makeSafeImg
+  const samplesDiv = document.createElement("div");
+  samplesDiv.className = "samples";
+  d.pairs.slice(0, 2).forEach(p => {
+    const pair = document.createElement("div");
+    pair.className = "sample-pair";
+    pair.appendChild(makeSafeImg(p.a.src, "mini", ""));
+    pair.appendChild(makeSafeImg(p.b.src, "mini", ""));
+    samplesDiv.appendChild(pair);
+  });
+  main.appendChild(samplesDiv);
+  wrap.appendChild(main);
+
+  // Card back — SECURITY: image via makeSafeImg
+  if (d.back && d.back.kind === "image"){
+    const backDiv = document.createElement("div");
+    backDiv.className = "preview-back";
+    const backImg = makeSafeImg(d.back.src, null, "");
+    backImg.style.width = "120px";
+    backImg.style.height = "120px";
+    backImg.style.borderRadius = "var(--radius-sm)";
+    backImg.style.objectFit = "cover";
+    backImg.style.border = "1px solid var(--border)";
+    backImg.style.display = "block";
+    backDiv.appendChild(backImg);
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = L().back;
+    backDiv.appendChild(cap);
+    wrap.appendChild(backDiv);
+  }
+
+  const host = document.getElementById("previewHost");
+  host.innerHTML = "";
+  host.appendChild(wrap);
 }
 
 function gate(){
@@ -581,10 +678,7 @@ function gate(){
   document.getElementById("startBtn").disabled = !(setData && namesOk);
 }
 
-/* ================= GAME ENGINE =================
-   flip up to 2 -> match (win + go again) / no match (stay up until name-tap or timeout -> flip back, advance)
-   Won cards leave fixed gaps. Custom back image (or set-name text fallback).
-*/
+/* ================= GAME ENGINE ================= */
 let state = null;
 document.getElementById("startBtn").addEventListener("click", ()=>{ rotationIndex = 0; startGame(); });
 document.getElementById("againBtn").addEventListener("click", ()=>{
@@ -626,27 +720,50 @@ function startGame(){
   beginTurn();
 }
 
-function backFaceHtml(){
-  if (setData.back && setData.back.kind==="image") return `<img src="${setData.back.src}" alt="">`;
-  return `<div class="backname">${escHtml(setData.name || "Pexesooo")}</div>`;
+/* SECURITY: builds back face via DOM to avoid innerHTML with set-data-derived image src. */
+function makeBackFace(){
+  const face = document.createElement("div");
+  face.className = "card-face face-back";
+  if (setData.back && setData.back.kind === "image"){
+    face.appendChild(makeSafeImg(setData.back.src, null, ""));
+  } else {
+    const nameDiv = document.createElement("div");
+    nameDiv.className = "backname";
+    nameDiv.textContent = setData.name || "Pexesooo";
+    face.appendChild(nameDiv);
+  }
+  return face;
 }
+
+/* SECURITY: renderBoard builds all card DOM via createElement + makeSafeImg.
+   No card image src is ever interpolated into innerHTML. */
 function renderBoard(){
-  const board = document.getElementById("board"); board.innerHTML = "";
-  const back = backFaceHtml();
-  state.cards.forEach(c=>{
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  state.cards.forEach(c => {
     const slot = document.createElement("div");
-    slot.className = "slot rise" + (c.won?" won":"");
-    slot.style.animationDelay = (c.i*18)+"ms";
-    const front = `<img src="${c.side.src}" alt="">`;
-    slot.innerHTML =
-      `<div class="card3d ${c.up?"up":""}" data-i="${c.i}">
-         <div class="card-face face-back">${back}</div>
-         <div class="card-face face-front">${front}</div>
-       </div>`;
+    slot.className = "slot rise" + (c.won ? " won" : "");
+    slot.style.animationDelay = (c.i * 18) + "ms";
+
+    const card3d = document.createElement("div");
+    card3d.className = "card3d" + (c.up ? " up" : "");
+    card3d.dataset.i = c.i;
+
+    // Back face
+    card3d.appendChild(makeBackFace());
+
+    // Front face — SECURITY: image assigned via makeSafeImg
+    const front = document.createElement("div");
+    front.className = "card-face face-front";
+    front.appendChild(makeSafeImg(c.side.src, null, ""));
+    card3d.appendChild(front);
+
+    card3d.addEventListener("click", () => onFlip(+card3d.dataset.i));
+    slot.appendChild(card3d);
     board.appendChild(slot);
   });
-  board.querySelectorAll(".card3d").forEach(el=> el.addEventListener("click", ()=> onFlip(+el.dataset.i)));
 }
+
 function cardEl(i){ return document.querySelector(`.card3d[data-i="${i}"]`); }
 
 function renderPlayers(){
@@ -656,10 +773,24 @@ function renderPlayers(){
     const active = idx===state.cur, endable = active && state.awaitEnd;
     const tok = document.createElement("div");
     tok.className = "ptoken" + (active?" active":"") + (endable?" endable":"");
-    let inner = `<span class="pn">${escHtml(p.name)}</span>`;
-    if (state.liveScore) inner += `<span class="ps">${p.score}</span>`;
-    if (endable) inner += `<span class="end-hint">· ${L().endTurn}</span>`;
-    tok.innerHTML = inner;
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "pn";
+    nameSpan.textContent = p.name;
+    tok.appendChild(nameSpan);
+
+    if (state.liveScore){
+      const scoreSpan = document.createElement("span");
+      scoreSpan.className = "ps";
+      scoreSpan.textContent = p.score;
+      tok.appendChild(scoreSpan);
+    }
+    if (endable){
+      const hint = document.createElement("span");
+      hint.className = "end-hint";
+      hint.textContent = "· " + L().endTurn;
+      tok.appendChild(hint);
+    }
     if (endable) tok.addEventListener("click", endTurn);
     host.appendChild(tok);
   });
@@ -737,25 +868,57 @@ function advance(){ state.cur = (state.cur+1) % state.players.length; beginTurn(
 
 function fmtTime(ms){ const s=Math.round(ms/1000), m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); }
 
+/* SECURITY: finishGame builds all result DOM via createElement + makeSafeImg.
+   Won-pair thumbnails use DOM property assignment, not innerHTML. */
 function finishGame(){
   stopTimer();
   document.getElementById("resTime").textContent = fmtTime(Date.now()-state.startTime);
   const players = state.players;
   const max = Math.max(...players.map(p=>p.score));
   const ranked = [...players].sort((x,y)=>y.score-x.score);
-  const host = document.getElementById("resultLines"); host.innerHTML = "";
-  ranked.forEach((p,idx)=>{
-    const isWin = p.score===max && players.length>1;
-    const wonHtml = p.won.map(w=>`<div class="won-pair"><img class="mini" src="${w.a.src}" alt=""><img class="mini" src="${w.b.src}" alt=""></div>`).join("");
+  const host = document.getElementById("resultLines");
+  host.innerHTML = "";
+  ranked.forEach((p, idx) => {
+    const isWin = p.score === max && players.length > 1;
     const line = document.createElement("div");
-    line.className = "result-line rise"; line.style.animationDelay = (idx*40)+"ms";
-    line.innerHTML =
-      `<div style="flex:1">
-         <div class="rname">${isWin?`<span class="crown">🏆</span>`:""}${escHtml(p.name)}</div>
-         <div class="rmeta">${L().turns}: ${p.turns}</div>
-         ${p.won.length?`<div class="won-cards">${wonHtml}</div>`:""}
-       </div>
-       <div class="rscore">${p.score}</div>`;
+    line.className = "result-line rise";
+    line.style.animationDelay = (idx * 40) + "ms";
+
+    const left = document.createElement("div");
+    left.style.flex = "1";
+
+    const rname = document.createElement("div");
+    rname.className = "rname";
+    if (isWin){ const crown = document.createElement("span"); crown.className = "crown"; crown.textContent = "🏆"; rname.appendChild(crown); }
+    rname.appendChild(document.createTextNode(p.name));
+    left.appendChild(rname);
+
+    const rmeta = document.createElement("div");
+    rmeta.className = "rmeta";
+    rmeta.textContent = L().turns + ": " + p.turns;
+    left.appendChild(rmeta);
+
+    if (p.won.length){
+      const wonCards = document.createElement("div");
+      wonCards.className = "won-cards";
+      p.won.forEach(w => {
+        const pair = document.createElement("div");
+        pair.className = "won-pair";
+        // SECURITY: won-pair thumbnails use makeSafeImg
+        pair.appendChild(makeSafeImg(w.a.src, "mini", ""));
+        pair.appendChild(makeSafeImg(w.b.src, "mini", ""));
+        wonCards.appendChild(pair);
+      });
+      left.appendChild(wonCards);
+    }
+
+    line.appendChild(left);
+
+    const rscore = document.createElement("div");
+    rscore.className = "rscore";
+    rscore.textContent = p.score;
+    line.appendChild(rscore);
+
     host.appendChild(line);
   });
   setCollapsed("gameCard", true); setCollapsed("resultCard", false);
