@@ -12,7 +12,6 @@ A self-contained, browser-based **memory matching game** (known as *pexeso* in C
 |---|---|
 | `Pexesooo.html` | The game. Loads a set file and plays it for 1–6 players. |
 | `PexesoooGenerator.html` | The set builder. Turns two folders of files into one `.json` set. |
-| `DESIGN.md` | Shared visual language (design tokens, typography, components). |
 | `README.md` | This file. |
 
 Both apps are single, dependency-free HTML files. Just open them in a browser.
