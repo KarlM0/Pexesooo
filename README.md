@@ -142,7 +142,3 @@ Everything happens in your browser. Your images never leave your device; the app
 - The set file records the generator version in its `generator` field and the schema version in `version`.
 
 ---
-
-## License
-
-_Choose a license for your repository (e.g. [MIT](https://choosealicense.com/licenses/mit/)) and add a `LICENSE` file. Replace this section accordingly._
