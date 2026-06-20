@@ -12,7 +12,7 @@ A self-contained, browser-based **memory matching game** (known as *pexeso* in C
 |---|---|
 | `Pexesooo.html` | The game. Loads a set file and plays it for 1–6 players. |
 | `PexesoooGenerator.html` | The set builder. Turns two folders of files into one `.json` set. |
-| `CHANGELOG.md` | The changelog file. |
+| `DESIGN.md` | Shared visual language (design tokens, typography, components). |
 | `README.md` | This file. |
 
 Both apps are single, dependency-free HTML files. Just open them in a browser.
@@ -137,3 +137,7 @@ Everything happens in your browser. Your images and text never leave your device
 - The set file records the generator version in its `generator` field and the schema version in `version`.
 
 ---
+
+## License
+
+_Choose a license for your repository (e.g. [MIT](https://choosealicense.com/licenses/mit/)) and add a `LICENSE` file. Replace this section accordingly._
