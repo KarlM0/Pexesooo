@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Change
 - Change the size of the card to 400 x 400.
+- Update instructions on how to use just one folder to generate classic card pairs where both images are the same.
 
 ## [1.5.0] - 2026-06-20
 
