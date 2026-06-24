@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 - Fix the turn counter: it currently counts one turn less.
 
+### Change
+- Change the size of the card to 400 x 400.
+
 ## [1.5.0] - 2026-06-20
 
 ### Security
