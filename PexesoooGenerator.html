@@ -81,6 +81,20 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
 .picker input[type=file] { display:none; }
 .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
+/* DERIVED — segmented resolution selector. Two labelled, mutually-exclusive options,
+   each carrying a title (mono, numeric) and a plain-language hint. Built from Part 1
+   tokens (surface-2 / border / accent / accent-deep, radius-sm, JetBrains Mono for the
+   numeric title, Manrope for the hint). FLAG: candidate for DESIGN.md. */
+.resgroup { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.resopt { border:1.5px solid var(--border); background:var(--surface-2); border-radius:var(--radius-sm);
+  padding:12px 14px; cursor:pointer; transition:0.16s; text-align:left; font-family:inherit; }
+.resopt:hover { border-color:var(--accent); }
+.resopt.active { border-color:var(--accent); background:var(--accent-deep); }
+.resopt .rtitle { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:14px; color:var(--text); letter-spacing:0.02em; }
+.resopt.active .rtitle { color:var(--accent); }
+.resopt .rhint { font-family:'Manrope'; font-weight:600; font-size:11.5px; color:var(--text-dim); margin-top:4px; }
+.resopt.active .rhint { color:var(--text); }
+
 /* DERIVED — review grid (FLAG: candidate for DESIGN.md). */
 .summary { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim); margin-bottom:14px; }
 .summary b.ok { color:var(--ok); } .summary b.warn { color:#e7c690; } .summary b.bad { color:var(--bad); }
@@ -128,7 +142,7 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Generator</h1>
       <div class="subtitle" id="t-subtitle">Build a self-contained memory-game set from two folders.</div>
-      <div class="version">PexesoooGenerator v1.5.0</div>
+      <div class="version">PexesoooGenerator v1.6.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -169,7 +183,7 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
     </div>
 
     <div class="field">
-      <label class="label" id="t-backlabel">Card back (optional)</label>
+      <label class="label" id="t-backlabel">Card back (optional for online, mandatory for printer-friendly)</label>
       <label class="picker" id="pickBack">
         <span class="emoji">🖼️</span>
         <span class="ptitle" id="t-back">Choose a back image</span>
@@ -178,7 +192,23 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
       </label>
     </div>
 
-    <div class="note" id="t-hint">Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.</div>
+    <!-- DERIVED — resolution selector. Applies to card images AND the card back. -->
+    <div class="field">
+      <label class="label" id="t-reslabel">Resolution</label>
+      <div class="resgroup" id="resGroup">
+        <button type="button" class="resopt active" data-res="200">
+          <div class="rtitle">200×200</div>
+          <div class="rhint" id="t-reshint200">Online only</div>
+        </button>
+        <button type="button" class="resopt" data-res="600">
+          <div class="rtitle">600×600</div>
+          <div class="rhint" id="t-reshint600">Printer-friendly</div>
+        </button>
+      </div>
+      <div class="namehint hidden" id="resBackHint"></div>
+    </div>
+
+    <div class="note" id="t-hint">Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images and the card back are center-cropped to 200×200. Nothing leaves your device.</div>
 
     <button class="btn btn-primary" id="submitBtn" style="margin-top:16px" disabled><span id="t-submit">Submit</span></button>
   </div>
@@ -212,10 +242,12 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
 const STR = {
   en: { title:"Pexesooo Generator", subtitle:"Build a self-contained memory-game set from two folders.",
     setup:"Set up", name:"Set name", desc:"Description", folderA:"Folder A", folderB:"Folder B",
-    backLabel:"Card back (optional)", back:"Choose a back image", backMeta:"set name will be used",
+    backLabel:"Card back (optional for online, mandatory for printer-friendly)", back:"Choose a back image", backMeta:"set name will be used",
+    resLabel:"Resolution", resHint200:"Online only", resHint600:"Printer-friendly",
+    backRequired:"Printer-friendly sets require a card back. Add one before generating.",
     submit:"Submit", review:"Review pairs", reviewBack:"Review backside", hName:"Filename", hA:"A", hB:"B", hInc:"Incl.",
     cancel:"Cancel", generate:"Generate JSON", noFolder:"no folder chosen", files:"files", cardBack:"card back",
-    hint:"Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images are center-cropped to 200×200; the optional card back to 400×400. Nothing leaves your device.",
+    hint:"Files are matched into pairs by filename (case-insensitive, extension ignored). Accepted: PNG, JPG, JPEG. Card images and the card back are center-cropped to {res}×{res}. Nothing leaves your device.",
     complete:"complete", incomplete:"incomplete", errors:"errors",
     errDecode:"cannot read image", errType:"unsupported type",
     noneSelected:"No complete pairs are selected to generate.",
@@ -223,10 +255,12 @@ const STR = {
     repo:"View on GitHub" },
   cs: { title:"Pexesooo Generátor", subtitle:"Vytvořte samostatnou sadu pexesa ze dvou složek.",
     setup:"Nastavení", name:"Název sady", desc:"Popis", folderA:"Složka A", folderB:"Složka B",
-    backLabel:"Rub karet (volitelné)", back:"Vyberte obrázek rubu", backMeta:"použije se název sady",
+    backLabel:"Rub karet (volitelné pro online, povinné pro tisk)", back:"Vyberte obrázek rubu", backMeta:"použije se název sady",
+    resLabel:"Rozlišení", resHint200:"Jen online", resHint600:"Vhodné pro tisk",
+    backRequired:"Sady vhodné pro tisk vyžadují rub karet. Před vytvořením jej přidejte.",
     submit:"Odeslat", review:"Kontrola dvojic", reviewBack:"Kontrola rubu", hName:"Soubor", hA:"A", hB:"B", hInc:"Zahr.",
     cancel:"Zrušit", generate:"Vytvořit JSON", noFolder:"žádná složka", files:"souborů", cardBack:"rub karet",
-    hint:"Soubory se párují podle názvu (bez ohledu na velikost písmen a příponu). Povoleno: PNG, JPG, JPEG. Obrázky karet se ořezávají na 200×200, volitelný rub na 400×400. Nic neopouští vaše zařízení.",
+    hint:"Soubory se párují podle názvu (bez ohledu na velikost písmen a příponu). Povoleno: PNG, JPG, JPEG. Obrázky karet i rub se ořezávají na {res}×{res}. Nic neopouští vaše zařízení.",
     complete:"úplných", incomplete:"neúplných", errors:"chyb",
     errDecode:"nelze načíst obrázek", errType:"nepodporovaný typ",
     noneSelected:"Nejsou vybrány žádné úplné dvojice k vygenerování.",
@@ -236,13 +270,19 @@ const STR = {
 let lang = "cs";
 const L = () => STR[lang];
 function setTxt(id,key){ const e=document.getElementById(id); if(e) e.textContent=L()[key]; }
+function updateHint(){
+  const el = document.getElementById("t-hint");
+  if (el) el.textContent = L().hint.replace(/\{res\}/g, resMode);
+}
 function applyLang(){
   setTxt("t-title","title"); setTxt("t-subtitle","subtitle"); setTxt("t-setup","setup");
   setTxt("t-name","name"); setTxt("t-desc","desc"); setTxt("t-folderA","folderA"); setTxt("t-folderB","folderB");
   setTxt("t-backlabel","backLabel"); setTxt("t-back","back");
+  setTxt("t-reslabel","resLabel"); setTxt("t-reshint200","resHint200"); setTxt("t-reshint600","resHint600");
   setTxt("t-submit","submit"); setTxt("t-review","review"); setTxt("t-reviewback","reviewBack");
   setTxt("t-h-name","hName"); setTxt("t-h-a","hA"); setTxt("t-h-b","hB"); setTxt("t-h-inc","hInc");
-  setTxt("t-cancel","cancel"); setTxt("t-generate","generate"); setTxt("t-hint","hint");
+  setTxt("t-cancel","cancel"); setTxt("t-generate","generate");
+  updateHint(); updateBackReq();
   setTxt("t-repo","repo");
   document.title = L().title;
   if (!folderA.size && !folderB.size) {
@@ -258,6 +298,30 @@ document.getElementById("lang").addEventListener("click", e=>{
   lang = b.dataset.lang;
   document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x===b));
   applyLang();
+});
+
+/* ---------- resolution selector ---------- */
+/* resMode is the pixel size applied to BOTH card images and the card back.
+   Quality is raised for the print profile (800px). Default is 200 (online). */
+let resMode = 200;
+const qualityFor = size => size >= 600 ? 0.90 : 0.82;
+// Printer-friendly (600) requires a card back. Surface the requirement inline.
+function updateBackReq(){
+  const hint = document.getElementById("resBackHint");
+  if (!hint) return;
+  if (resMode >= 600 && !backFile){
+    hint.textContent = L().backRequired;
+    hint.classList.remove("hidden");
+  } else {
+    hint.classList.add("hidden");
+  }
+}
+document.getElementById("resGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".resopt"); if(!b) return;
+  resMode = +b.dataset.res;
+  document.querySelectorAll("#resGroup .resopt").forEach(x=>x.classList.toggle("active", x===b));
+  updateHint();
+  updateBackReq();
 });
 
 /* ---------- name field: forbid illegal filename chars (strip on type) ---------- */
@@ -326,6 +390,7 @@ document.getElementById("inBack").addEventListener("change", e=>{
     document.getElementById("metaBack").textContent = L().backMeta;
     picker.classList.remove("loaded");
   }
+  updateBackReq();
 });
 
 function gate(){
@@ -334,13 +399,13 @@ function gate(){
 }
 
 /* ---------- image processing ---------- */
-function cropTo(bitmap, size){
+function cropTo(bitmap, size, quality){
   const c = document.createElement("canvas"); c.width=size; c.height=size;
   const ctx = c.getContext("2d");
   const sw = bitmap.naturalWidth || bitmap.width, sh = bitmap.naturalHeight || bitmap.height;
   const side = Math.min(sw, sh), sx=(sw-side)/2, sy=(sh-side)/2;
   ctx.drawImage(bitmap, sx, sy, side, side, 0, 0, size, size);
-  return c.toDataURL("image/jpeg", 0.82);
+  return c.toDataURL("image/jpeg", quality);
 }
 function loadViaImg(file){
   return new Promise((res, rej)=>{
@@ -350,19 +415,19 @@ function loadViaImg(file){
     img.src = u;
   });
 }
-async function processImage(file, size){
+async function processImage(file, size, quality){
   try {
     let bmp;
     try { bmp = await createImageBitmap(file, { imageOrientation:"from-image" }); }
     catch(e){ bmp = await loadViaImg(file); }
-    const src = cropTo(bmp, size);
+    const src = cropTo(bmp, size, quality);
     if (bmp.close) bmp.close();
     return { ok:true, kind:"image", src };
   } catch(e){ return { ok:false, reason:"errDecode" }; }
 }
-async function processCardFile(file){
+async function processCardFile(file, size){
   const ext = extOf(file.name);
-  if (ALLOWED_IMG.includes(ext)) return processImage(file, 200);
+  if (ALLOWED_IMG.includes(ext)) return processImage(file, size, qualityFor(size));
   return { ok:false, reason:"errType" };
 }
 
@@ -370,8 +435,11 @@ async function processCardFile(file){
 document.getElementById("submitBtn").addEventListener("click", async ()=>{
   const btn = document.getElementById("submitBtn"); btn.disabled = true;
 
+  // Capture the resolution chosen at submit time; used for cards AND back.
+  const size = resMode;
+
   if (backFile){
-    const res = await processImage(backFile, 400);
+    const res = await processImage(backFile, size, qualityFor(size));
     backReview = { result: res, include: res.ok };
     renderBackReview();
     document.getElementById("backReviewCard").classList.remove("hidden");
@@ -384,9 +452,11 @@ document.getElementById("submitBtn").addEventListener("click", async ()=>{
   const rows = [];
   for (const stem of [...stems].sort()){
     const fa = folderA.get(stem), fb = folderB.get(stem);
-    rows.push({ stem, a: fa?await processCardFile(fa):null, b: fb?await processCardFile(fb):null });
+    rows.push({ stem, a: fa?await processCardFile(fa, size):null, b: fb?await processCardFile(fb, size):null });
   }
+  // Record which resolution these results were produced at, so Generate stamps it correctly.
   currentRows = rows;
+  currentRows.res = size;
   render(rows);
   document.getElementById("reviewCard").classList.remove("hidden");
   (backFile ? document.getElementById("backReviewCard") : document.getElementById("reviewCard"))
@@ -584,15 +654,22 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
   const chosen = rows.filter(r => rowState(r)==="complete" && r.include);
   if (chosen.length===0){ alert(L().noneSelected); return; }
 
+  // Resolution these images were produced at (set during Submit). Fallback to current selector.
+  const size = (currentRows && currentRows.res) || resMode;
+
+  // Printer-friendly sets must ship a valid, included card back.
+  const haveBack = !!(backReview && backReview.result.ok && backReview.include);
+  if (size >= 600 && !haveBack){ alert(L().backRequired); return; }
+
   const sideOut = sd => ({ kind:"image", src:sd.src });
   const pairs = chosen.map(r => ({ id:r.stem, a:sideOut(r.a), b:sideOut(r.b) }));
 
   const data = {
     _source: "https://github.com/KarlM0/Pexesooo/",
-    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.5.0",
+    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.6.0",
     createdAt:new Date().toISOString(),
     name: nameEl.value.trim(), description: descEl.value.trim(),
-    thumb:{ size:200, fit:"cover", type:"image/jpeg" },
+    thumb:{ size:size, fit:"cover", type:"image/jpeg" },
     pairCount: pairs.length, pairs
   };
   if (backReview && backReview.result.ok && backReview.include){
@@ -600,7 +677,7 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
   }
 
   const clean = nameEl.value.trim().replace(ILLEGAL,"").replace(/^[.\s]+|[.\s]+$/g,"");
-  const fname = "Pexesooo__" + (clean.replace(/\s+/g,"_") || "set") + ".json";
+  const fname = "Pexesooo__" + (clean.replace(/\s+/g,"_") || "set") + "__" + size + "px" + ".json";
 
   const blob = new Blob([JSON.stringify(data)], { type:"application/json" });
   const url = URL.createObjectURL(blob);
