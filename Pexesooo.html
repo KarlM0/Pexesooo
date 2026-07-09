@@ -201,7 +201,7 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
     <div>
       <h1 id="t-title">Pexesooo</h1>
       <div class="subtitle" id="t-subtitle">A memory game for 1–6 players.</div>
-      <div class="version">Pexesooo v1.5.0</div>
+      <div class="version">Pexesooo v1.6.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -444,6 +444,17 @@ function fmtCreatedAt(iso){
   } catch(e){ return ""; }
 }
 
+/* Build the single-line set meta: "<n> pairs, <yyyy-mm-dd HH:mm>, <size> px".
+   Timestamp and thumb.size are appended only when present, so older sets that
+   lack either field degrade gracefully (comma-separated, no empty segments). */
+function fmtSetMeta(d){
+  const parts = [ (d.pairCount || d.pairs.length) + " " + L().pairs ];
+  const dateStr = fmtCreatedAt(d.createdAt);
+  if (dateStr) parts.push(dateStr);
+  if (d.thumb && d.thumb.size) parts.push(d.thumb.size + " px");
+  return parts.join(", ");
+}
+
 /* Reset both pickers to unloaded visual state. */
 function resetPickers(){
   document.getElementById("pickerFile").classList.remove("loaded");
@@ -566,18 +577,11 @@ function renderFolderList(){
       main.appendChild(descEl);
     }
 
-    const countEl = document.createElement("div");
-    countEl.className = "pcount";
-    countEl.textContent = (d.pairCount || d.pairs.length) + " " + L().pairs;
-    main.appendChild(countEl);
-
-    const dateStr = fmtCreatedAt(d.createdAt);
-    if (dateStr){
-      const dateEl = document.createElement("div");
-      dateEl.className = "pdate";
-      dateEl.textContent = dateStr;
-      main.appendChild(dateEl);
-    }
+    // Single-line meta: pairs, timestamp, resolution (thumb.size)
+    const metaEl = document.createElement("div");
+    metaEl.className = "pcount";
+    metaEl.textContent = fmtSetMeta(d);
+    main.appendChild(metaEl);
 
     row.appendChild(main);
 
@@ -623,18 +627,11 @@ function renderPreview(d){
     main.appendChild(descEl);
   }
 
-  const countEl = document.createElement("div");
-  countEl.className = "pcount";
-  countEl.textContent = d.pairs.length + " " + L().pairs;
-  main.appendChild(countEl);
-
-  const dateStr = fmtCreatedAt(d.createdAt);
-  if (dateStr){
-    const dateEl = document.createElement("div");
-    dateEl.className = "pdate";
-    dateEl.textContent = dateStr;
-    main.appendChild(dateEl);
-  }
+  // Single-line meta: pairs, timestamp, resolution (thumb.size)
+  const metaEl = document.createElement("div");
+  metaEl.className = "pcount";
+  metaEl.textContent = fmtSetMeta(d);
+  main.appendChild(metaEl);
 
   // Sample pairs — SECURITY: images via makeSafeImg
   const samplesDiv = document.createElement("div");
@@ -845,7 +842,7 @@ function resolveMatch(a,b){
   state.pairsLeft -= 1;
   setTimeout(()=>{
     [a,b].forEach(i=>{ state.cards[i].won=true; cardEl(i).closest(".slot").classList.add("won"); });
-    if (state.pairsLeft===0){ finishGame(); return; }
+    if (state.pairsLeft===0){ state.players[state.cur].turns += 1; finishGame(); return; }
     state.flipped=[]; state.lock=false; state.awaitEnd=false;
     document.getElementById("board").classList.remove("locked");
     if (state.liveScore) renderPlayers();
