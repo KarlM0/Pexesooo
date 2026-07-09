@@ -4,7 +4,7 @@
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English) plus a companion **set generator**. Build your own card sets from two folders of images, get a single portable JSON file, and play — no server, no build step, no install.
 
-> **Status:** v1.5.0 · two static HTML files · runs offline from `file://`
+> **Status:** v1.6.0 · two static HTML files · runs offline from `file://`
 
 ---
 
@@ -24,7 +24,9 @@ Both apps are single, dependency-free HTML files. Just open them in a browser.
 ## Features
 
 - **Make your own sets** from your own images — flags, animals, vocabulary, family photos, anything.
+- **1:1 (identical) pairs:** point both folder pickers at the **same folder** to make a classic pexeso where both cards of a pair show the *same* picture.
 - **Image-only card pairs:** PNG, JPG, and JPEG files are supported.
+- **Two output resolutions:** build **online** sets (200×200, smaller files) or **printer-friendly** sets (600×600, higher-quality images for printing). The choice applies to the card images and the card back.
 - **Self-contained sets:** images are embedded in the JSON, so a set is one file you can share, e-mail, or commit to a repo.
 - **1–6 players** with custom names and a clear turn indicator.
 - **Fair starting order:** each *Play again* rotates which player starts; *Start game* resets the rotation.
@@ -42,21 +44,28 @@ Both apps are single, dependency-free HTML files. Just open them in a browser.
 ### 1. Build a set (`PexesoooGenerator.html`)
 
 1. Prepare **two folders** of image files. A pair is formed when a file in folder A and a file in folder B share the **same name** (case-insensitive, extension ignored). For example `france.png` in A pairs with `france.jpg` in B.
+
+   **Tip — identical pairs:** to make a classic pexeso where both sides of a pair are the *same* picture, choose the **same folder** for both Folder A and Folder B. Each file then pairs with itself (1:1).
 2. Open `PexesoooGenerator.html`.
 3. Enter a **set name** and **description** (up to 256 characters).
 4. Choose **Folder A** and **Folder B** (a folder picker dialog opens — you select the folder, not individual files).
-5. *(Optional)* choose a **card back** image.
-6. Click **Submit**. Review the detected pairs — incomplete or unreadable pairs are flagged and excluded; untick any you don't want.
-7. Click **Generate JSON**. You get a file named `Pexesooo__<Set_Name>.json`.
+5. *(Optional for online sets, required for printer-friendly sets)* choose a **card back** image.
+6. Choose a **resolution**:
+   - **200×200 — online only** — smaller files, ideal for on-screen play.
+   - **600×600 — printer-friendly** — larger, higher-quality images for printing; a **card back is required**.
+
+   The resolution applies to both the card images and the card back.
+7. Click **Submit**. Review the detected pairs — incomplete or unreadable pairs are flagged and excluded; untick any you don't want.
+8. Click **Generate JSON**. You get a file named `Pexesooo__<Set_Name>__200px.json` or `Pexesooo__<Set_Name>__600px.json` (the suffix records the resolution).
 
 **Accepted files:** `PNG`, `JPG`, `JPEG`.
-**Processing:** card images are center-cropped to 200×200; the optional card back to 400×400.
+**Processing:** card images and the card back are center-cropped to the chosen resolution — **200×200** (online) or **600×600** (printer-friendly). JPEG quality is higher for printer-friendly sets.
 
 ### 2. Play (`Pexesooo.html`)
 
 1. Open `Pexesooo.html`.
 2. Under **Settings**, load a set using one of two methods:
-   - **File** — choose a single `.json` set file directly. A preview shows the name, description, pair count, creation date, sample pairs, and card back.
+   - **File** — choose a single `.json` set file directly. A preview shows the name, description, a single line of **pair count, creation date, and resolution**, sample pairs, and card back.
    - **Folder** — choose a folder; the game scans it (top level only, no recursion) for valid `.json` set files and lists all it finds. Click a row to select a set.
 3. Pick the number of players, enter names, and set the timer / scoring options.
 4. Click **Start game**.
@@ -82,7 +91,7 @@ A set is a single JSON file. Images are stored inline as base64 data URIs, so th
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.5.0",
+  "generator": "PexesoooGenerator/1.6.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -103,7 +112,8 @@ Notes:
 
 - Each pair produces **two cards**; a match is two cards with the same pair `id`.
 - Both card sides are `{ "kind": "image", "src": "data:image/…" }`.
-- `back` is **optional**. If absent (or unreadable), the game renders the **set name** as the card back.
+- `thumb.size` records the resolution the images were produced at — **200** (online) or **600** (printer-friendly).
+- `back` is **optional** in the format. If absent (or unreadable), the game renders the **set name** as the card back. (Note: the generator *requires* a back when producing a printer-friendly set.)
 - `_source` identifies the project URL and is informational only; the game ignores it.
 - `format` must be `"pexesooo"`. Sets produced by earlier versions of the generator (which used `"pexeso"`) are not compatible.
 
@@ -114,7 +124,7 @@ Notes:
 Both apps follow a shared dark-theme design language defined in `DESIGN.md` (CSS custom properties, three typefaces — Fraunces / Manrope / JetBrains Mono — and a small component library). A few elements are deliberate, documented extensions of that system:
 
 - **Card flip** — a restrained 0.3s eased `rotateY`, a stated exception to the base "single entrance animation" motion rule.
-- **File / folder picker pair, set list, player turn-strip, repo link, and the loading indicator** — derived from the base tokens where the component library has no existing pattern.
+- **File / folder picker pair, set list, resolution selector, player turn-strip, repo link, and the loading indicator** — derived from the base tokens where the component library has no existing pattern.
 
 These are flagged in the source as candidates for inclusion in `DESIGN.md`.
 
@@ -152,5 +162,5 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`Pexesooo v1.5.0`, `PexesoooGenerator v1.5.0`).
+- App version is shown in each app's header (`Pexesooo v1.6.0`, `PexesoooGenerator v1.6.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.
