@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Add credits field to the generator.
+- Display credits field in the set selection as alt text.
+- Create the printer app.
+- Update the instructions to make it clear that you can normally play with the printer-friendly set.
+- Add the file/folder picker specs to DESIGN.md.
+- Add hashes to the README files.
 
 ## [1.6.0] - 2026-07-09
 
