@@ -7,11 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fix
-- Fix the turn counter: it currently counts one turn less.
+## [1.6.0] - 2026-07-09
 
-### Change
-- Update instructions on how to use just one folder to generate classic card pairs where both images are the same.
+### Added
+- Generator: **resolution selector** — choose **200×200 (online only)** or **600×600 (printer-friendly)** for the produced images. The choice applies to both the card images and the card back. Default is **200×200**.
+- Generator: printer-friendly (600×600) sets **require a card back** — the app will not generate a printer-friendly set unless one is provided; online (200×200) sets keep the card back optional.
+- Docs: **README** now explains that pointing **both Folder A and Folder B at the same folder** produces a set of **1:1 (identical-image) pairs** — classic pexeso where both cards of a pair show the same picture.
+
+### Changed
+- Generator: JPEG quality is raised to **0.90** for printer-friendly (600×600) images; online (200×200) images stay at **0.82**.
+- Generator: generated filenames now carry a resolution suffix — **`Pexesooo__<Set_Name>__200px.json`** or **`Pexesooo__<Set_Name>__600px.json`**.
+- Generator: the set schema's **`thumb.size`** now records the actual resolution (**200** or **600**) instead of a fixed `200`; schema `version` stays `1` (backward compatible).
+- Generator: the card-back field label now reads **"Card back (optional for online, mandatory for printer-friendly)"**.
+- Game: the set preview shows **pair count, creation date, and resolution (`thumb.size`) on a single comma-separated line** (e.g. `26 pairs, 2026-06-15 20:34, 600 px`) in both file and folder modes. Older sets missing a timestamp or `thumb.size` simply omit those segments.
+- Both apps display **v1.6.0**; the generator identifier in produced sets is now `PexesoooGenerator/1.6.0`.
+
+### Fixed
+- Game: **turn-counter off-by-one** — the turn that clears the board (the winning match) was never counted, leaving the solo player and the multiplayer winner one turn short. That final turn is now counted.
 
 ## [1.5.0] - 2026-06-20
 
@@ -96,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/KarlM0/Pexesooo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/KarlM0/Pexesooo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/KarlM0/Pexesooo/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/KarlM0/Pexesooo/compare/v1.2.0...v1.3.0
