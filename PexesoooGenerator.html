@@ -58,6 +58,10 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 input[type=text] { width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
   font-family:'Manrope'; font-size:14px; padding:9px 11px; border-radius:var(--radius-sm); transition:0.16s; }
 input[type=text]:focus { outline:none; border-color:var(--accent); }
+textarea { width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+  font-family:'Manrope'; font-size:14px; line-height:1.4; padding:9px 11px; border-radius:var(--radius-sm);
+  transition:0.16s; resize:vertical; display:block; }
+textarea:focus { outline:none; border-color:var(--accent); }
 .namehint { font-family:'Manrope'; font-size:11.5px; color:#e7c690; margin-top:6px; }
 
 /* Buttons (Part 2) */
@@ -142,7 +146,7 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Generator</h1>
       <div class="subtitle" id="t-subtitle">Build a self-contained memory-game set from two folders.</div>
-      <div class="version">PexesoooGenerator v1.6.0</div>
+      <div class="version">PexesoooGenerator v1.7.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -164,7 +168,7 @@ input[type=text]:focus { outline:none; border-color:var(--accent); }
     </div>
     <div class="field">
       <label class="label" for="setDesc"><span id="t-desc">Description</span><span class="count"><span id="descLen">0</span>/256</span></label>
-      <input type="text" id="setDesc" maxlength="256" placeholder="Match each flag to its country name">
+      <textarea id="setDesc" maxlength="256" rows="2" placeholder="Match each flag to its country name"></textarea>
     </div>
 
     <div class="two-col" style="margin-bottom:16px">
@@ -258,7 +262,7 @@ const STR = {
     backLabel:"Rub karet (volitelné pro online, povinné pro tisk)", back:"Vyberte obrázek rubu", backMeta:"použije se název sady",
     resLabel:"Rozlišení", resHint200:"Jen online", resHint600:"Vhodné pro tisk",
     backRequired:"Sady vhodné pro tisk vyžadují rub karet. Před vytvořením jej přidejte.",
-    submit:"Odeslat", review:"Kontrola dvojic", reviewBack:"Kontrola rubu", hName:"Soubor", hA:"A", hB:"B", hInc:"Zahr.",
+    submit:"Připravit", review:"Kontrola dvojic", reviewBack:"Kontrola rubu", hName:"Soubor", hA:"A", hB:"B", hInc:"Zahr.",
     cancel:"Zrušit", generate:"Vytvořit JSON", noFolder:"žádná složka", files:"souborů", cardBack:"rub karet",
     hint:"Soubory se párují podle názvu (bez ohledu na velikost písmen a příponu). Povoleno: PNG, JPG, JPEG. Obrázky karet i rub se ořezávají na {res}×{res}. Nic neopouští vaše zařízení.",
     complete:"úplných", incomplete:"neúplných", errors:"chyb",
@@ -371,7 +375,12 @@ function wireFolder(inputId, pickerId, metaId, which){
   input.addEventListener("change", ()=>{
     const map = ingest(input.files);
     if (which==="A") folderA=map; else folderB=map;
-    document.getElementById(metaId).textContent = map.size + " " + L().files;
+    // Display the selected folder name (not the full path) with the image count in brackets,
+    // similar to how the chosen back image shows its filename.
+    const first = input.files[0];
+    const rel = first ? (first.webkitRelativePath || first.name) : "";
+    const folderName = rel.includes("/") ? rel.split("/")[0] : rel;
+    document.getElementById(metaId).textContent = (folderName || L().noFolder) + " (" + map.size + ")";
     picker.classList.toggle("loaded", map.size>0);
     gate();
   });
@@ -666,7 +675,7 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
 
   const data = {
     _source: "https://github.com/KarlM0/Pexesooo/",
-    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.6.0",
+    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.7.0",
     createdAt:new Date().toISOString(),
     name: nameEl.value.trim(), description: descEl.value.trim(),
     thumb:{ size:size, fit:"cover", type:"image/jpeg" },

@@ -8,10 +8,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Add credits field to the generator.
 - Display credits field in the set selection as alt text.
-- Create the printer app.
 - Update the instructions to make it clear that you can normally play with the printer-friendly set.
 - Add the file/folder picker specs to DESIGN.md.
 - Add hashes to the README files.
+
+## [1.7.0] - 2026-07-17
+
+### Added
+- **`PexesoooPrinter.html`** — a third app in the suite: a print tool that loads a Pexesooo set (using the **same file/folder loader and preview as the game**) and generates a print-ready **PDF** entirely in the browser. The PDF is produced by a **self-contained inline writer** — no external library — with card JPEGs embedded losslessly via `/DCTDecode`. Fully client-side and offline-capable; Czech / English UI.
+  - **Four print scenarios:**
+    - **Card images only** — every card face is printed; card backs are ignored.
+    - **Card faces + backs** — a **fold-over strip** per card (the face plus the shared back rotated 180°, with a fold line between them), folded and glued into a double-sided card.
+    - **Duplex — long edge** — two-sided printing; the backs page is mirrored **horizontally** so each back registers behind its face after a long-edge flip (backs printed upright).
+    - **Duplex — short edge** — two-sided printing; the backs page is mirrored **vertically** with the back rotated 180° for a short-edge flip.
+  - **Card-size presets:** **40 / 45 / 50 / 60 mm** (square); default **50 mm**.
+  - **Page size:** **A4** or **US Letter**.
+  - **Duplex back-offset calibration** — a manual **X / Y** nudge (mm) for the duplex back page, applied on top of built-in per-edge baseline constants (`DUPLEX_BASELINE_CONSTANT_LONG = { x: 6, y: 0 }`, `DUPLEX_BASELINE_CONSTANT_SHORT = { x: 0, y: 0 }`) that correct a specific printer's front/back registration.
+  - **Warnings / gating:** a resolution advisory when card or back images are below 600 × 600 px; a **missing card back hard-blocks** the scenarios that print a back.
+  - **Output:** corner cut marks, an estimate line (cards, and pages or double-sided sheets), and a stamped filename: `Pexesooo__<Name>__<thumb.size>px__<scenario>__<cardSize>mm[__x<X>_y<Y>mm]__<PageSize>.pdf`.
+  - Folder-loaded sets are shown as **full previews** (matching a single loaded file), each selectable.
+- **Game: pair preview.** A new **Preview / Náhled** button (to the left of *Start game*, enabled as soon as a set is selected) displays every pair of the selected set in the Game area — each pair's two cards side by side on a uniting surface (an enlarged version of the end-of-game won-pair display), with the pair's file name below.
+
+### Changed
+- Generator: the **Description** field is now a **two-line textarea**.
+- Generator: the folder pickers now show the **selected folder name with the image count in brackets** (e.g. `worldflags (24)`) instead of a plain file count.
+- Generator: the **Czech** label for *Submit* changed from **"Odeslat"** to **"Připravit"** (English unchanged).
+- All three apps now display **v1.7.0**; the generator identifier stamped into produced sets is now `PexesoooGenerator/1.7.0`. The set schema is unchanged (`version` stays `1`) — sets remain backward compatible.
 
 ## [1.6.0] - 2026-07-09
 
@@ -114,7 +136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/KarlM0/Pexesooo/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/KarlM0/Pexesooo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/KarlM0/Pexesooo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/KarlM0/Pexesooo/compare/v1.3.0...v1.4.0

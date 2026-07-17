@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<!-- Source: https://github.com/KarlM0/Pexesooo/ -->
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SECURITY: CSP restricts script sources to inline only (required for self-contained file),
+     images to data: and blob: URIs only, fonts to Google Fonts, no other network.
+     The generated PDF is delivered as a blob: download via an <a download> anchor —
+     that is a download, not a fetch/connect, so connect-src 'none' does not block it
+     (identical mechanism to the generator's JSON download). -->
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src 'none';">
+<title>Pexesooo Printer</title>
+
+<!-- DESIGN.md Part 1 — fonts from Google Fonts (per doc). Offline: system fallback accepted. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===== DESIGN.md Part 1 — Universal foundations (verbatim) ===== */
+:root {
+  --bg:#141518; --surface:#1c1d22; --surface-2:#24252c; --border:#2e2f38;
+  --border-soft:#26272f; --text:#e9e9ec; --text-dim:#9a9aa6; --text-faint:#62636e;
+  --accent:#7cdcc4; --accent-deep:#152823; --ok:#6fd089; --bad:#e8736f;
+  --track:#34353f; --radius:14px; --radius-sm:9px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text);
+  font-family:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+
+/* Page layout / header (Part 2) */
+.wrap { max-width:760px; margin:0 auto; padding:34px 20px 80px; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom:30px; }
+h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spacing:-0.01em; line-height:1.1; }
+.subtitle { font-size:13.5px; color:var(--text-dim); margin-top:4px; }
+.version { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; color:var(--text-faint); margin-top:6px; }
+/* DERIVED — repo link; sits below version string, same typographic level. FLAG: candidate for DESIGN.md. */
+.repo-link { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; margin-top:4px; }
+.repo-link a { color:var(--text-faint); text-decoration:none; transition:color 0.16s; }
+.repo-link a:hover { color:var(--accent); }
+.header-right { flex-shrink:0; }
+
+/* Pill button group (Part 2) */
+.pillgroup { display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px; }
+.pillgroup button { background:transparent; color:var(--text-dim); font-family:'Manrope'; font-weight:600;
+  font-size:12px; letter-spacing:0.03em; padding:5px 11px; border-radius:999px; border:none; cursor:pointer; transition:0.18s; }
+.pillgroup button.active { background:var(--accent); color:#0e1714; }
+
+/* Cards + collapsible (Part 2) */
+.card { background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:22px; margin-bottom:18px; }
+.chead { display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:20px; }
+.card.collapsed .chead { margin-bottom:0; }
+.card.collapsed .cbody { display:none; }
+.card.disabled { opacity:0.55; }
+.card.disabled .chead { cursor:default; }
+.section-title { font-family:'Manrope'; font-weight:700; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); }
+.chev { color:var(--text-dim); transition:transform 0.2s ease; }
+.card.collapsed .chev { transform:rotate(-90deg); }
+
+/* Field labels + form controls (Part 2) */
+.field { margin-bottom:16px; }
+.label { display:block; font-family:'Manrope'; font-weight:600; font-size:12.5px; color:var(--text-dim); margin-bottom:7px; }
+
+/* Buttons (Part 2) */
+.btn { width:100%; border-radius:var(--radius-sm); font-family:'Manrope'; font-weight:700; font-size:14.5px;
+  padding:14px; letter-spacing:0.01em; transition:0.16s; border:none; cursor:pointer; }
+.btn-primary { background:var(--accent); color:#0e1714; }
+.btn-primary:hover { filter:brightness(1.08); }
+.btn:disabled { opacity:0.35; cursor:not-allowed; filter:none; }
+
+/* DERIVED — file/folder picker pair (reused verbatim from the game; FLAG: candidate for DESIGN.md). */
+.picker-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.picker { display:block; border:1.5px dashed var(--border); background:var(--surface-2); border-radius:var(--radius-sm);
+  padding:18px; text-align:center; cursor:pointer; transition:0.16s; }
+.picker:hover, .picker.drag { border-color:var(--accent); }
+.picker.loaded { border-style:solid; border-color:var(--accent); }
+.picker .emoji { font-size:22px; display:block; margin-bottom:6px; }
+.picker .ptitle { font-weight:600; font-size:13.5px; }
+.picker .pmeta { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin-top:5px; }
+.picker input[type=file] { display:none; }
+
+/* Set preview / set list (reused verbatim from the game). */
+.preview { display:flex; gap:16px; align-items:flex-start; background:var(--surface-2); border:1px solid var(--border-soft);
+  border-radius:var(--radius-sm); padding:14px; margin-top:14px; }
+.preview-main { flex:1; min-width:0; }
+.preview .pname { font-family:'Fraunces',serif; font-weight:600; font-size:18px; }
+.preview .pdesc { font-size:13px; color:var(--text-dim); margin-top:3px; }
+.preview .pcount { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin-top:6px; }
+.samples { display:flex; gap:14px; margin-top:12px; flex-wrap:wrap; }
+.sample-pair { display:flex; gap:6px; align-items:center; background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:6px; }
+.mini { width:42px; height:42px; border-radius:6px; object-fit:cover; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:9px; text-align:center; padding:3px; color:var(--text-dim); overflow:hidden; line-height:1.1; }
+.preview-back { flex-shrink:0; text-align:center; }
+.preview-back img { width:120px; height:120px; border-radius:var(--radius-sm); object-fit:cover; border:1px solid var(--border); display:block; }
+.preview-back .cap { font-family:'Manrope'; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); margin-top:6px; }
+
+/* DERIVED — folder set list: a stack of selectable full previews (same layout as a single file). */
+.set-list { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+.set-list .preview { margin-top:0; cursor:pointer; border:1.5px solid var(--border); transition:border-color 0.16s, background 0.16s; }
+.set-list .preview:hover { border-color:var(--accent); }
+.set-list .preview.selected { border-color:var(--accent); background:var(--accent-deep); }
+
+.error-banner { background:rgba(232,115,111,0.08); border:1px solid var(--bad); color:var(--bad); border-radius:var(--radius-sm); padding:11px 13px; font-size:13px; margin-top:14px; }
+/* DERIVED — loading state indicator, derived from section-title typography (reused from the game; FLAG: candidate). */
+.loading-msg { font-family:'Manrope'; font-weight:700; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--text-faint); margin-top:14px; text-align:center; padding:18px 0; }
+
+/* DERIVED — advisory / info / block notices. The amber advisory uses the warm-amber triplet defined
+   in DESIGN.md (bg #2a2118, border #5a4427, text #e7c690) as situational hex, not tokens. The info
+   and block variants are built from Part 1 tokens. FLAG: candidate for DESIGN.md. */
+.notice { border-radius:var(--radius-sm); padding:11px 13px; font-size:13px; margin-bottom:12px; display:flex; gap:9px; align-items:flex-start; }
+.notice .ico { flex-shrink:0; font-size:14px; line-height:1.35; }
+.notice.warn { background:#2a2118; border:1px solid #5a4427; color:#e7c690; }
+.notice.info { background:var(--surface-2); border:1px solid var(--border-soft); color:var(--text-dim); }
+.notice.bad  { background:rgba(232,115,111,0.08); border:1px solid var(--bad); color:var(--bad); }
+
+/* DERIVED — segmented option selector (reused from the generator's resolution selector; FLAG: candidate). */
+.optgroup { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.opt { border:1.5px solid var(--border); background:var(--surface-2); border-radius:var(--radius-sm);
+  padding:12px 14px; cursor:pointer; transition:0.16s; text-align:left; font-family:inherit; }
+.opt:hover { border-color:var(--accent); }
+.opt.active { border-color:var(--accent); background:var(--accent-deep); }
+.opt .otitle { font-family:'Manrope'; font-weight:700; font-size:13.5px; color:var(--text); }
+.opt.active .otitle { color:var(--accent); }
+.opt .ohint { font-family:'Manrope'; font-weight:600; font-size:11.5px; color:var(--text-dim); margin-top:4px; line-height:1.35; }
+.opt.active .ohint { color:var(--text); }
+/* page-size and card-size options keep the mono numeric title */
+#pageGroup .otitle, #cardGroup .otitle { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:14px; letter-spacing:0.02em; }
+/* four-across variant (card-size selector) */
+.optgroup.four { grid-template-columns:repeat(4,1fr); }
+
+.estimate { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim); margin:4px 0 16px; }
+.note { font-size:12px; color:var(--text-faint); margin-top:10px; line-height:1.5; }
+
+/* Form control (Part 2) — number inputs for the duplex back-offset calibration. */
+input[type=number] { background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+  font-family:'JetBrains Mono',monospace; font-size:14px; padding:9px 11px; border-radius:var(--radius-sm); transition:0.16s; width:84px; }
+input[type=number]:focus { outline:none; border-color:var(--accent); }
+/* DERIVED — labelled offset inputs (X / Y pair). FLAG: candidate for DESIGN.md. */
+.offset-row { display:flex; gap:16px; margin-top:2px; }
+.offset-item { display:flex; align-items:center; gap:8px; }
+.offset-cap { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-dim); }
+
+@keyframes rise { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+.rise { animation:rise 0.35s ease backwards; }
+.hidden { display:none !important; }
+
+@media (max-width:560px) {
+  h1 { font-size:25px; }
+  .picker-row { grid-template-columns:1fr; }
+  .optgroup { grid-template-columns:1fr; }
+  .optgroup.four { grid-template-columns:1fr 1fr; }
+  .preview { flex-direction:column; }
+  .preview-back img { width:96px; height:96px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div>
+      <h1 id="t-title">Pexesooo Printer</h1>
+      <div class="subtitle" id="t-subtitle">Print a set's cards to a PDF for cutting out.</div>
+      <div class="version">PexesoooPrinter v1.7.0</div>
+      <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
+    </div>
+    <div class="header-right">
+      <div class="pillgroup" id="lang">
+        <button data-lang="en">EN</button>
+        <button data-lang="cs" class="active">CS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SET SELECTION (loader UI reused from the game) -->
+  <div class="card" id="settingsCard">
+    <div class="chead" data-toggle="settingsCard">
+      <div class="section-title" id="t-settings">Card set</div>
+      <svg class="chev" viewBox="0 0 16 16" width="15" height="15"><path d="M4 6 L8 10 L12 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="cbody">
+      <div class="field">
+        <div class="picker-row">
+          <label class="picker" id="pickerFile">
+            <span class="emoji">🗂️</span>
+            <span class="ptitle" id="t-pick">Choose a set file (.json)</span>
+            <span class="pmeta" id="pmetaFile">—</span>
+            <input type="file" id="fileIn" accept="application/json,.json">
+          </label>
+          <label class="picker" id="pickerFolder">
+            <span class="emoji">📁</span>
+            <span class="ptitle" id="t-pickfolder">Choose a folder</span>
+            <span class="pmeta" id="pmetaFolder">—</span>
+            <input type="file" id="folderIn" webkitdirectory directory multiple>
+          </label>
+        </div>
+        <div id="previewHost"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT OPTIONS -->
+  <div class="card collapsed disabled" id="printCard">
+    <div class="chead" data-toggle="printCard">
+      <div class="section-title" id="t-print">Print options</div>
+      <svg class="chev" viewBox="0 0 16 16" width="15" height="15"><path d="M4 6 L8 10 L12 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="cbody">
+      <div id="warnHost"></div>
+
+      <div class="field">
+        <label class="label" id="t-scenario">What to print</label>
+        <!-- DERIVED — option selector (see .optgroup). Four scenarios, 2×2. -->
+        <div class="optgroup" id="scenarioGroup">
+          <button type="button" class="opt active" data-scenario="images">
+            <div class="otitle" id="t-scn1-title">Card images only</div>
+            <div class="ohint" id="t-scn1-hint">Every card face is printed; card backs are ignored.</div>
+          </button>
+          <button type="button" class="opt" data-scenario="faceback">
+            <div class="otitle" id="t-scn2-title">Card faces + backs</div>
+            <div class="ohint" id="t-scn2-hint">Fold-over strip per card: face plus the shared back.</div>
+          </button>
+          <button type="button" class="opt" data-scenario="duplexLong">
+            <div class="otitle" id="t-scn3-title">Duplex — long edge</div>
+            <div class="ohint" id="t-scn3-hint">Two-sided · long-edge binding</div>
+          </button>
+          <button type="button" class="opt" data-scenario="duplexShort">
+            <div class="otitle" id="t-scn4-title">Duplex — short edge</div>
+            <div class="ohint" id="t-scn4-hint">Two-sided · short-edge binding</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" id="t-cardsize">Card size</label>
+        <!-- DERIVED — card-size selector (segmented, four square presets). -->
+        <div class="optgroup four" id="cardGroup">
+          <button type="button" class="opt" data-mm="40"><div class="otitle">40 mm</div></button>
+          <button type="button" class="opt" data-mm="45"><div class="otitle">45 mm</div></button>
+          <button type="button" class="opt active" data-mm="50"><div class="otitle">50 mm</div></button>
+          <button type="button" class="opt" data-mm="60"><div class="otitle">60 mm</div></button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" id="t-pagesize">Page size</label>
+        <div class="optgroup" id="pageGroup">
+          <button type="button" class="opt active" data-page="a4">
+            <div class="otitle">A4</div>
+            <div class="ohint">210 × 297 mm</div>
+          </button>
+          <button type="button" class="opt" data-page="letter">
+            <div class="otitle" id="t-letter">US Letter</div>
+            <div class="ohint">216 × 279 mm</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Duplex back-offset calibration (shown only for the two duplex scenarios). -->
+      <div class="field hidden" id="offsetField">
+        <label class="label" id="t-offset">Back offset (mm)</label>
+        <div class="offset-row">
+          <label class="offset-item"><span class="offset-cap">X</span><input type="number" id="offX" value="0" step="0.5" min="-20" max="20"></label>
+          <label class="offset-item"><span class="offset-cap">Y</span><input type="number" id="offY" value="0" step="0.5" min="-20" max="20"></label>
+        </div>
+        <div class="note" id="t-offsethint">+X moves the back right, +Y up (faces side). Nudge until backs sit behind faces.</div>
+      </div>
+
+      <div class="estimate" id="estimate"></div>
+
+      <button class="btn btn-primary" id="genBtn" disabled><span id="t-generate">Generate PDF</span></button>
+      <div class="note" id="t-cardnote">Cards are printed at 50 × 50 mm with corner cut marks. Nothing leaves your device.</div>
+      <div id="genStatus"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =====================================================================
+   i18n — CS default, EN toggle. All user-visible strings live here.
+   Technical strings (A4, 210 × 297 mm, version) are not translated.
+   ===================================================================== */
+const STR = {
+  en: { title:"Pexesooo Printer", subtitle:"Print a set's cards to a PDF for cutting out.",
+    settings:"Card set", pick:"Choose a set file (.json)", pickFolder:"Choose a folder",
+    noFile:"—", noFolder:"—", back:"Card back", pairs:"pairs",
+    badFile:"That file isn't a valid Pexesooo set.",
+    badFolder:"No valid Pexesooo sets found in that folder.",
+    loadingFolder:"Reading folder…",
+    print:"Print options", scenario:"What to print", cardSize:"Card size",
+    scn1Title:"Card images only", scn1Hint:"Every card face is printed; card backs are ignored.",
+    scn2Title:"Card faces + backs", scn2Hint:"Fold-over strip per card: face plus the shared back.",
+    scn3Title:"Duplex — long edge", scn3Hint:"Two-sided · long-edge binding",
+    scn4Title:"Duplex — short edge", scn4Hint:"Two-sided · short-edge binding",
+    pageSize:"Page size", letter:"US Letter",
+    offset:"Back offset (mm)", offsetHint:"+X moves the back right, +Y up (faces side). Nudge until backs sit behind faces.",
+    generate:"Generate PDF", generating:"Building PDF…",
+    cardNote:"Cards print at {s} × {s} mm with corner cut marks. Nothing leaves your device.",
+    cardNoteFold:"Each card prints as a {s} × {d} mm fold-over strip (face + shared back), folded to {s} × {s} mm. Nothing leaves your device.",
+    cardNoteDuplex:"Faces and backs on alternating pages at {s} × {s} mm with cut marks; print double-sided. Nothing leaves your device.",
+    foldSteps:"Print, cut out each strip, fold along the dashed line, then glue the halves back-to-back.",
+    duplexStepsLong:"Print double-sided · long-edge binding · test one page first.",
+    duplexStepsShort:"Print double-sided · short-edge binding · test one page first.",
+    lowRes:"Some card images are below 600 × 600 px and may look soft when printed.",
+    noBack:"This set has no card back. That's fine here — this option prints card faces only.",
+    backRequired:"This option prints a back on every card, but this set has none. Pick a set with a back, or choose “Card images only.”",
+    estimate:"{cards} cards ({p} pairs × 2) · {pages} {size} page(s)",
+    estimateDuplex:"{cards} cards ({p} pairs × 2) · {sheets} {size} sheets, double-sided",
+    genError:"Could not build the PDF from this set.",
+    repo:"View on GitHub" },
+  cs: { title:"Pexesooo Tiskárna", subtitle:"Vytiskněte karty sady do PDF k vystřižení.",
+    settings:"Sada karet", pick:"Vyberte soubor sady (.json)", pickFolder:"Vyberte složku",
+    noFile:"—", noFolder:"—", back:"Rub karet", pairs:"dvojic",
+    badFile:"Tento soubor není platná sada Pexesooo.",
+    badFolder:"Ve vybrané složce nejsou žádné platné sady Pexesooo.",
+    loadingFolder:"Čtení složky…",
+    print:"Možnosti tisku", scenario:"Co tisknout", cardSize:"Velikost karty",
+    scn1Title:"Jen obrázky karet", scn1Hint:"Vytiskne se každá karta; ruby se ignorují.",
+    scn2Title:"Líce + ruby karet", scn2Hint:"Přeložka na kartu: líc a společný rub.",
+    scn3Title:"Duplex — delší hrana", scn3Hint:"Oboustranně · vazba na delší hraně",
+    scn4Title:"Duplex — kratší hrana", scn4Hint:"Oboustranně · vazba na kratší hraně",
+    pageSize:"Velikost stránky", letter:"US Letter",
+    offset:"Posun rubu (mm)", offsetHint:"+X posune rub doprava, +Y nahoru (strana líců). Posouvejte, dokud ruby nesednou za líce.",
+    generate:"Vytvořit PDF", generating:"Vytváření PDF…",
+    cardNote:"Karty se tisknou v rozměru {s} × {s} mm s rohovými značkami pro střih. Nic neopouští vaše zařízení.",
+    cardNoteFold:"Každá karta se tiskne jako přeložka {s} × {d} mm (líc + společný rub), přeložená na {s} × {s} mm. Nic neopouští vaše zařízení.",
+    cardNoteDuplex:"Líce a ruby na střídavých stránkách v rozměru {s} × {s} mm se značkami střihu; tiskněte oboustranně. Nic neopouští vaše zařízení.",
+    foldSteps:"Vytiskněte, vystřihněte proužky, přeložte podél čárkované čáry a slepte poloviny k sobě.",
+    duplexStepsLong:"Tiskněte oboustranně · vazba na delší hraně · nejdřív vyzkoušejte jednu stránku.",
+    duplexStepsShort:"Tiskněte oboustranně · vazba na kratší hraně · nejdřív vyzkoušejte jednu stránku.",
+    lowRes:"Některé obrázky karet mají méně než 600 × 600 px a na výtisku mohou být rozmazané.",
+    noBack:"Tato sada nemá rub karet. Zde to nevadí — tato možnost tiskne jen líce karet.",
+    backRequired:"Tato možnost tiskne rub na každou kartu, ale tato sada žádný nemá. Vyberte sadu s rubem, nebo zvolte „Jen obrázky karet“.",
+    estimate:"{cards} karet ({p} dvojic × 2) · {pages} stránek {size}",
+    estimateDuplex:"{cards} karet ({p} dvojic × 2) · {sheets} listů {size}, oboustranně",
+    genError:"PDF se z této sady nepodařilo vytvořit.",
+    repo:"Zobrazit na GitHubu" }
+};
+let lang = "cs";
+const L = () => STR[lang];
+function txt(id,key){ const e=document.getElementById(id); if(e) e.textContent=L()[key]; }
+function applyLang(){
+  txt("t-title","title"); txt("t-subtitle","subtitle"); txt("t-settings","settings");
+  txt("t-pick","pick"); txt("t-pickfolder","pickFolder");
+  txt("t-print","print"); txt("t-scenario","scenario"); txt("t-cardsize","cardSize");
+  txt("t-scn1-title","scn1Title"); txt("t-scn1-hint","scn1Hint");
+  txt("t-scn2-title","scn2Title"); txt("t-scn2-hint","scn2Hint");
+  txt("t-scn3-title","scn3Title"); txt("t-scn3-hint","scn3Hint");
+  txt("t-scn4-title","scn4Title"); txt("t-scn4-hint","scn4Hint");
+  txt("t-pagesize","pageSize"); txt("t-letter","letter");
+  txt("t-offset","offset"); txt("t-offsethint","offsetHint");
+  txt("t-generate","generate"); txt("t-repo","repo");
+  document.title = L().title;
+  if (!setData && document.getElementById("pmetaFile").textContent === STR[lang==="en"?"cs":"en"].noFile)
+    document.getElementById("pmetaFile").textContent = L().noFile;
+  if (document.getElementById("pmetaFolder").textContent === STR[lang==="en"?"cs":"en"].noFolder)
+    document.getElementById("pmetaFolder").textContent = L().noFolder;
+  if (folderSets.length) renderFolderList();
+  else if (setData && !isFolderMode) renderPreview(setData);
+  if (setData) refreshOptions();
+}
+document.getElementById("lang").addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  lang=b.dataset.lang;
+  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x===b));
+  applyLang();
+});
+
+/* ---------------- collapsible ---------------- */
+document.querySelectorAll(".chead").forEach(h=>{
+  h.addEventListener("click", ()=>{
+    const card = document.getElementById(h.dataset.toggle);
+    if (card.classList.contains("disabled")) return;
+    card.classList.toggle("collapsed");
+  });
+});
+
+/* ---------------- security: validation limits (parity with the game) ---------------- */
+/* SECURITY: cap pair count and per-image src size to prevent memory DoS. */
+const MAX_PAIRS = 500;
+const MAX_SRC_BYTES = 3 * 1024 * 1024;
+
+let setData = null;
+let folderSets = [];
+let isFolderMode = false;
+
+/* ---------------- helpers (reused from the game) ---------------- */
+function sideValidImage(s){
+  if (!s || s.kind !== "image") return false;
+  if (typeof s.src !== "string") return false;
+  if (!s.src.startsWith("data:image")) return false;
+  if (s.src.length > MAX_SRC_BYTES) return false;
+  return true;
+}
+function validSet(d){
+  if (!d || d.format !== "pexesooo" || !Array.isArray(d.pairs) || d.pairs.length < 2) return false;
+  if (d.pairs.length > MAX_PAIRS) return false;
+  return d.pairs.every(p => p && p.a && p.b && sideValidImage(p.a) && sideValidImage(p.b));
+}
+function fmtCreatedAt(iso){
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const yyyy=d.getUTCFullYear(), mm=String(d.getUTCMonth()+1).padStart(2,"0"),
+      dd=String(d.getUTCDate()).padStart(2,"0"), HH=String(d.getUTCHours()).padStart(2,"0"),
+      MM=String(d.getUTCMinutes()).padStart(2,"0");
+    return `${yyyy}-${mm}-${dd} ${HH}:${MM}`;
+  } catch(e){ return ""; }
+}
+function fmtSetMeta(d){
+  const parts = [ (d.pairCount || d.pairs.length) + " " + L().pairs ];
+  const dateStr = fmtCreatedAt(d.createdAt);
+  if (dateStr) parts.push(dateStr);
+  if (d.thumb && d.thumb.size) parts.push(d.thumb.size + " px");
+  return parts.join(", ");
+}
+function resetPickers(){
+  document.getElementById("pickerFile").classList.remove("loaded");
+  document.getElementById("pickerFolder").classList.remove("loaded");
+  document.getElementById("pmetaFile").textContent = L().noFile;
+  document.getElementById("pmetaFolder").textContent = L().noFolder;
+}
+function clearSet(){
+  setData = null; folderSets = []; isFolderMode = false;
+  document.getElementById("previewHost").innerHTML = "";
+  hidePrint();
+}
+/* SECURITY: safe image element factory — assigns src via DOM property, never innerHTML. */
+function makeSafeImg(src, cls, alt){
+  const img = document.createElement("img");
+  if (cls) img.className = cls;
+  if (alt !== undefined) img.alt = alt;
+  img.src = src;
+  return img;
+}
+
+/* ---------------- file picker (single JSON) — reused from the game ---------------- */
+const fileIn = document.getElementById("fileIn");
+fileIn.addEventListener("change", async ()=>{
+  const f = fileIn.files[0]; if(!f) return;
+  clearSet(); resetPickers(); isFolderMode = false;
+  document.getElementById("previewHost").innerHTML = "";
+  try {
+    const data = JSON.parse(await f.text());
+    if (!validSet(data)) throw new Error("invalid");
+    if (data.back && !sideValidImage(data.back)) delete data.back;
+    setData = data;
+    document.getElementById("pmetaFile").textContent = f.name;
+    document.getElementById("pickerFile").classList.add("loaded");
+    renderPreview(setData);
+    onSetSelected();
+  } catch(e){
+    document.getElementById("previewHost").innerHTML = `<div class="error-banner">${L().badFile}</div>`;
+    hidePrint();
+  }
+});
+
+/* ---------------- folder picker — reused from the game ---------------- */
+const folderIn = document.getElementById("folderIn");
+folderIn.addEventListener("change", async ()=>{
+  const files = folderIn.files; if(!files || !files.length) return;
+  clearSet(); resetPickers(); isFolderMode = true;
+
+  const firstPath = files[0].webkitRelativePath || files[0].name;
+  const folderName = firstPath.includes("/") ? firstPath.split("/")[0] : "folder";
+  document.getElementById("pmetaFolder").textContent = folderName;
+  document.getElementById("pickerFolder").classList.add("loaded");
+  document.getElementById("previewHost").innerHTML = `<div class="loading-msg">${L().loadingFolder}</div>`;
+
+  const jsonFiles = Array.from(files).filter(f => {
+    const rel = f.webkitRelativePath || f.name;
+    const parts = rel.split("/");
+    return parts.length === 2 && parts[1].toLowerCase().endsWith(".json");
+  });
+
+  const valid = [];
+  for (const f of jsonFiles){
+    try {
+      const data = JSON.parse(await f.text());
+      if (!validSet(data)) continue;
+      if (data.back && !sideValidImage(data.back)) delete data.back;
+      valid.push(data);
+    } catch(e){ /* silently skip */ }
+  }
+
+  if (valid.length === 0){
+    document.getElementById("previewHost").innerHTML = `<div class="error-banner">${L().badFolder}</div>`;
+    hidePrint(); return;
+  }
+
+  valid.sort((a,b) => (a.name||"").localeCompare(b.name||""));
+  folderSets = valid;
+  renderFolderList();
+});
+
+/* ---------------- folder set list — reused from the game ---------------- */
+/* Build the full set-preview element (name, description, meta, sample pairs, enlarged card
+   back + caption) — the single-file preview layout. Shared so folder-loaded sets display the
+   same way as a single file loaded from JSON. */
+function buildPreviewEl(d){
+  const wrap = document.createElement("div");
+  wrap.className = "preview rise";
+  const main = document.createElement("div");
+  main.className = "preview-main";
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "pname"; nameEl.textContent = d.name || "Untitled set";
+  main.appendChild(nameEl);
+  if (d.description){
+    const descEl = document.createElement("div");
+    descEl.className = "pdesc"; descEl.textContent = d.description;
+    main.appendChild(descEl);
+  }
+  const metaEl = document.createElement("div");
+  metaEl.className = "pcount"; metaEl.textContent = fmtSetMeta(d);
+  main.appendChild(metaEl);
+
+  const samplesDiv = document.createElement("div");
+  samplesDiv.className = "samples";
+  d.pairs.slice(0, 2).forEach(p => {
+    const pair = document.createElement("div");
+    pair.className = "sample-pair";
+    pair.appendChild(makeSafeImg(p.a.src, "mini", ""));
+    pair.appendChild(makeSafeImg(p.b.src, "mini", ""));
+    samplesDiv.appendChild(pair);
+  });
+  main.appendChild(samplesDiv);
+  wrap.appendChild(main);
+
+  if (d.back && d.back.kind === "image"){
+    const backDiv = document.createElement("div");
+    backDiv.className = "preview-back";
+    const backImg = makeSafeImg(d.back.src, null, "");
+    backImg.style.cssText = "width:120px;height:120px;border-radius:var(--radius-sm);object-fit:cover;border:1px solid var(--border);display:block;";
+    backDiv.appendChild(backImg);
+    const cap = document.createElement("div");
+    cap.className = "cap"; cap.textContent = L().back;
+    backDiv.appendChild(cap);
+    wrap.appendChild(backDiv);
+  }
+  return wrap;
+}
+
+/* Folder mode: one full preview per set, in a selectable list (click to pick, selected highlight). */
+function renderFolderList(){
+  const host = document.getElementById("previewHost");
+  host.innerHTML = "";
+  const list = document.createElement("div");
+  list.className = "set-list";
+
+  folderSets.forEach((d, idx) => {
+    const el = buildPreviewEl(d);
+    el.style.animationDelay = (idx * 32) + "ms";
+    if (d === setData) el.classList.add("selected");
+    el.addEventListener("click", () => {
+      setData = d;
+      list.querySelectorAll(".preview").forEach(r => r.classList.remove("selected"));
+      el.classList.add("selected");
+      onSetSelected();
+    });
+    list.appendChild(el);
+  });
+  host.appendChild(list);
+}
+
+/* Single-file mode: one full preview. */
+function renderPreview(d){
+  const host = document.getElementById("previewHost");
+  host.innerHTML = "";
+  host.appendChild(buildPreviewEl(d));
+}
+
+/* =====================================================================
+   PRINT OPTIONS
+   ===================================================================== */
+let pageMode = "a4";
+let scenarioMode = "images";   // "images" | "faceback" | "duplexLong" | "duplexShort"
+let cardMode = 50;             // card edge in mm; one of CARD_SIZES
+let offsetX = 0, offsetY = 0;  // duplex back-page calibration, mm (faces-side frame: +X right, +Y up)
+
+const PAGE = { a4:{ w:595.28, h:841.89, label:"A4" }, letter:{ w:612, h:792, label:"US Letter" } };
+const CARD_SIZES = [40, 45, 50, 60];   // square presets, mm
+
+/* Built-in duplex registration baseline (faces-side mm: +x right, +y up). This is a fixed
+   per-setup correction applied on top of the user's manual Back-offset control, so that a
+   manual offset of 0/0 already yields correct registration for the calibrated printer.
+   NOTE: because of this, a manual "0" is NOT a neutral zero on long edge — it includes +6 mm. */
+const DUPLEX_BASELINE_CONSTANT_LONG  = { x: 6, y: 0 };
+const DUPLEX_BASELINE_CONSTANT_SHORT = { x: 0, y: 0 };  // inert for now; here for symmetry
+
+const MM = 72/25.4;
+let CARD = cardMode*MM;        // final card edge, in PDF points (tracks cardMode)
+
+function showPrint(){
+  const card = document.getElementById("printCard");
+  card.classList.remove("disabled");
+  card.classList.remove("collapsed");
+  card.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+function hidePrint(){
+  const card = document.getElementById("printCard");
+  card.classList.add("disabled");
+  card.classList.add("collapsed");
+  document.getElementById("genBtn").disabled = true;
+  document.getElementById("warnHost").innerHTML = "";
+  document.getElementById("estimate").textContent = "";
+  document.getElementById("genStatus").innerHTML = "";
+}
+function onSetSelected(){
+  if (!setData){ hidePrint(); return; }
+  showPrint();
+  refreshOptions();
+}
+
+function hasBack(){ return !!(setData.back && setData.back.kind === "image"); }
+
+/* Low-res signal. Prefer thumb.size (resolution of record, per README) when present — O(1).
+   Otherwise measure decoded pixel size from image headers. The generator produces faces and
+   the back at the same resolution, so thumb.size covers both. */
+function facesLowRes(){
+  if (setData.thumb && setData.thumb.size) return setData.thumb.size < 600;
+  for (const p of setData.pairs){
+    for (const s of [p.a, p.b]){
+      const d = imageDims(s.src);
+      if (Math.min(d.w, d.h) > 0 && Math.min(d.w, d.h) < 600) return true;
+    }
+  }
+  return false;
+}
+function backLowRes(){
+  if (!hasBack()) return false;
+  if (setData.thumb && setData.thumb.size) return setData.thumb.size < 600;
+  const d = imageDims(setData.back.src);
+  return Math.min(d.w, d.h) > 0 && Math.min(d.w, d.h) < 600;
+}
+
+function makeNotice(kind, icon, msg){
+  const n = document.createElement("div");
+  n.className = "notice " + kind;
+  const i = document.createElement("span"); i.className = "ico"; i.textContent = icon;
+  const t = document.createElement("span"); t.textContent = msg;
+  n.appendChild(i); n.appendChild(t);
+  return n;
+}
+
+/* Scenario-aware warnings + gating, re-run on set select, scenario change, and language change. */
+function refreshOptions(){
+  if (!setData){ hidePrint(); return; }
+  const host = document.getElementById("warnHost");
+  host.innerHTML = "";
+  document.getElementById("genStatus").innerHTML = "";
+
+  const noBack = !hasBack();
+  const isDuplex = (scenarioMode === "duplexLong" || scenarioMode === "duplexShort");
+  const needsBack = (scenarioMode === "faceback" || isDuplex);
+  const blocked = needsBack && noBack;
+
+  if (blocked){
+    // Missing back is a hard block for any scenario that prints a back (a physical back is the point).
+    host.appendChild(makeNotice("bad", "⛔", L().backRequired));
+  } else {
+    const low = needsBack ? (facesLowRes() || backLowRes()) : facesLowRes();
+    if (low) host.appendChild(makeNotice("warn", "⚠", L().lowRes));
+    if (scenarioMode === "images" && noBack) host.appendChild(makeNotice("info", "ℹ", L().noBack));
+    if (scenarioMode === "faceback") host.appendChild(makeNotice("info", "✂", L().foldSteps));
+    if (scenarioMode === "duplexLong")  host.appendChild(makeNotice("info", "🖨", L().duplexStepsLong));
+    if (scenarioMode === "duplexShort") host.appendChild(makeNotice("info", "🖨", L().duplexStepsShort));
+  }
+
+  // Card note reflects the chosen card size ({s} = edge, {d} = 2× edge for the fold-over strip).
+  const noteKey = scenarioMode === "faceback" ? "cardNoteFold" : isDuplex ? "cardNoteDuplex" : "cardNote";
+  document.getElementById("t-cardnote").textContent =
+    L()[noteKey].replace(/\{s\}/g, cardMode).replace(/\{d\}/g, cardMode*2);
+
+  // Back-offset calibration is a duplex-only control.
+  document.getElementById("offsetField").classList.toggle("hidden", !isDuplex);
+
+  updateEstimate();
+  document.getElementById("genBtn").disabled = !setData || blocked;
+}
+
+/* Grid layout for a page and a (possibly non-square) cell. margin/gutter are fixed for v1. */
+function computeLayout(pw, ph, cellW, cellH){
+  const margin=10*MM, gutter=4*MM;
+  const cols=Math.max(1,Math.floor((pw-2*margin+gutter)/(cellW+gutter)));
+  const rows=Math.max(1,Math.floor((ph-2*margin+gutter)/(cellH+gutter)));
+  const gridW=cols*cellW+(cols-1)*gutter, gridH=rows*cellH+(rows-1)*gutter;
+  return { margin, gutter, cols, rows, perPage:cols*rows,
+    startX:(pw-gridW)/2, topY:(ph+gridH)/2 };
+}
+function cellSize(){ return scenarioMode === "faceback" ? { w:CARD, h:2*CARD } : { w:CARD, h:CARD }; }
+function updateEstimate(){
+  if (!setData) return;
+  const pg = PAGE[pageMode], cs = cellSize();
+  const layout = computeLayout(pg.w, pg.h, cs.w, cs.h);
+  const cards = setData.pairs.length * 2;
+  const units = Math.max(1, Math.ceil(cards / layout.perPage)); // face pages, = physical sheets
+  if (scenarioMode === "duplexLong" || scenarioMode === "duplexShort"){
+    document.getElementById("estimate").textContent = L().estimateDuplex
+      .replace("{cards}", cards).replace("{p}", setData.pairs.length)
+      .replace("{sheets}", units).replace("{size}", pg.label);
+  } else {
+    document.getElementById("estimate").textContent = L().estimate
+      .replace("{cards}", cards).replace("{p}", setData.pairs.length)
+      .replace("{pages}", units).replace("{size}", pg.label);
+  }
+}
+
+/* option-group wiring */
+document.getElementById("cardGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".opt"); if(!b) return;
+  cardMode = +b.dataset.mm; CARD = cardMode*MM;
+  document.querySelectorAll("#cardGroup .opt").forEach(x=>x.classList.toggle("active", x===b));
+  refreshOptions();   // updates estimate + card-size-dependent note text
+});
+document.getElementById("scenarioGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".opt"); if(!b) return;
+  scenarioMode = b.dataset.scenario;
+  document.querySelectorAll("#scenarioGroup .opt").forEach(x=>x.classList.toggle("active", x===b));
+  refreshOptions();
+});
+document.getElementById("pageGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".opt"); if(!b) return;
+  pageMode = b.dataset.page;
+  document.querySelectorAll("#pageGroup .opt").forEach(x=>x.classList.toggle("active", x===b));
+  updateEstimate();
+});
+function readOffset(id){ let v = parseFloat(document.getElementById(id).value); if (isNaN(v)) v = 0; return Math.max(-20, Math.min(20, v)); }
+document.getElementById("offX").addEventListener("input", ()=>{ offsetX = readOffset("offX"); });
+document.getElementById("offY").addEventListener("input", ()=>{ offsetY = readOffset("offY"); });
+
+/* =====================================================================
+   IMAGE DECODING — header-based; serves both the low-res warning and
+   the PDF embed (Width/Height + component count).
+   ===================================================================== */
+function b64ToBytes(b64){
+  const bin = atob(b64), n = bin.length, bytes = new Uint8Array(n);
+  for (let i=0;i<n;i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+function jpegInfo(bytes){
+  let i = 2, len = bytes.length;
+  while (i < len){
+    if (bytes[i] !== 0xFF){ i++; continue; }
+    let marker = bytes[i+1];
+    while (marker === 0xFF && i+1 < len){ i++; marker = bytes[i+1]; }
+    i += 2;
+    if (marker === 0xD8 || marker === 0xD9 || (marker >= 0xD0 && marker <= 0xD7) || marker === 0x01) continue;
+    if (i+1 >= len) break;
+    const segLen = (bytes[i]<<8) | bytes[i+1];
+    if (marker >= 0xC0 && marker <= 0xCF && marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC){
+      const h = (bytes[i+3]<<8) | bytes[i+4];
+      const w = (bytes[i+5]<<8) | bytes[i+6];
+      const comps = bytes[i+7];
+      return { w, h, comps };
+    }
+    i += segLen;
+  }
+  return null;
+}
+function pngInfo(bytes){
+  const w = (bytes[16]<<24)|(bytes[17]<<16)|(bytes[18]<<8)|bytes[19];
+  const h = (bytes[20]<<24)|(bytes[21]<<16)|(bytes[22]<<8)|bytes[23];
+  return { w, h, comps:0 };
+}
+function decodeSrc(src){
+  const comma = src.indexOf(",");
+  const mime = src.slice(5, comma).split(";")[0];
+  const bytes = b64ToBytes(src.slice(comma+1));
+  let info = null;
+  if (bytes[0]===0xFF && bytes[1]===0xD8) info = jpegInfo(bytes);
+  else if (bytes[0]===0x89 && bytes[1]===0x50) info = pngInfo(bytes);
+  return { mime, bytes, w: info?info.w:0, h: info?info.h:0, comps: info?info.comps:0 };
+}
+function imageDims(src){ const d = decodeSrc(src); return { w:d.w, h:d.h }; }
+
+/* Re-encode any non-JPEG (or unusual-component) image to baseline JPEG so /DCTDecode embedding
+   is always valid. Our own sets are always JPEG, so this path is a safety net for hand-made sets. */
+function reencodeToJpeg(src){
+  return new Promise((res, rej)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext("2d").drawImage(img, 0, 0);
+      res(decodeSrc(c.toDataURL("image/jpeg", 0.92)));
+    };
+    img.onerror = ()=> rej(new Error("decode"));
+    img.src = src;
+  });
+}
+async function embeddableImage(src){
+  const d = decodeSrc(src);
+  if (d.mime === "image/jpeg" && (d.comps === 1 || d.comps === 3) && d.w && d.h) return d;
+  return reencodeToJpeg(src);
+}
+
+/* =====================================================================
+   PDF WRITER — self-contained, embeds JPEGs via /DCTDecode.
+   Scenario-agnostic: renders a generic per-card draw model, so image-only
+   cards, fold-over strips, and future layouts share one code path.
+
+   Bytes (not a string) are assembled so binary JPEG streams stay intact;
+   xref offsets are computed in bytes. Validated separately for correctness.
+
+   Printed output is paper, not app chrome, so DESIGN.md tokens do not govern
+   the cut marks / fold lines (thin neutral gray by design).
+
+   Model: { images:[{w,h,comps,bytes}],
+            pages:[ [ { cellIndex, mirrorX, mirrorY, items:[{imgIndex,dx,dy,w,h,rot}], foldY|null } ] ],
+            cellW, cellH, page:{w,h,label}, cropMarks:bool }
+   Each entry in pages is one PDF page (a list of placements). cellIndex is the
+   row-major grid cell; mirrorX/mirrorY flip the cell about the page centre — used for
+   the reverse side of a duplex sheet (long-edge -> mirrorX, short-edge -> mirrorY), so
+   backs register behind faces after the physical flip. Item positions (dx,dy) and foldY
+   are relative to the cell's bottom-left. rot is 0 or 180 (180° = a fold-over strip's
+   shared back, or a short-edge duplex back). Page order is caller-controlled, so duplex
+   simply interleaves front/back pages. */
+function f(n){ return (Math.round(n*100)/100).toString(); }
+
+function drawImageOp(imgIndex, x, y, w, h, rot){
+  // rot 180: place the unit image flipped on both axes -> matrix [-w 0 0 -h (x+w) (y+h)]
+  if (rot === 180)
+    return "q "+f(-w)+" 0 0 "+f(-h)+" "+f(x+w)+" "+f(y+h)+" cm /Im"+imgIndex+" Do Q\n";
+  return "q "+f(w)+" 0 0 "+f(h)+" "+f(x)+" "+f(y)+" cm /Im"+imgIndex+" Do Q\n";
+}
+function cornerMarksOps(x, y, w, h){
+  // corner cut marks just outside each cell corner
+  const gap = 1*MM, t = 3*MM;
+  const corners = [[x,y,-1,-1],[x+w,y,1,-1],[x,y+h,-1,1],[x+w,y+h,1,1]];
+  let s = "0.65 G 0.3 w\n";
+  corners.forEach(([cx,cy,dx,dy])=>{
+    s += f(cx+dx*gap)+" "+f(cy)+" m "+f(cx+dx*(gap+t))+" "+f(cy)+" l S\n";
+    s += f(cx)+" "+f(cy+dy*gap)+" m "+f(cx)+" "+f(cy+dy*(gap+t))+" l S\n";
+  });
+  return s;
+}
+
+function buildPDF(model){
+  const { images, pages, cellW, cellH, page, cropMarks } = model;
+  const Lay = computeLayout(page.w, page.h, cellW, cellH);
+  const numPages = pages.length;
+  const U = images.length, firstPageObj = 3 + U, objCount = 2 + U + numPages*2;
+
+  const enc = s => { const a = new Uint8Array(s.length); for (let i=0;i<s.length;i++) a[i] = s.charCodeAt(i)&0xff; return a; };
+  const chunks = []; let offset = 0;
+  const push = u8 => { chunks.push(u8); offset += u8.length; };
+  const pushStr = s => push(enc(s));
+  const xref = new Array(objCount+1).fill(0);
+  const startObj = n => { xref[n] = offset; };
+
+  pushStr("%PDF-1.4\n"); pushStr("%\xE2\xE3\xCF\xD3\n");
+
+  startObj(1); pushStr("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+
+  const kids = [];
+  for (let p=0;p<numPages;p++) kids.push((firstPageObj + p*2) + " 0 R");
+  startObj(2); pushStr("2 0 obj\n<< /Type /Pages /Kids ["+kids.join(" ")+"] /Count "+numPages+" >>\nendobj\n");
+
+  images.forEach((im, idx)=>{
+    const num = 3+idx; startObj(num);
+    const cs = im.comps === 1 ? "/DeviceGray" : "/DeviceRGB";
+    pushStr(num+" 0 obj\n<< /Type /XObject /Subtype /Image /Width "+im.w+" /Height "+im.h+
+      " /ColorSpace "+cs+" /BitsPerComponent 8 /Filter /DCTDecode /Length "+im.bytes.length+" >>\nstream\n");
+    push(im.bytes);
+    pushStr("\nendstream\nendobj\n");
+  });
+
+  pages.forEach((placements, p)=>{
+    const pageNum = firstPageObj + p*2, contentNum = pageNum + 1;
+    const used = new Set(); let content = "";
+
+    placements.forEach(pl=>{
+      const r = Math.floor(pl.cellIndex / Lay.cols), c = pl.cellIndex % Lay.cols;
+      let cellX = Lay.startX + c*(cellW + Lay.gutter);
+      let cellBottomY = (Lay.topY - r*(cellH + Lay.gutter)) - cellH;
+      // Reverse side of a duplex sheet: mirror the cell so the back lands behind its face after
+      // the physical flip. Long-edge flip -> mirror horizontally (X); short-edge -> vertically (Y).
+      if (pl.mirrorX) cellX = page.w - cellX - cellW;
+      if (pl.mirrorY) cellBottomY = page.h - cellBottomY - cellH;
+      // Duplex back-page calibration: shift the whole cell (image + its cut marks) as a unit.
+      if (pl.offX) cellX += pl.offX;
+      if (pl.offY) cellBottomY += pl.offY;
+
+      pl.items.forEach(it=>{
+        used.add(it.imgIndex);
+        content += drawImageOp(it.imgIndex, cellX + it.dx, cellBottomY + it.dy, it.w, it.h, it.rot);
+      });
+
+      if (pl.foldY != null){
+        // dashed fold line, isolated so the dash pattern does not leak into other strokes
+        const fy = cellBottomY + pl.foldY;
+        content += "q 0.6 G 0.4 w [3 3] 0 d\n";
+        content += f(cellX)+" "+f(fy)+" m "+f(cellX+cellW)+" "+f(fy)+" l S\nQ\n";
+      }
+
+      if (cropMarks) content += cornerMarksOps(cellX, cellBottomY, cellW, cellH);
+    });
+
+    const cb = enc(content);
+    startObj(contentNum);
+    pushStr(contentNum+" 0 obj\n<< /Length "+cb.length+" >>\nstream\n");
+    push(cb);
+    pushStr("\nendstream\nendobj\n");
+
+    const xo = [...used].map(i => "/Im"+i+" "+(3+i)+" 0 R").join(" ");
+    startObj(pageNum);
+    pushStr(pageNum+" 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+f(page.w)+" "+f(page.h)+
+      "] /Resources << /XObject << "+xo+" >> >> /Contents "+contentNum+" 0 R >>\nendobj\n");
+  });
+
+  const xrefOff = offset;
+  pushStr("xref\n0 "+(objCount+1)+"\n0000000000 65535 f \n");
+  for (let n=1;n<=objCount;n++) pushStr(String(xref[n]).padStart(10,"0")+" 00000 n \n");
+  pushStr("trailer\n<< /Size "+(objCount+1)+" /Root 1 0 R >>\nstartxref\n"+xrefOff+"\n%%EOF\n");
+
+  const out = new Uint8Array(offset); let o = 0;
+  for (const c of chunks){ out.set(c, o); o += c.length; }
+  return out;
+}
+
+/* clean a set name into a safe filename stem (mirrors the generator) */
+const ILLEGAL = /[<>:"/\\|?*\x00-\x1f]/g;
+function cleanName(s){ return (s||"").replace(ILLEGAL,"").replace(/^[.\s]+|[.\s]+$/g,"").replace(/\s+/g,"_") || "set"; }
+const SUFFIX = { images:"faces", faceback:"foldcards", duplexLong:"duplexLE", duplexShort:"duplexSE" };
+
+/* pagination helper: split card defs into pages of perPage, assigning row-major cellIndex. */
+function paginate(defs, perPage){
+  const pages = [];
+  for (let i=0;i<defs.length;i+=perPage){
+    const chunk = defs.slice(i, i+perPage);
+    pages.push(chunk.map((cd, j)=>({ cellIndex:j, mirrorX:false, items:cd.items, foldY:cd.foldY })));
+  }
+  return pages;
+}
+
+/* Resolution stamped into the filename: the set's thumb.size when present (resolution of
+   record), else the measured minimum face dimension for older/hand-made sets. */
+function setResolution(){
+  if (setData.thumb && setData.thumb.size) return setData.thumb.size;
+  let min = Infinity;
+  for (const p of setData.pairs){
+    for (const s of [p.a, p.b]){
+      const d = imageDims(s.src), m = Math.min(d.w, d.h);
+      if (m > 0) min = Math.min(min, m);
+    }
+  }
+  return isFinite(min) ? min : 0;
+}
+
+/* =====================================================================
+   GENERATE
+   ===================================================================== */
+document.getElementById("genBtn").addEventListener("click", generate);
+async function generate(){
+  if (!setData) return;
+  const isDuplex = (scenarioMode === "duplexLong" || scenarioMode === "duplexShort");
+  const needsBack = (scenarioMode === "faceback" || isDuplex);
+  if (needsBack && !hasBack()) return;   // guarded by gating, but be safe
+
+  const btn = document.getElementById("genBtn");
+  const status = document.getElementById("genStatus");
+  btn.disabled = true;
+  status.innerHTML = `<div class="loading-msg">${L().generating}</div>`;
+
+  try {
+    const images = [];
+    const uniqueMap = new Map();
+    async function imgIndexFor(src){
+      if (uniqueMap.has(src)) return uniqueMap.get(src);
+      const im = await embeddableImage(src);
+      const idx = images.length;
+      images.push({ w: im.w, h: im.h, comps: im.comps, bytes: im.bytes });
+      uniqueMap.set(src, idx);
+      return idx;
+    }
+
+    const cs = cellSize();
+    const layout = computeLayout(PAGE[pageMode].w, PAGE[pageMode].h, cs.w, cs.h);
+    const perPage = layout.perPage;
+    let pages = [];
+
+    if (scenarioMode === "images"){
+      // one square card per face; backs ignored
+      const defs = [];
+      for (const p of setData.pairs){
+        for (const s of [p.a, p.b]){
+          const idx = await imgIndexFor(s.src);
+          defs.push({ items:[{ imgIndex:idx, dx:0, dy:0, w:CARD, h:CARD, rot:0 }], foldY:null });
+        }
+      }
+      pages = paginate(defs, perPage);
+
+    } else if (scenarioMode === "faceback"){
+      // fold-over strip per face: face upright (bottom half) + shared back rotated 180° (top half)
+      const backIdx = await imgIndexFor(setData.back.src);
+      const defs = [];
+      for (const p of setData.pairs){
+        for (const s of [p.a, p.b]){
+          const faceIdx = await imgIndexFor(s.src);
+          defs.push({
+            items:[
+              { imgIndex:faceIdx, dx:0, dy:0,    w:CARD, h:CARD, rot:0   },  // face, bottom half
+              { imgIndex:backIdx, dx:0, dy:CARD, w:CARD, h:CARD, rot:180 }   // shared back, top half, rotated
+            ],
+            foldY: CARD   // crease at mid-strip
+          });
+        }
+      }
+      pages = paginate(defs, perPage);
+
+    } else {
+      // duplex: interleave a faces page with a mirrored backs page per sheet so backs register
+      // behind faces after the physical flip.
+      //   long-edge binding  -> mirror horizontally (X), back upright
+      //   short-edge binding -> mirror vertically (Y), back rotated 180°
+      const shortEdge = (scenarioMode === "duplexShort");
+      // Effective faces-side offset = built-in printer baseline + user's manual offset.
+      const baseline = shortEdge ? DUPLEX_BASELINE_CONSTANT_SHORT : DUPLEX_BASELINE_CONSTANT_LONG;
+      const effX = baseline.x + offsetX, effY = baseline.y + offsetY;
+      // Faces-side offset (effX right, effY up) -> PDF-space shift of the back page, per flip axis:
+      //   long-edge (vertical-axis flip):   dxPdf = -eff, dyPdf = +eff
+      //   short-edge (horizontal-axis flip): dxPdf = +eff, dyPdf = -eff
+      const backOffX = (shortEdge ? effX : -effX) * MM;
+      const backOffY = (shortEdge ? -effY : effY) * MM;
+      const backIdx = await imgIndexFor(setData.back.src);
+      const faceIdxs = [];
+      for (const p of setData.pairs){
+        for (const s of [p.a, p.b]) faceIdxs.push(await imgIndexFor(s.src));
+      }
+      for (let i=0;i<faceIdxs.length;i+=perPage){
+        const chunk = faceIdxs.slice(i, i+perPage);
+        const front = chunk.map((fi, j)=>({
+          cellIndex:j, mirrorX:false, mirrorY:false,
+          items:[{ imgIndex:fi, dx:0, dy:0, w:CARD, h:CARD, rot:0 }], foldY:null
+        }));
+        const back = chunk.map((_, j)=>({
+          cellIndex:j, mirrorX:!shortEdge, mirrorY:shortEdge, offX:backOffX, offY:backOffY,
+          items:[{ imgIndex:backIdx, dx:0, dy:0, w:CARD, h:CARD, rot: shortEdge?180:0 }], foldY:null
+        }));
+        pages.push(front, back);   // sheet = front page then its reverse
+      }
+    }
+
+    const bytes = buildPDF({ images, pages, cellW:cs.w, cellH:cs.h, page:PAGE[pageMode], cropMarks:true });
+
+    const blob = new Blob([bytes], { type:"application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const offSeg = (isDuplex && (offsetX !== 0 || offsetY !== 0)) ? ("__x" + offsetX + "_y" + offsetY + "mm") : "";
+    a.download = "Pexesooo__" + cleanName(setData.name) + "__" + setResolution() + "px__"
+      + SUFFIX[scenarioMode] + "__" + cardMode + "mm" + offSeg + "__" + PAGE[pageMode].label.replace(/\s+/g,"") + ".pdf";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+
+    status.innerHTML = "";
+  } catch(e){
+    status.innerHTML = `<div class="error-banner">${L().genError}</div>`;
+  }
+  btn.disabled = (needsBack && !hasBack());
+}
+
+applyLang();
+</script>
+</body>
+</html>
