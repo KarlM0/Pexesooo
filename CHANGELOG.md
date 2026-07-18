@@ -8,9 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Add credits field to the generator.
 - Display credits field in the set selection as alt text.
-- Update the instructions to make it clear that you can normally play with the printer-friendly set.
-- Add the file/folder picker specs to DESIGN.md.
 - Add hashes to the README files.
+
+## [1.8.0] - 2026-07-18
+
+### Changed
+- **`PexesoooPrinter.html`**
+  - Baseline constants reset to all zeros (`DUPLEX_BASELINE_CONSTANT_LONG = { x: 0, y: 0 }`, `DUPLEX_BASELINE_CONSTANT_SHORT = { x: 0, y: 0 }`). They are kept in the file to enable for user printer-specific corrections.
+  - Pdf file name template changed to `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf`
+
+- **`Pexesooo.html`**
+  - The game file - `Pexesooo.html` renamed to `PexesoooGame.html`.
+- **All apps**
+  - All apps display **v1.8.0**; the generator identifier in produced sets is now `PexesoooGenerator/1.8.0`.
+
 
 ## [1.7.0] - 2026-07-17
 
@@ -25,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Page size:** **A4** or **US Letter**.
   - **Duplex back-offset calibration** — a manual **X / Y** nudge (mm) for the duplex back page, applied on top of built-in per-edge baseline constants (`DUPLEX_BASELINE_CONSTANT_LONG = { x: 6, y: 0 }`, `DUPLEX_BASELINE_CONSTANT_SHORT = { x: 0, y: 0 }`) that correct a specific printer's front/back registration.
   - **Warnings / gating:** a resolution advisory when card or back images are below 600 × 600 px; a **missing card back hard-blocks** the scenarios that print a back.
-  - **Output:** corner cut marks, an estimate line (cards, and pages or double-sided sheets), and a stamped filename: `Pexesooo__<Name>__<thumb.size>px__<scenario>__<cardSize>mm[__x<X>_y<Y>mm]__<PageSize>.pdf`.
+  - **Output:** corner cut marks, an estimate line (cards, and pages or double-sided sheets), and a stamped filename: `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf`.
   - Folder-loaded sets are shown as **full previews** (matching a single loaded file), each selectable.
 - **Game: pair preview.** A new **Preview / Náhled** button (to the left of *Start game*, enabled as soon as a set is selected) displays every pair of the selected set in the Game area — each pair's two cards side by side on a uniting surface (an enlarged version of the end-of-game won-pair display), with the pair's file name below.
 

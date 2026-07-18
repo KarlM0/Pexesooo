@@ -164,7 +164,7 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Printer</h1>
       <div class="subtitle" id="t-subtitle">Print a set's cards to a PDF for cutting out.</div>
-      <div class="version">PexesoooPrinter v1.7.0</div>
+      <div class="version">PexesoooPrinter v1.8.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -587,11 +587,11 @@ let offsetX = 0, offsetY = 0;  // duplex back-page calibration, mm (faces-side f
 const PAGE = { a4:{ w:595.28, h:841.89, label:"A4" }, letter:{ w:612, h:792, label:"US Letter" } };
 const CARD_SIZES = [40, 45, 50, 60];   // square presets, mm
 
-/* Built-in duplex registration baseline (faces-side mm: +x right, +y up). This is a fixed
-   per-setup correction applied on top of the user's manual Back-offset control, so that a
-   manual offset of 0/0 already yields correct registration for the calibrated printer.
-   NOTE: because of this, a manual "0" is NOT a neutral zero on long edge — it includes +6 mm. */
-const DUPLEX_BASELINE_CONSTANT_LONG  = { x: 6, y: 0 };
+/* Built-in duplex registration baseline (faces-side mm: +x right, +y up). This can be used 
+   as a fixed per-setup correction applied on top of the user's manual Back-offset control,
+   so that a manual offset of 0/0 already yields correct registration for user's calibrated printer.
+   NOTE: If set to non zero value, a manual "0" is NOT a neutral zero on long edge — it includes +6 mm. */
+const DUPLEX_BASELINE_CONSTANT_LONG  = { x: 0, y: 0 };  // inert for now; here for symmetry
 const DUPLEX_BASELINE_CONSTANT_SHORT = { x: 0, y: 0 };  // inert for now; here for symmetry
 
 const MM = 72/25.4;
@@ -1055,8 +1055,8 @@ async function generate(){
     const a = document.createElement("a");
     a.href = url;
     const offSeg = (isDuplex && (offsetX !== 0 || offsetY !== 0)) ? ("__x" + offsetX + "_y" + offsetY + "mm") : "";
-    a.download = "Pexesooo__" + cleanName(setData.name) + "__" + setResolution() + "px__"
-      + SUFFIX[scenarioMode] + "__" + cardMode + "mm" + offSeg + "__" + PAGE[pageMode].label.replace(/\s+/g,"") + ".pdf";
+    a.download = "Pexesooo__" + cleanName(setData.name) + "__" + setResolution() + "px__" + cardMode + "mm" + "__" + PAGE[pageMode].label.replace(/\s+/g,"")
+        + "__" + SUFFIX[scenarioMode] + offSeg + ".pdf";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 1000);
 
