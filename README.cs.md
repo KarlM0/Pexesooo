@@ -4,7 +4,7 @@
 
 Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concentration* / *Pairs*), doprovodný **generátor sad** a **tiskárna**. Vytvořte si vlastní sady karet ze dvou složek obrázků, získejte jediný přenositelný soubor JSON a hrajte na obrazovce — nebo karty vytiskněte, vystřihněte a hrajte na papíře. Žádný server, žádný build, žádná instalace.
 
-> **Stav:** v1.7.0 · tři statické soubory HTML · běží offline z `file://`
+> **Stav:** v1.8.0 · tři statické soubory HTML · běží offline z `file://`
 
 ---
 
