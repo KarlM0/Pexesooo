@@ -12,7 +12,7 @@ A self-contained, browser-based **memory matching game** (known as *pexeso* in C
 
 | File | What it is |
 |---|---|
-| `Pexesooo.html` | The game. Loads a set file and plays it for 1–6 players. |
+| `PexesoooGame.html` | The game. Loads a set file and plays it for 1–6 players. |
 | `PexesoooGenerator.html` | The set builder. Turns two folders of images into one `.json` set. |
 | `PexesoooPrinter.html` | The printer. Turns a set into a print-ready PDF for cutting out. |
 | `DESIGN.md` | Shared visual language (design tokens, typography, components). |
@@ -55,7 +55,7 @@ All three apps are single, dependency-free HTML files. Just open them in a brows
 5. *(Optional for online sets, required for printer-friendly sets)* choose a **card back** image.
 6. Choose a **resolution**:
    - **200×200 — online only** — smaller files, ideal for on-screen play.
-   - **600×600 — printer-friendly** — larger, higher-quality images for printing; a **card back is required**.
+   - **600×600 — printer-friendly, online** — larger, higher-quality images for printing; a **card back is required**.
 
    The resolution applies to both the card images and the card back.
 7. Click **Submit**. Review the detected pairs — incomplete or unreadable pairs are flagged and excluded; untick any you don't want.
@@ -66,7 +66,7 @@ All three apps are single, dependency-free HTML files. Just open them in a brows
 
 ### 2. Play (`Pexesooo.html`)
 
-1. Open `Pexesooo.html`.
+1. Open `PexesoooGame.html`.
 2. Under **Settings**, load a set using one of two methods:
    - **File** — choose a single `.json` set file directly. A preview shows the name, description, a single line of **pair count, creation date, and resolution**, sample pairs, and card back.
    - **Folder** — choose a folder; the game scans it (top level only, no recursion) for valid `.json` set files and lists all it finds. Click a row to select a set.
@@ -93,7 +93,7 @@ In the results you can choose **Play again** (immediately restarts with the same
    - **Card size** — **40 / 45 / 50 / 60 mm** (square; default **50 mm**).
    - **Page size** — **A4** or **US Letter**.
    - *(duplex only)* **Back offset** — an optional **X / Y** nudge in millimetres to correct your printer's front/back alignment (see the duplex note below).
-4. Click **Generate PDF**. The file downloads locally, named `Pexesooo__<Set_Name>__<resolution>px__<scenario>__<size>mm__<PageSize>.pdf` (a non-zero back offset adds an `__x<X>_y<Y>mm` segment).
+4. Click **Generate PDF**. The file downloads locally, named `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf` (a non-zero back offset adds an `__x<X>_y<Y>mm` segment).
 
 **Print scenarios**
 
@@ -121,7 +121,7 @@ A set is a single JSON file. Images are stored inline as base64 data URIs, so th
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.7.0",
+  "generator": "PexesoooGenerator/1.8.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -194,5 +194,5 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`Pexesooo v1.7.0`, `PexesoooGenerator v1.7.0`, `PexesoooPrinter v1.7.0`).
+- App version is shown in each app's header (`PexesoooGame v1.8.0`, `PexesoooGenerator v1.8.0`, `PexesoooPrinter v1.8.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.
