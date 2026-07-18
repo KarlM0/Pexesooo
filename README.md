@@ -4,7 +4,7 @@
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English), a companion **set generator**, and a **printer**. Build your own card sets from two folders of images, get a single portable JSON file, and play on screen — or print the cards, cut them out, and play on paper. No server, no build step, no install.
 
-> **Status:** v1.7.0 · three static HTML files · runs offline from `file://`
+> **Status:** v1.8.0 · three static HTML files · runs offline from `file://`
 
 ---
 
