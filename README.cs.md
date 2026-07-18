@@ -2,99 +2,129 @@
 
 # Pexesooo
 
-Samostatná, prohlížečová **hra pexeso** (v angličtině známá jako *Concentration* nebo *Pairs*) a doprovodný **generátor sad**. Vytvořte vlastní sadu karet ze dvou složek obrázků, získejte jeden přenosný soubor JSON a hrajte — bez serveru, bez sestavení, bez instalace.
+Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concentration* / *Pairs*), doprovodný **generátor sad** a **tiskárna**. Vytvořte si vlastní sady karet ze dvou složek obrázků, získejte jediný přenositelný soubor JSON a hrajte na obrazovce — nebo karty vytiskněte, vystřihněte a hrajte na papíře. Žádný server, žádný build, žádná instalace.
 
-> **Stav:** v1.6.0 · dva statické soubory HTML · funguje offline z `file://`
+> **Stav:** v1.7.0 · tři statické soubory HTML · běží offline z `file://`
 
 ---
 
-## Co je součástí
+## Co je uvnitř
 
-| Soubor | Popis |
+| Soubor | Co to je |
 |---|---|
-| `Pexesooo.html` | Hra. Načte soubor sady a spustí hru pro 1–6 hráčů. |
-| `PexesoooGenerator.html` | Tvůrce sad. Převede dvě složky obrázků na jeden soubor `.json`. |
-| `DESIGN.md` | Sdílený vizuální jazyk (design tokeny, typografie, komponenty). |
-| `README.md` | Anglická verze tohoto dokumentu. |
+| `Pexesooo.html` | Hra. Načte soubor sady a hraje ji pro 1–6 hráčů. |
+| `PexesoooGenerator.html` | Nástroj pro tvorbu sad. Ze dvou složek obrázků vytvoří jeden soubor `.json`. |
+| `PexesoooPrinter.html` | Tiskárna. Ze sady vytvoří PDF připravené k tisku a vystřižení. |
+| `DESIGN.md` | Sdílený vizuální jazyk (návrhové tokeny, typografie, komponenty). |
+| `README.md` | Tento soubor (anglicky). |
 
-Oba soubory jsou samostatné soubory HTML bez závislostí. Stačí je otevřít v prohlížeči.
+Všechny tři aplikace jsou jednotlivé soubory HTML bez závislostí. Stačí je otevřít v prohlížeči.
 
 ---
 
-## Funkce
+## Vlastnosti
 
-- **Vytvářejte vlastní sady** ze svých obrázků — vlajky, zvířata, slovní zásobu, rodinné fotky, cokoliv.
-- **Páry 1:1 (shodné obrázky):** nasměrujte oba výběry složek na **stejnou složku** a vytvoříte klasické pexeso, kde obě karty páru zobrazují *stejný* obrázek.
-- **Pouze obrázkové páry karet:** jsou podporovány soubory PNG, JPG a JPEG.
-- **Dvě výstupní rozlišení:** vytvářejte **online** sady (200×200, menší soubory) nebo sady **vhodné pro tisk** (600×600, kvalitnější obrázky pro tisk). Volba se použije na obrázky karet i na rub karet.
-- **Samostatné sady:** obrázky jsou vloženy přímo do souboru JSON, takže sada tvoří jeden soubor, který lze sdílet, poslat e-mailem nebo uložit do repozitáře.
-- **1–6 hráčů** s vlastními jmény a přehledným indikátorem tahu.
-- **Spravedlivé pořadí:** každé *Hrát znovu* posune startujícího hráče o jednu pozici dál; *Spustit hru* pořadí resetuje.
-- **Volitelná časomíra na tah** s odpočítávací lištou; po vypršení se tah předá automaticky.
-- **Živé nebo skryté skóre** — zobrazujte skóre průběžně, nebo (výchozí) odhalte jej až ve výsledcích.
-- **Celkový čas** a **počet tahů každého hráče** jsou zobrazeny ve výsledcích, v sólo i vícehráčském módu.
-- **Vlastní rub karet** (volitelně) — nebo se jako rub použije název sady.
-- **Čeština / angličtina** — přepínatelné kdykoliv (výchozí je čeština).
-- **Soukromé ze své podstaty:** vše probíhá lokálně v prohlížeči. Žádné nahrávání, žádné sledování, žádná síťová komunikace (kromě načítání webových fontů).
+- **Vytvářejte vlastní sady** z vlastních obrázků — vlajky, zvířata, slovíčka, rodinné fotky, cokoli.
+- **Shodné (1:1) dvojice:** nasměrujte oba výběry složek na **stejnou složku** a vytvoříte klasické pexeso, kde obě karty dvojice ukazují *stejný* obrázek.
+- **Dvojice jen z obrázků:** podporovány jsou soubory PNG, JPG a JPEG.
+- **Dvě výstupní rozlišení:** vytvořte sady **online** (200×200, menší soubory) nebo **pro tisk** (600×600, kvalitnější obrázky pro tisk). Volba platí pro obrázky karet i pro rub.
+- **Samostatné sady:** obrázky jsou vloženy přímo do JSON, takže sada je jediný soubor, který můžete sdílet, poslat e-mailem nebo uložit do repozitáře.
+- **Tisk na papír:** libovolnou sadu převeďte na PDF a vystřihněte fyzické karty — **jednostranně**, **přeložením**, nebo **oboustranně (duplex)**, ve zvolené velikosti karet.
+- **Náhled dvojic** před hraním — zobrazte si všechny dvojice sady najednou.
+- **1–6 hráčů** s vlastními jmény a přehledným ukazatelem tahu.
+- **Spravedlivé pořadí na tahu:** každé *Hrát znovu* posune, kdo začíná; *Spustit hru* pořadí resetuje.
+- **Volitelná časomíra na tah** s ubývajícím pruhem; po vypršení se tah automaticky předá dál.
+- **Skóre během hry, nebo skryté** — zobrazujte skóre během hry, nebo (výchozí nastavení) ho odhalte až ve výsledcích.
+- **Celkový čas** a **počet tahů jednotlivých hráčů** se zobrazí ve výsledcích, pro hru jednoho i více hráčů.
+- **Vlastní rub karet** (volitelně) — jinak se jako rub použije název sady.
+- **Čeština / angličtina** (ve výchozím nastavení čeština), kdykoli přepínatelné.
+- **Soukromí už z principu:** vše běží lokálně ve vašem prohlížeči. Žádné nahrávání, žádné sledování, žádné síťové požadavky (kromě načtení webových fontů).
 
 ---
 
 ## Rychlý start
 
-### 1. Vytvořte sadu (`PexesoooGenerator.html`)
+### 1. Vytvoření sady (`PexesoooGenerator.html`)
 
-1. Připravte **dvě složky** souborů obrázků. Pár vznikne, když soubor ve složce A a soubor ve složce B sdílejí **stejný název** (bez ohledu na velikost písmen a příponu). Například `france.png` ve složce A tvoří pár s `france.jpg` ve složce B.
+1. Připravte si **dvě složky** s obrázky. Dvojice vznikne, když soubor ve složce A a soubor ve složce B mají **stejný název** (bez ohledu na velikost písmen, přípona se ignoruje). Například `france.png` ve složce A se spáruje s `france.jpg` ve složce B.
 
-   **Tip — shodné páry:** chcete-li vytvořit klasické pexeso, kde jsou obě strany páru *stejný* obrázek, zvolte **stejnou složku** pro Složku A i Složku B. Každý soubor pak tvoří pár sám se sebou (1:1).
+   **Tip — shodné dvojice:** chcete-li klasické pexeso, kde jsou obě strany dvojice *stejný* obrázek, zvolte pro Složku A i Složku B **stejnou složku**. Každý soubor se pak spáruje sám se sebou (1:1).
 2. Otevřete `PexesoooGenerator.html`.
-3. Zadejte **název sady** a **popis** (až 256 znaků).
-4. Vyberte **Složku A** a **Složku B** (otevře se dialog pro výběr složky — vybíráte celou složku, ne jednotlivé soubory).
-5. *(Volitelné pro online sady, povinné pro sady vhodné pro tisk)* vyberte **obrázek rubu karet**.
+3. Zadejte **název sady** a **popis** (až 256 znaků; popis je dvouřádkové pole).
+4. Zvolte **Složku A** a **Složku B** (otevře se dialog pro výběr složky — vybíráte složku, nikoli jednotlivé soubory). Po výběru složky ukazuje výběr **název složky a počet nalezených obrázků** v závorce.
+5. *(Volitelné pro online sady, povinné pro sady určené k tisku)* zvolte obrázek **rubu karet**.
 6. Zvolte **rozlišení**:
    - **200×200 — jen online** — menší soubory, ideální pro hraní na obrazovce.
-   - **600×600 — vhodné pro tisk** — větší, kvalitnější obrázky pro tisk; **rub karet je povinný**.
+   - **600×600 — pro tisk** — větší, kvalitnější obrázky pro tisk; **rub karet je povinný**.
 
-   Rozlišení se použije na obrázky karet i na rub karet.
-7. Klikněte na **Odeslat**. Zkontrolujte nalezené páry — neúplné nebo nečitelné páry jsou označeny a vyřazeny; odškrtněte ty, které nechcete zahrnout.
-8. Klikněte na **Vytvořit JSON**. Získáte soubor pojmenovaný `Pexesooo__<Název_sady>__200px.json` nebo `Pexesooo__<Název_sady>__600px.json` (přípona zaznamenává rozlišení).
+   Rozlišení platí pro obrázky karet i pro rub.
+7. Klikněte na **Připravit**. Zkontrolujte nalezené dvojice — neúplné nebo nečitelné dvojice jsou označeny a vyřazeny; odškrtněte ty, které nechcete.
+8. Klikněte na **Generovat JSON**. Získáte soubor s názvem `Pexesooo__<Nazev_Sady>__200px.json` nebo `Pexesooo__<Nazev_Sady>__600px.json` (přípona zaznamenává rozlišení).
 
-**Podporované soubory:** `PNG`, `JPG`, `JPEG`.
-**Zpracování:** obrázky karet i rub karet jsou ořezány na střed na zvolené rozlišení — **200×200** (online) nebo **600×600** (pro tisk). Kvalita JPEG je vyšší u sad vhodných pro tisk.
+**Přijímané soubory:** `PNG`, `JPG`, `JPEG`.
+**Zpracování:** obrázky karet i rub jsou oříznuty na střed na zvolené rozlišení — **200×200** (online) nebo **600×600** (pro tisk). Kvalita JPEG je vyšší u sad určených k tisku.
 
-### 2. Hrajte (`Pexesooo.html`)
+### 2. Hraní (`Pexesooo.html`)
 
 1. Otevřete `Pexesooo.html`.
 2. V sekci **Nastavení** načtěte sadu jedním ze dvou způsobů:
-   - **Soubor** — vyberte přímo jeden soubor sady `.json`. Náhled zobrazí název, popis, jeden řádek s **počtem dvojic, datem vytvoření a rozlišením**, ukázkové páry a rub karet.
-   - **Složka** — vyberte složku; hra prohledá její nejvyšší úroveň (bez rekurze) pro platné soubory sad `.json` a zobrazí seznam všech nalezených. Kliknutím na řádek sadu vyberete.
-3. Zvolte počet hráčů, zadejte jména a nastavte časomíru a zobrazení skóre.
-4. Klikněte na **Spustit hru**.
+   - **Soubor** — zvolte přímo jeden soubor sady `.json`. Náhled ukáže název, popis, jeden řádek s **počtem dvojic, datem vytvoření a rozlišením**, ukázkové dvojice a rub karet.
+   - **Složka** — zvolte složku; hra ji prohledá (jen nejvyšší úroveň, bez podsložek) a vypíše všechny nalezené platné soubory `.json`. Kliknutím na řádek sadu vyberete.
+3. *(Volitelně)* klikněte na **Náhled** a zobrazte si všechny dvojice sady — obě karty každé dvojice vedle sebe, s názvem souboru dvojice pod nimi — ještě před začátkem hry.
+4. Zvolte počet hráčů, zadejte jména a nastavte časomíru / možnosti skóre.
+5. Klikněte na **Spustit hru**.
 
 **Pravidla tahu**
 
 - Otočte až dvě karty.
-- **Shoda** → získáte pár a **hrajete znovu**.
-- **Neshoda** → karty zůstanou otočeny lícem nahoru, aby je všichni viděli; **klepnutím na své jméno** ukončíte tah (karty se otočí zpět a hra přejde na dalšího hráče). Pokud je zapnutá časomíra a vyprší čas, tah se ukončí automaticky.
-- Získané karty zanechají **pevnou prázdnou mezeru** — pozice se v průběhu hry nemění, takže paměť stále hraje roli.
-- Hra končí, když je hrací plocha vyčištěna. V sekci **Výsledky** vidíte skóre každého hráče, počet tahů, získané páry a celkový čas.
+- **Shoda** → dvojici si necháte a **hrajete znovu**.
+- **Neshoda** → karty zůstanou lícem nahoru, aby je všichni viděli; **klepnutím na své jméno** ukončíte tah (karty se otočí zpět a tah přejde dál). Je-li zapnutá časomíra a vyprší, tah skončí automaticky.
+- Získané karty nechávají **pevné prázdné místo** — pozice se během hry nepřeskupují, takže na paměti stále záleží.
+- Hra končí, když je hrací plocha prázdná. Sekce **Výsledky** ukáže skóre každého hráče, počet jeho tahů, získané dvojice a celkový čas.
 
-Ve výsledcích můžete zvolit **Hrát znovu** (okamžitě restartuje se stejným nastavením a posune startujícího hráče) nebo **Jiná hra** (vrátí se do nastavení).
+Ve výsledcích můžete zvolit **Hrát znovu** (okamžitě začne nová hra se stejným nastavením a posunutým začínajícím hráčem) nebo **Jiná hra** (návrat do nastavení).
+
+### 3. Tisk sady (`PexesoooPrinter.html`)
+
+1. Otevřete `PexesoooPrinter.html`.
+2. Načtěte sadu úplně stejně jako ve hře — přes **Soubor** (jeden `.json`) nebo přes **Složku** (tiskárna vypíše všechny platné sady nalezené na nejvyšší úrovni). U každé sady se zobrazí úplný náhled; kliknutím ji vyberete.
+3. V sekci **Možnosti tisku** zvolte:
+   - **Co tisknout** — jeden ze čtyř níže uvedených scénářů.
+   - **Velikost karty** — **40 / 45 / 50 / 60 mm** (čtverec; výchozí **50 mm**).
+   - **Velikost stránky** — **A4** nebo **US Letter**.
+   - *(pouze duplex)* **Posun rubu** — volitelný posun **X / Y** v milimetrech pro korekci zarovnání líce a rubu vaší tiskárny (viz poznámka k duplexu níže).
+4. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<Nazev_Sady>__<rozliseni>px__<scenar>__<velikost>mm__<VelikostStranky>.pdf` (nenulový posun rubu přidá segment `__x<X>_y<Y>mm`).
+
+**Scénáře tisku**
+
+- **Jen obrázky karet** — vytiskne se každý líc karty ve zvolené velikosti, s rohovými značkami pro střih. Ruby karet se ignorují.
+- **Líce + ruby karet** — každá karta se vytiskne jako **proužek k přeložení**: líc plus sdílený rub sady (otočený tak, aby byl po přeložení správně čitelný). Vytiskněte, vystřihněte každý proužek, přeložte podél čárkované čáry a slepte poloviny zády k sobě.
+- **Duplex — delší hrana** — líce a ruby na střídajících se stranách pro **oboustranný tisk s vazbou po delší hraně**; ruby jsou rozmístěny tak, aby po otočení seděly za líci.
+- **Duplex — kratší hrana** — totéž, uspořádané pro **vazbu po kratší hraně**.
+
+**Poznámky**
+
+- Rub karet je smyslem scénářů „líce + ruby“ a duplexu, takže sadu **bez rubu** lze vytisknout jen scénářem **Jen obrázky karet** — zbývající tři jsou zakázané, dokud sada nemá rub.
+- Obrázky menší než **600 × 600 px** se vytisknou v pořádku, ale mohou být měkké; aplikace zobrazí upozornění. Pro nejlepší kvalitu tisku vytvořte v generátoru sady **pro tisk (600×600)**.
+- U duplexu **nejdřív vytiskněte jednu zkušební stranu** a zkontrolujte, že ruby sedí za líci. Ověřte, že nastavení duplexu vaší tiskárny odpovídá scénáři (vazba po **delší** vs **kratší** hraně). Pokud jsou ruby soustavně posunuté, zadejte odchylku do pole **Posun rubu** (**X** = doprava, **Y** = nahoru, v mm) a vytiskněte znovu.
+
+PDF se sestaví celé ve vašem prohlížeči — bez knihovny, bez nahrávání — s obrázky karet vloženými přímo.
 
 ---
 
 ## Formát souboru sady
 
-Sada je jeden soubor JSON. Obrázky jsou uloženy přímo jako base64 data URI, takže soubor je plně přenosný.
+Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI, takže soubor je plně přenositelný. Všechny tři aplikace čtou a zapisují tentýž formát.
 
 ```json
 {
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.6.0",
+  "generator": "PexesoooGenerator/1.7.0",
   "createdAt": "2026-06-06T12:00:00Z",
-  "name": "Vlajky světa",
-  "description": "Přiřaďte každou vlajku k názvu její země",
+  "name": "World Flags",
+  "description": "Match each flag to its country name",
   "thumb": { "size": 200, "fit": "cover", "type": "image/jpeg" },
   "pairCount": 24,
   "back": { "kind": "image", "src": "data:image/jpeg;base64,…" },
@@ -110,33 +140,34 @@ Sada je jeden soubor JSON. Obrázky jsou uloženy přímo jako base64 data URI, 
 
 Poznámky:
 
-- Každý pár vytvoří **dvě karty**; shoda jsou dvě karty se stejným `id` páru.
+- Každá dvojice vytváří **dvě karty**; shoda jsou dvě karty se stejným `id` dvojice.
 - Obě strany karty jsou `{ "kind": "image", "src": "data:image/…" }`.
 - `thumb.size` zaznamenává rozlišení, ve kterém byly obrázky vytvořeny — **200** (online) nebo **600** (pro tisk).
-- `back` je ve formátu **volitelný**. Pokud chybí (nebo je nečitelný), hra zobrazí **název sady** jako rub karet. (Poznámka: generátor rub *vyžaduje* při vytváření sady vhodné pro tisk.)
-- `_source` identifikuje URL projektu a je pouze informační; hra jej ignoruje.
+- `back` je ve formátu **volitelný**. Chybí-li (nebo je nečitelný), hra vykreslí jako rub karet **název sady**. (Pozn.: generátor rub *vyžaduje* při tvorbě sady pro tisk a tiskárna rub *vyžaduje* pro scénáře „líce + ruby“ a duplex.)
+- `_source` udává URL projektu a je jen informativní; aplikace ho ignorují.
 - `format` musí být `"pexesooo"`. Sady vytvořené staršími verzemi generátoru (které používaly `"pexeso"`) nejsou kompatibilní.
 
 ---
 
-## Design
+## Vzhled
 
-Oba soubory HTML sdílejí společný vizuální jazyk definovaný v `DESIGN.md` (CSS custom properties, tři písma — Fraunces / Manrope / JetBrains Mono — a malá knihovna komponent). Některé prvky jsou záměrná, zdokumentovaná rozšíření tohoto systému:
+Všechny tři aplikace sledují sdílený tmavý vizuální jazyk definovaný v `DESIGN.md` (vlastní vlastnosti CSS, tři písma — Fraunces / Manrope / JetBrains Mono — a malá knihovna komponent). Několik prvků jsou záměrná, zdokumentovaná rozšíření tohoto systému:
 
-- **Překlápění karet** — střídmý přechod `rotateY` trvající 0,3 s, výslovná výjimka ze základního pravidla jedné vstupní animace.
-- **Výběr souboru/složky, seznam sad, výběr rozlišení, pruh tahů hráčů, odkaz na repozitář a indikátor načítání** — odvozeno ze základních tokenů tam, kde knihovna komponent nemá existující vzor.
+- **Otočení karty** — zdrženlivé 0,3s plynulé `rotateY`, uvedená výjimka ze základního pravidla pohybu „jediná vstupní animace“.
+- **Dvojice výběru souboru / složky, seznam sad, přepínače rozlišení / voleb, pruh hráčů na tahu, mřížka náhledu dvojic, pole posunu rubu, odkaz na repozitář a indikátor načítání** — odvozené ze základních tokenů tam, kde knihovna komponent nemá existující vzor.
+- **Tištěný výstup PDF** (rozvržení karet, rohové značky pro střih, čáry pro přeložení) je papír, nikoli rozhraní aplikace, takže je záměrně mimo systém tokenů.
 
-Tyto prvky jsou ve zdrojovém kódu označeny jako kandidáti na přidání do `DESIGN.md`.
+Tyto prvky jsou v kódu označeny jako kandidáti na zařazení do `DESIGN.md`.
 
 ---
 
 ## Zabezpečení
 
-Oba soubory jsou navrženy tak, aby běžely výhradně v prohlížeči bez zapojení serveru. Několik opatření omezuje dopad případně škodlivého souboru sady:
+Všechny tři aplikace jsou navrženy tak, aby běžely výhradně v prohlížeči bez zapojení serveru. Několik opatření omezuje dopad škodlivého souboru sady:
 
-- **Zásady zabezpečení obsahu (CSP)** — meta tag CSP blokuje veškerá odchozí síťová připojení ze stránky, omezuje obrázky na URI `data:` a `blob:` a fonty na Google Fonts.
-- **Bezpečné vykreslování obrázků** — obrázky karet jsou vždy nastaveny přes vlastnost DOM (`img.src = …`), nikdy interpolací do `innerHTML`, čímž se zabraňuje útokům vkládáním atributů z upravených souborů sad.
-- **Limity vstupu** — soubory sad s více než 500 páry nebo s jednotlivými zdroji obrázků většími než 3 MB jsou při validaci zamítnuty.
+- **Content Security Policy** — značka `<meta>` s CSP blokuje veškeré odchozí síťové připojení stránky, omezuje obrázky na URI `data:` a `blob:` a fonty na Google Fonts.
+- **Bezpečné vykreslování obrázků** — obrázky karet se vždy nastavují přes vlastnost DOM (`img.src = …`), nikdy se nevkládají do `innerHTML`, což brání útokům vkládáním atributů z podvržených souborů sad.
+- **Omezení vstupu** — soubory sad s více než 500 dvojicemi nebo s jednotlivými zdroji obrázků většími než 3 MB jsou při validaci odmítnuty.
 
 Načítejte pouze soubory sad z důvěryhodných zdrojů.
 
@@ -144,23 +175,24 @@ Načítejte pouze soubory sad z důvěryhodných zdrojů.
 
 ## Podpora prohlížečů a omezení
 
-- Testováno jako standardní HTML/CSS/JS; funguje v aktuálních verzích Chromium, Firefox a Safari.
-- Výběr složky v obou aplikacích využívá vstup `webkitdirectory`; podpora je široká, ale přesné chování dialogu se liší podle prohlížeče a operačního systému.
-- **HEIC** obrázky (běžné na iPhonech) prohlížeče **nepodporují** — nejprve převeďte na JPG/PNG.
-- Orientace obrázků: generátor aplikuje orientaci EXIF při překódování, ale ověřte funkčnost s otočenou fotografií z telefonu ve vašem prohlížeči.
-- **Bez ukládání** — hra nemá funkci uložení a obnovení; nastavení a průběh hry existují pouze v aktuální záložce.
-- **Offline:** oba soubory fungují z `file://`; bez připojení k internetu se webové fonty vrátí na systémová písma (rozvržení ani chování nejsou ovlivněny).
-- Výběr složky ve hře prohledává pouze **nejvyšší úroveň** vybrané složky; soubory JSON v podsložkách jsou ignorovány.
+- Testováno jako standardní HTML/CSS/JS; funguje v aktuálním Chromiu, Firefoxu a Safari.
+- Výběr složky v aplikacích používá vstup `webkitdirectory`; podpora je široká, ale přesné chování dialogu pro výběr složky se liší podle prohlížeče/OS.
+- Obrázky **HEIC** (běžné na iPhonech) prohlížeče **nepodporují** — před tvorbou sady je převeďte na JPG/PNG.
+- Orientace obrázku: generátor při překódování aplikuje orientaci z EXIF, ale ověřte to na otočené fotce z telefonu ve svém prohlížeči.
+- **Tisk:** přesné chování duplexu závisí na vaší tiskárně/ovladači; pomocí **zkušební strany** a **Posunu rubu** dolaďte zarovnání líce a rubu a sladťte vazbu duplexu (delší vs kratší hrana) se zvoleným scénářem.
+- **Žádné ukládání** — není zde uložení/pokračování; nastavení, průběh hry i hodnota posunu rubu v tiskárně existují jen v aktuální záložce.
+- **Offline:** aplikace fungují z `file://`; bez internetu se webové fonty nahradí systémovými (rozvržení a chování to neovlivní).
+- Výběr složky ve hře a v tiskárně prohledává jen **nejvyšší úroveň** zvolené složky; soubory JSON v podsložkách se ignorují.
 
 ---
 
 ## Soukromí
 
-Vše probíhá ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zařízení; soubory neprovádějí žádná API volání a nic neukládají vzdáleně.
+Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zařízení; aplikace nevolají žádné API a nic neukládají vzdáleně. Také tiskárna sestavuje své PDF lokálně — k tisku se nic nenahrává.
 
 ---
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každého souboru (`Pexesooo v1.6.0`, `PexesoooGenerator v1.6.0`).
+- Verze aplikace je zobrazena v záhlaví každé aplikace (`Pexesooo v1.7.0`, `PexesoooGenerator v1.7.0`, `PexesoooPrinter v1.7.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
