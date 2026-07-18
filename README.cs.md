@@ -12,7 +12,7 @@ Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concen
 
 | Soubor | Co to je |
 |---|---|
-| `Pexesooo.html` | Hra. Načte soubor sady a hraje ji pro 1–6 hráčů. |
+| `PexesoooGame.html` | Hra. Načte soubor sady a hraje ji pro 1–6 hráčů. |
 | `PexesoooGenerator.html` | Nástroj pro tvorbu sad. Ze dvou složek obrázků vytvoří jeden soubor `.json`. |
 | `PexesoooPrinter.html` | Tiskárna. Ze sady vytvoří PDF připravené k tisku a vystřižení. |
 | `DESIGN.md` | Sdílený vizuální jazyk (návrhové tokeny, typografie, komponenty). |
@@ -64,9 +64,9 @@ Všechny tři aplikace jsou jednotlivé soubory HTML bez závislostí. Stačí j
 **Přijímané soubory:** `PNG`, `JPG`, `JPEG`.
 **Zpracování:** obrázky karet i rub jsou oříznuty na střed na zvolené rozlišení — **200×200** (online) nebo **600×600** (pro tisk). Kvalita JPEG je vyšší u sad určených k tisku.
 
-### 2. Hraní (`Pexesooo.html`)
+### 2. Hraní (`PexesoooGame.html`)
 
-1. Otevřete `Pexesooo.html`.
+1. Otevřete `PexesoooGame.html`.
 2. V sekci **Nastavení** načtěte sadu jedním ze dvou způsobů:
    - **Soubor** — zvolte přímo jeden soubor sady `.json`. Náhled ukáže název, popis, jeden řádek s **počtem dvojic, datem vytvoření a rozlišením**, ukázkové dvojice a rub karet.
    - **Složka** — zvolte složku; hra ji prohledá (jen nejvyšší úroveň, bez podsložek) a vypíše všechny nalezené platné soubory `.json`. Kliknutím na řádek sadu vyberete.
@@ -93,7 +93,7 @@ Ve výsledcích můžete zvolit **Hrát znovu** (okamžitě začne nová hra se 
    - **Velikost karty** — **40 / 45 / 50 / 60 mm** (čtverec; výchozí **50 mm**).
    - **Velikost stránky** — **A4** nebo **US Letter**.
    - *(pouze duplex)* **Posun rubu** — volitelný posun **X / Y** v milimetrech pro korekci zarovnání líce a rubu vaší tiskárny (viz poznámka k duplexu níže).
-4. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<Nazev_Sady>__<rozliseni>px__<scenar>__<velikost>mm__<VelikostStranky>.pdf` (nenulový posun rubu přidá segment `__x<X>_y<Y>mm`).
+4. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<NazevSady>__<Rozliseni>px__<Velikost>mm__<VelikostStranky>__<Scenar>[__x<X>_y<Y>mm].pdf` (nenulový posun rubu přidá segment `__x<X>_y<Y>mm`).
 
 **Scénáře tisku**
 
@@ -121,7 +121,7 @@ Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI,
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.7.0",
+  "generator": "PexesoooGenerator/1.8.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -194,5 +194,5 @@ Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zař
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každé aplikace (`Pexesooo v1.7.0`, `PexesoooGenerator v1.7.0`, `PexesoooPrinter v1.7.0`).
+- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.8.0`, `PexesoooGenerator v1.8.0`, `PexesoooPrinter v1.8.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
