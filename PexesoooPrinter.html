@@ -102,6 +102,15 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 .set-list .preview:hover { border-color:var(--accent); }
 .set-list .preview.selected { border-color:var(--accent); background:var(--accent-deep); }
 
+/* DERIVED — pair preview grid (reused verbatim from the game; FLAG: candidate for DESIGN.md).
+   Enlarged version of the won-pair display: each pair's two cards sit side by side on a uniting
+   surface, with the pair's file name below. Populates the Preview section's #previewPairs host. */
+.preview-pairs { display:flex; flex-wrap:wrap; gap:16px; }
+.preview-pair-item { display:flex; flex-direction:column; align-items:center; gap:7px; }
+.preview-pair { display:flex; gap:6px; background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:8px; }
+.preview-pair img { width:96px; height:96px; border-radius:6px; object-fit:cover; background:var(--surface); display:block; }
+.preview-pair-label { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dim); text-align:center; max-width:210px; word-break:break-word; line-height:1.25; }
+
 .error-banner { background:rgba(232,115,111,0.08); border:1px solid var(--bad); color:var(--bad); border-radius:var(--radius-sm); padding:11px 13px; font-size:13px; margin-top:14px; }
 /* DERIVED — loading state indicator, derived from section-title typography (reused from the game; FLAG: candidate). */
 .loading-msg { font-family:'Manrope'; font-weight:700; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
@@ -164,7 +173,7 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Printer</h1>
       <div class="subtitle" id="t-subtitle">Print a set's cards to a PDF for cutting out.</div>
-      <div class="version">PexesoooPrinter v1.8.0</div>
+      <div class="version">PexesoooPrinter v1.9.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -199,6 +208,19 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
         </div>
         <div id="previewHost"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW — pairs of the selected set. Reuses the Part 2 card + collapsible pattern and the
+       already-present DERIVED pair-preview grid (see .preview-pairs), i.e. the same view as the
+       game's Preview. Starts disabled; enabled (but left collapsed) once a set is selected. -->
+  <div class="card collapsed disabled" id="previewCard">
+    <div class="chead" data-toggle="previewCard">
+      <div class="section-title" id="t-preview">Preview</div>
+      <svg class="chev" viewBox="0 0 16 16" width="15" height="15"><path d="M4 6 L8 10 L12 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="cbody">
+      <div class="preview-pairs" id="previewPairs"></div>
     </div>
   </div>
 
@@ -313,6 +335,7 @@ const STR = {
     estimate:"{cards} cards ({p} pairs × 2) · {pages} {size} page(s)",
     estimateDuplex:"{cards} cards ({p} pairs × 2) · {sheets} {size} sheets, double-sided",
     genError:"Could not build the PDF from this set.",
+    preview:"Preview",
     repo:"View on GitHub" },
   cs: { title:"Pexesooo Tiskárna", subtitle:"Vytiskněte karty sady do PDF k vystřižení.",
     settings:"Sada karet", pick:"Vyberte soubor sady (.json)", pickFolder:"Vyberte složku",
@@ -340,6 +363,7 @@ const STR = {
     estimate:"{cards} karet ({p} dvojic × 2) · {pages} stránek {size}",
     estimateDuplex:"{cards} karet ({p} dvojic × 2) · {sheets} listů {size}, oboustranně",
     genError:"PDF se z této sady nepodařilo vytvořit.",
+    preview:"Náhled",
     repo:"Zobrazit na GitHubu" }
 };
 let lang = "cs";
@@ -354,6 +378,7 @@ function applyLang(){
   txt("t-scn3-title","scn3Title"); txt("t-scn3-hint","scn3Hint");
   txt("t-scn4-title","scn4Title"); txt("t-scn4-hint","scn4Hint");
   txt("t-pagesize","pageSize"); txt("t-letter","letter");
+  txt("t-preview","preview");
   txt("t-offset","offset"); txt("t-offsethint","offsetHint");
   txt("t-generate","generate"); txt("t-repo","repo");
   document.title = L().title;
@@ -365,11 +390,17 @@ function applyLang(){
   else if (setData && !isFolderMode) renderPreview(setData);
   if (setData) refreshOptions();
 }
+/* Set the UI language, sync the pill active state, and re-render. Shared by the
+   language pill and the ?lang= launch parameter. Invalid codes are ignored. */
+function setLang(code){
+  if (code !== "en" && code !== "cs") return;
+  lang = code;
+  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x.dataset.lang===code));
+  applyLang();
+}
 document.getElementById("lang").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
-  lang=b.dataset.lang;
-  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x===b));
-  applyLang();
+  setLang(b.dataset.lang);
 });
 
 /* ---------------- collapsible ---------------- */
@@ -576,6 +607,41 @@ function renderPreview(d){
   host.appendChild(buildPreviewEl(d));
 }
 
+/* ---------------- Preview section (pairs of the selected set) ---------------- */
+/* Renders every pair of the selected set into #previewPairs — each pair's two cards side by side
+   on a uniting surface, with the pair's file name (id) below. Same view as the game's Preview.
+   SECURITY: images via makeSafeImg (DOM property); id label via textContent. */
+function populatePreview(){
+  const host = document.getElementById("previewPairs");
+  host.innerHTML = "";
+  if (!setData) return;
+  setData.pairs.forEach((p, idx) => {
+    const item = document.createElement("div");
+    item.className = "preview-pair-item rise";
+    item.style.animationDelay = (idx * 24) + "ms";
+    const pair = document.createElement("div");
+    pair.className = "preview-pair";
+    pair.appendChild(makeSafeImg(p.a.src, null, ""));
+    pair.appendChild(makeSafeImg(p.b.src, null, ""));
+    item.appendChild(pair);
+    const label = document.createElement("div");
+    label.className = "preview-pair-label";
+    label.textContent = p.id || String(idx + 1);
+    item.appendChild(label);
+    host.appendChild(item);
+  });
+  // Enable the section (togglable) but leave it collapsed so it doesn't compete with Print options.
+  const card = document.getElementById("previewCard");
+  card.classList.remove("disabled");
+  card.classList.add("collapsed");
+}
+function hidePreviewCard(){
+  const card = document.getElementById("previewCard");
+  card.classList.add("disabled");
+  card.classList.add("collapsed");
+  document.getElementById("previewPairs").innerHTML = "";
+}
+
 /* =====================================================================
    PRINT OPTIONS
    ===================================================================== */
@@ -611,11 +677,13 @@ function hidePrint(){
   document.getElementById("warnHost").innerHTML = "";
   document.getElementById("estimate").textContent = "";
   document.getElementById("genStatus").innerHTML = "";
+  hidePreviewCard();
 }
 function onSetSelected(){
   if (!setData){ hidePrint(); return; }
   showPrint();
   refreshOptions();
+  populatePreview();
 }
 
 function hasBack(){ return !!(setData.back && setData.back.kind === "image"); }
@@ -1067,7 +1135,25 @@ async function generate(){
   btn.disabled = (needsBack && !hasBack());
 }
 
-applyLang();
+/* ---------------- launch parameters ---------------- */
+/* Optional URL parameter, read from window.location.search (populated on file:// URLs too).
+   Key is case-insensitive; documented lowercase. Unknown keys and unrecognised values are ignored.
+     lang=en|cs   initial UI language (invalid/absent → Czech default) */
+function initFromURL(){
+  let params;
+  try { params = new URLSearchParams(window.location.search); }
+  catch(e){ return; }
+  for (const [k,v] of params){
+    if (k.toLowerCase() === "lang"){
+      const s = (v||"").trim().toLowerCase();
+      if (s === "en" || s === "cs") lang = s;
+      break; // first lang wins
+    }
+  }
+}
+
+initFromURL();
+setLang(lang);   // syncs pill state + calls applyLang()
 </script>
 </body>
 </html>

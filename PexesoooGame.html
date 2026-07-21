@@ -8,7 +8,7 @@
      images to data: and blob: URIs only, fonts to Google Fonts, no other network. -->
 <meta http-equiv="Content-Security-Policy"
   content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src 'none';">
-<title>Pexesooo</title>
+<title>Pexesooo Game</title>
 
 <!-- DESIGN.md Part 1 — fonts from Google Fonts (per doc). Offline: system fallback accepted. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -207,9 +207,9 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
 
   <div class="header">
     <div>
-      <h1 id="t-title">Pexesooo</h1>
+      <h1 id="t-title">Pexesooo Game</h1>
       <div class="subtitle" id="t-subtitle">A memory game for 1–6 players.</div>
-      <div class="version">Pexesooo v1.8.0</div>
+      <div class="version">PexesoooGame v1.9.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -317,7 +317,7 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
 
 /* ---------------- i18n ---------------- */
 const STR = {
-  en: { title:"Pexesooo", subtitle:"A memory game for 1–6 players.",
+  en: { title:"Pexesooo Game", subtitle:"A memory game for 1–6 players.",
     settings:"Settings", setlabel:"Card set",
     pick:"Choose a set file (.json)", pickFolder:"Choose a folder",
     noFile:"—", noFolder:"—",
@@ -331,7 +331,7 @@ const STR = {
     badFolder:"No valid Pexesooo sets found in that folder.",
     loadingFolder:"Reading folder…",
     repo:"View on GitHub" },
-  cs: { title:"Pexesooo", subtitle:"Pexeso pro 1–6 hráčů.",
+  cs: { title:"Pexesooo Hra", subtitle:"Pexeso pro 1–6 hráčů.",
     settings:"Nastavení", setlabel:"Sada karet",
     pick:"Vyberte soubor sady (.json)", pickFolder:"Vyberte složku",
     noFile:"—", noFolder:"—",
@@ -370,11 +370,17 @@ function applyLang(){
   else if (setData && !isFolderMode) renderPreview(setData);
   if (state) renderPlayers();
 }
+/* Set the UI language, sync the pill active state, and re-render. Shared by the
+   language pill and the ?lang= launch parameter. Invalid codes are ignored. */
+function setLang(code){
+  if (code !== "en" && code !== "cs") return;
+  lang = code;
+  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x.dataset.lang===code));
+  applyLang();
+}
 document.getElementById("lang").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
-  lang=b.dataset.lang;
-  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x===b));
-  applyLang();
+  setLang(b.dataset.lang);
 });
 
 /* ---------------- collapsible ---------------- */
@@ -983,7 +989,71 @@ function finishGame(){
   document.getElementById("resultCard").scrollIntoView({behavior:"smooth"});
 }
 
-applyLang(); gate();
+/* ---------------- launch parameters ---------------- */
+/* Optional URL parameters, read from window.location.search (populated on file:// URLs too).
+   All keys are case-insensitive; documented lowercase. Unknown keys and unrecognised values
+   are ignored, leaving the normal UI defaults in place.
+     lang=en|cs        initial UI language (invalid/absent → Czech default)
+     player=<name>     repeatable — each occurrence fills the next player slot, and the number
+                       of occurrences sets the player count (capped at MAXP; empty values keep
+                       a blank slot, which leaves Start disabled until filled)
+     timer=on|off      turn timer; "on" uses the field's default seconds
+     score=on|off      show score during play
+   Returns the ordered list of prefilled names (or null), to be applied after buildNames(). */
+function initFromURL(){
+  let params;
+  try { params = new URLSearchParams(window.location.search); }
+  catch(e){ return null; }
+
+  // Fold keys to lowercase while preserving repeated values (for case-insensitive matching).
+  const lc = new Map();
+  for (const [k,v] of params){
+    const key = k.toLowerCase();
+    if (!lc.has(key)) lc.set(key, []);
+    lc.get(key).push(v);
+  }
+  const first = k => { const a = lc.get(k); return a && a.length ? a[0] : null; };
+  const onOff = (raw, current) => {
+    if (raw == null) return current;
+    const s = raw.trim().toLowerCase();
+    if (s === "on")  return true;
+    if (s === "off") return false;
+    return current; // unrecognised → leave the default untouched
+  };
+
+  // lang — applied later via setLang(lang); here we only set the variable.
+  const langVal = first("lang");
+  if (langVal){
+    const s = langVal.trim().toLowerCase();
+    if (s === "en" || s === "cs") lang = s;
+  }
+
+  // player — repeated key drives both the count and the names.
+  const names = lc.get("player");
+  if (names && names.length){
+    playerCount = Math.max(1, Math.min(MAXP, names.length));
+    document.querySelectorAll("#chips .chip").forEach((x,idx)=>x.classList.toggle("active", idx===playerCount-1));
+  }
+
+  // timer — "on" enables with the seconds field's existing default.
+  const timerOn = onOff(first("timer"), timerToggle.classList.contains("on"));
+  timerToggle.classList.toggle("on", timerOn);
+  document.getElementById("timerSecField").classList.toggle("hidden", !timerOn);
+
+  // score — show score during play.
+  const scoreOn = onOff(first("score"), scoreToggle.classList.contains("on"));
+  scoreToggle.classList.toggle("on", scoreOn);
+
+  return (names && names.length) ? names.slice(0, MAXP) : null;
+}
+
+const prefillNames = initFromURL();
+setLang(lang);            // syncs pill state + calls applyLang() (which rebuilds the name inputs)
+if (prefillNames){
+  // Assigning .value bypasses the input's maxLength attribute, so cap to 20 here to match.
+  prefillNames.forEach((n,i)=>{ if (nameInputs[i]) nameInputs[i].value = (n||"").slice(0,20); });
+}
+gate();
 </script>
 </body>
 </html>

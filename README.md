@@ -4,7 +4,7 @@
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English), a companion **set generator**, and a **printer**. Build your own card sets from two folders of images, get a single portable JSON file, and play on screen — or print the cards, cut them out, and play on paper. No server, no build step, no install.
 
-> **Status:** v1.8.0 · three static HTML files · runs offline from `file://`
+> **Status:** v1.9.0 · three static HTML files · runs offline from `file://`
 
 ---
 
@@ -64,7 +64,7 @@ All three apps are single, dependency-free HTML files. Just open them in a brows
 **Accepted files:** `PNG`, `JPG`, `JPEG`.
 **Processing:** card images and the card back are center-cropped to the chosen resolution — **200×200** (online) or **600×600** (printer-friendly). JPEG quality is higher for printer-friendly sets.
 
-### 2. Play (`Pexesooo.html`)
+### 2. Play (`PexesoooGame.html`)
 
 1. Open `PexesoooGame.html`.
 2. Under **Settings**, load a set using one of two methods:
@@ -88,12 +88,13 @@ In the results you can choose **Play again** (immediately restarts with the same
 
 1. Open `PexesoooPrinter.html`.
 2. Load a set exactly as in the game — by **File** (a single `.json`) or by **Folder** (the printer lists every valid set found at the top level). A full preview of each set is shown; click one to select it.
-3. Under **Print options**, choose:
+3. *(Optional)* open the **Preview** section to see all of the set's pairs laid out — each pair's two cards side by side, with the pair's file name below — the same view as the game's Preview.
+4. Under **Print options**, choose:
    - **What to print** — one of the four scenarios below.
    - **Card size** — **40 / 45 / 50 / 60 mm** (square; default **50 mm**).
    - **Page size** — **A4** or **US Letter**.
    - *(duplex only)* **Back offset** — an optional **X / Y** nudge in millimetres to correct your printer's front/back alignment (see the duplex note below).
-4. Click **Generate PDF**. The file downloads locally, named `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf` (a non-zero back offset adds an `__x<X>_y<Y>mm` segment).
+5. Click **Generate PDF**. The file downloads locally, named `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf` (a non-zero back offset adds an `__x<X>_y<Y>mm` segment).
 
 **Print scenarios**
 
@@ -112,6 +113,30 @@ The PDF is built entirely in your browser — no library, no upload — with the
 
 ---
 
+## Launch parameters (URL)
+
+All three apps read optional parameters from the page URL's query string, so you can pre-configure them from a link, a bookmark, or a desktop shortcut. These work from `file://` too — but note they can't be added by double-clicking the file; type or paste the full URL, or save a bookmark/shortcut that includes them.
+
+Parameter **names and values are case-insensitive** (they are written lowercase here). Unknown keys and unrecognised values are ignored, leaving the normal defaults in place. The language pill and the in-app controls still work as usual afterwards — the parameters only set the *initial* state.
+
+| Parameter | Apps | Values | Effect |
+|---|---|---|---|
+| `lang` | all three | `en`, `cs` | Initial UI language. Invalid or absent → Czech (the default). |
+| `player` | game | any text, **repeatable** | Pre-fills player names. Repeat the key once per player; the number of occurrences sets the player count (capped at 6). An empty value keeps that slot blank (Start stays disabled until it is filled). |
+| `timer` | game | `on`, `off` | Turns the per-turn timer on or off. `on` uses the default seconds. |
+| `score` | game | `on`, `off` | Shows the score during play (on) or reveals it only in the results (off). |
+
+Values must be URL-encoded where needed — spaces as `%20` or `+`, and accented letters as their percent-encoded UTF-8 (for example `Bo%C5%BEena` → *Božena*).
+
+**Examples**
+
+- `PexesoooGame.html?lang=en` — open the game in English.
+- `PexesoooGame.html?player=Adam&player=Bozena&player=Cecil` — three players named Adam, Bozena, and Cecil.
+- `PexesoooGame.html?lang=en&player=Adam&player=Bozena&timer=on&score=on` — English, two players, timer on, score shown during play.
+- `PexesoooGenerator.html?lang=en` and `PexesoooPrinter.html?lang=en` — open the generator or the printer in English.
+
+---
+
 ## Set file format
 
 A set is a single JSON file. Images are stored inline as base64 data URIs, so the file is fully portable. All three apps read and write this same format.
@@ -121,7 +146,7 @@ A set is a single JSON file. Images are stored inline as base64 data URIs, so th
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.8.0",
+  "generator": "PexesoooGenerator/1.9.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -194,5 +219,5 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`PexesoooGame v1.8.0`, `PexesoooGenerator v1.8.0`, `PexesoooPrinter v1.8.0`).
+- App version is shown in each app's header (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.

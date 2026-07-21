@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Display credits field in the set selection as alt text.
 - Add hashes to the README files.
 
+## [1.9.0] - 2026-07-20
+
+### Added
+- **Launch parameters (URL query string).** All three apps read optional parameters from the page URL, so a link, bookmark, or desktop shortcut can pre-configure them; they work from `file://` too. Parameter names and values are **case-insensitive** (documented lowercase), and unknown keys or unrecognised values are ignored, leaving the normal defaults. The parameters set only the initial state — the language pill and in-app controls still work afterwards.
+  - **All apps:** `lang=en|cs` sets the initial UI language (invalid or absent → the Czech default).
+  - **`PexesoooGame.html`:** `player=<name>` (repeatable) pre-fills player names — the number of occurrences sets the player count (capped at 6), and an empty value leaves a blank slot (Start stays disabled until filled); `timer=on|off` toggles the per-turn timer (`on` uses the default seconds); `score=on|off` toggles showing the score during play.
+- **`PexesoooPrinter.html`: Preview / Náhled section.** A new collapsible section that displays every pair of the selected set — each pair's two cards side by side on a uniting surface, with the pair's file name below — the **same view as the game's Preview**, reusing the game's pair-preview grid. Disabled until a set is selected, then enabled (left collapsed) so it can be opened to review.
+
+### Changed
+- **`PexesoooGame.html`:** the app title now reads **"Pexesooo Game" / "Pexesooo Hra"** in both the header and the browser tab, matching how the Generator and Printer are titled; the header version line is aligned to `PexesoooGame v1.9.0` (was `Pexesooo v1.8.0`).
+- **Docs:** `README.md` (and its Czech translation `README.cs.md`) gain a **Launch parameters** section documenting the above; a stale `Pexesooo.html` reference in the README "Play" heading was corrected to `PexesoooGame.html`.
+- All three apps now display **v1.9.0**; the generator identifier stamped into produced sets is now `PexesoooGenerator/1.9.0`. The set schema is unchanged (`version` stays `1`) — sets remain backward compatible.
+
 ## [1.8.0] - 2026-07-18
 
 ### Changed
@@ -147,7 +160,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/KarlM0/Pexesooo/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/KarlM0/Pexesooo/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/KarlM0/Pexesooo/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/KarlM0/Pexesooo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/KarlM0/Pexesooo/compare/v1.4.0...v1.5.0

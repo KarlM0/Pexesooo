@@ -4,7 +4,7 @@
 
 Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concentration* / *Pairs*), doprovodný **generátor sad** a **tiskárna**. Vytvořte si vlastní sady karet ze dvou složek obrázků, získejte jediný přenositelný soubor JSON a hrajte na obrazovce — nebo karty vytiskněte, vystřihněte a hrajte na papíře. Žádný server, žádný build, žádná instalace.
 
-> **Stav:** v1.8.0 · tři statické soubory HTML · běží offline z `file://`
+> **Stav:** v1.9.0 · tři statické soubory HTML · běží offline z `file://`
 
 ---
 
@@ -88,12 +88,13 @@ Ve výsledcích můžete zvolit **Hrát znovu** (okamžitě začne nová hra se 
 
 1. Otevřete `PexesoooPrinter.html`.
 2. Načtěte sadu úplně stejně jako ve hře — přes **Soubor** (jeden `.json`) nebo přes **Složku** (tiskárna vypíše všechny platné sady nalezené na nejvyšší úrovni). U každé sady se zobrazí úplný náhled; kliknutím ji vyberete.
-3. V sekci **Možnosti tisku** zvolte:
+3. *(Volitelně)* otevřete sekci **Náhled** a zobrazte si všechny dvojice sady — obě karty každé dvojice vedle sebe, s názvem souboru dvojice pod nimi — stejné zobrazení jako Náhled ve hře.
+4. V sekci **Možnosti tisku** zvolte:
    - **Co tisknout** — jeden ze čtyř níže uvedených scénářů.
    - **Velikost karty** — **40 / 45 / 50 / 60 mm** (čtverec; výchozí **50 mm**).
    - **Velikost stránky** — **A4** nebo **US Letter**.
    - *(pouze duplex)* **Posun rubu** — volitelný posun **X / Y** v milimetrech pro korekci zarovnání líce a rubu vaší tiskárny (viz poznámka k duplexu níže).
-4. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<NazevSady>__<Rozliseni>px__<Velikost>mm__<VelikostStranky>__<Scenar>[__x<X>_y<Y>mm].pdf` (nenulový posun rubu přidá segment `__x<X>_y<Y>mm`).
+5. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<NazevSady>__<Rozliseni>px__<Velikost>mm__<VelikostStranky>__<Scenar>[__x<X>_y<Y>mm].pdf` (nenulový posun rubu přidá segment `__x<X>_y<Y>mm`).
 
 **Scénáře tisku**
 
@@ -112,6 +113,30 @@ PDF se sestaví celé ve vašem prohlížeči — bez knihovny, bez nahrávání
 
 ---
 
+## Parametry spuštění (URL)
+
+Všechny tři aplikace čtou volitelné parametry z dotazovací části URL stránky, takže je můžete přednastavit z odkazu, záložky nebo zástupce na ploše. Fungují i z `file://` — mějte však na paměti, že je nelze přidat dvojklikem na soubor; napište nebo vložte celou URL, nebo si uložte záložku či zástupce, které je obsahují.
+
+**Názvy i hodnoty parametrů nerozlišují velikost písmen** (zde jsou psány malými písmeny). Neznámé klíče a nerozpoznané hodnoty se ignorují a ponechají běžné výchozí nastavení. Jazykové přepínací tlačítko i ovládací prvky v aplikaci fungují poté normálně — parametry nastavují pouze *počáteční* stav.
+
+| Parametr | Aplikace | Hodnoty | Účinek |
+|---|---|---|---|
+| `lang` | všechny tři | `en`, `cs` | Počáteční jazyk rozhraní. Neplatný nebo chybějící → čeština (výchozí). |
+| `player` | hra | libovolný text, **lze opakovat** | Předvyplní jména hráčů. Klíč zopakujte jednou za každého hráče; počet výskytů určí počet hráčů (nejvýše 6). Prázdná hodnota ponechá dané pole prázdné (Spustit hru zůstane zakázané, dokud ho nevyplníte). |
+| `timer` | hra | `on`, `off` | Zapne nebo vypne časomíru na tah. `on` použije výchozí počet sekund. |
+| `score` | hra | `on`, `off` | Zobrazuje skóre během hry (on), nebo ho odhalí až ve výsledcích (off). |
+
+Hodnoty je v případě potřeby nutné zakódovat pro URL — mezery jako `%20` nebo `+` a písmena s diakritikou jako jejich procentně zakódované UTF-8 (například `Bo%C5%BEena` → *Božena*).
+
+**Příklady**
+
+- `PexesoooGame.html?lang=en` — otevře hru v angličtině.
+- `PexesoooGame.html?player=Adam&player=Bozena&player=Cecil` — tři hráči se jmény Adam, Bozena a Cecil.
+- `PexesoooGame.html?lang=en&player=Adam&player=Bozena&timer=on&score=on` — angličtina, dva hráči, časomíra zapnutá, skóre zobrazené během hry.
+- `PexesoooGenerator.html?lang=en` a `PexesoooPrinter.html?lang=en` — otevře generátor nebo tiskárnu v angličtině.
+
+---
+
 ## Formát souboru sady
 
 Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI, takže soubor je plně přenositelný. Všechny tři aplikace čtou a zapisují tentýž formát.
@@ -121,7 +146,7 @@ Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI,
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.8.0",
+  "generator": "PexesoooGenerator/1.9.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -194,5 +219,5 @@ Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zař
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.8.0`, `PexesoooGenerator v1.8.0`, `PexesoooPrinter v1.8.0`).
+- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.

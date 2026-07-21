@@ -146,7 +146,7 @@ textarea:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Generator</h1>
       <div class="subtitle" id="t-subtitle">Build a self-contained memory-game set from two folders.</div>
-      <div class="version">PexesoooGenerator v1.8.0</div>
+      <div class="version">PexesoooGenerator v1.9.0</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -297,11 +297,17 @@ function applyLang(){
   if (currentRows) render(currentRows);
   if (backReview) renderBackReview();
 }
+/* Set the UI language, sync the pill active state, and re-render. Shared by the
+   language pill and the ?lang= launch parameter. Invalid codes are ignored. */
+function setLang(code){
+  if (code !== "en" && code !== "cs") return;
+  lang = code;
+  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x.dataset.lang===code));
+  applyLang();
+}
 document.getElementById("lang").addEventListener("click", e=>{
   const b = e.target.closest("button"); if(!b) return;
-  lang = b.dataset.lang;
-  document.querySelectorAll("#lang button").forEach(x=>x.classList.toggle("active", x===b));
-  applyLang();
+  setLang(b.dataset.lang);
 });
 
 /* ---------- resolution selector ---------- */
@@ -675,7 +681,7 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
 
   const data = {
     _source: "https://github.com/KarlM0/Pexesooo/",
-    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.8.0",
+    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.9.0",
     createdAt:new Date().toISOString(),
     name: nameEl.value.trim(), description: descEl.value.trim(),
     thumb:{ size:size, fit:"cover", type:"image/jpeg" },
@@ -696,7 +702,25 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
   setTimeout(()=>URL.revokeObjectURL(url), 1000);
 });
 
-applyLang();
+/* ---------------- launch parameters ---------------- */
+/* Optional URL parameter, read from window.location.search (populated on file:// URLs too).
+   Key is case-insensitive; documented lowercase. Unknown keys and unrecognised values are ignored.
+     lang=en|cs   initial UI language (invalid/absent → Czech default) */
+function initFromURL(){
+  let params;
+  try { params = new URLSearchParams(window.location.search); }
+  catch(e){ return; }
+  for (const [k,v] of params){
+    if (k.toLowerCase() === "lang"){
+      const s = (v||"").trim().toLowerCase();
+      if (s === "en" || s === "cs") lang = s;
+      break; // first lang wins
+    }
+  }
+}
+
+initFromURL();
+setLang(lang);   // syncs pill state + calls applyLang()
 </script>
 </body>
 </html>
