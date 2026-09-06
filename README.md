@@ -4,7 +4,7 @@
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English), a companion **set generator**, and a **printer**. Build your own card sets from two folders of images, get a single portable JSON file, and play on screen — or print the cards, cut them out, and play on paper. No server, no build step, no install.
 
-> **Status:** v1.10.0 · three static HTML files · runs offline from `file://`
+> **Status:** v1.10.0 · three static HTML files · run offline from `file://`
 
 ---
 
@@ -219,7 +219,7 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
+- App version is shown in each app's header (`PexesoooGame v1.10.0`, `PexesoooGenerator v1.10.0`, `PexesoooPrinter v1.10.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.
 
 ---
