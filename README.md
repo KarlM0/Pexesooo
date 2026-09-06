@@ -221,3 +221,27 @@ Everything happens in your browser. Your images never leave your device; the app
 
 - App version is shown in each app's header (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.
+
+---
+
+## License
+
+Pexesooo is licensed under
+[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+**You may** download, use, and share the apps and this documentation
+unmodified — including in schools, libraries, and other non-commercial
+settings — as long as you credit the source
+(https://github.com/KarlM0/Pexesooo/).
+
+**You may not** modify the apps or share modified versions, or use them
+for any commercial purpose.
+
+**Your sets are yours.** The license covers the three apps and the
+documentation. Sets you build with the generator contain your own images
+and are not covered by it.
+
+The web fonts (Fraunces, Manrope, JetBrains Mono) are licensed separately
+by their authors under the SIL Open Font License and Apache 2.0.
+
+Copyright © 2026 KarlM0. All rights not expressly granted are reserved.
