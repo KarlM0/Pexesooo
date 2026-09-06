@@ -10,6 +10,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Display credits field in the set selection as alt text.
 - Add hashes to the README files.
 
+## [1.10.0] - 2026-09-06
+
+### Added
+- **Licensing** — the suite is now released under
+  [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/):
+  use and unmodified redistribution are permitted with attribution;
+  modification and commercial use are not.
+  - `LICENSE` added at the repository root (official CC legal code, prefixed
+    with the copyright line `Pexesooo — Copyright (c) 2026 KarlM0`).
+  - `README.md` and `README.cs.md` gained a **License / Licence** section
+    stating the grant, the attribution requirement, and that sets built with
+    the generator remain the user's own property.
+
+### Changed
+- **All apps**
+  - The source-attribution comment on line 2 of each HTML file now carries the
+    licence identifier:
+    `<!-- Source: https://github.com/KarlM0/Pexesooo/ | SPDX-License-Identifier: CC-BY-NC-ND-4.0 -->`
+  - All apps display **v1.10.0**; the generator identifier in produced sets is
+    now `PexesoooGenerator/1.9.0`.
+
 ## [1.9.0] - 2026-07-20
 
 ### Added
