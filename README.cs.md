@@ -219,7 +219,7 @@ Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zař
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
+- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.10.0`, `PexesoooGenerator v1.10.0`, `PexesoooPrinter v1.10.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
 
 ---
