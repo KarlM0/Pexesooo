@@ -221,3 +221,27 @@ Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zař
 
 - Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
+
+---
+
+## Licence
+
+Pexesooo je poskytováno pod licencí
+[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+**Můžete** aplikace a tuto dokumentaci stahovat, používat a v nezměněné
+podobě sdílet — včetně škol, knihoven a dalšího nekomerčního použití —
+pokud uvedete zdroj (https://github.com/KarlM0/Pexesooo/).
+
+**Nesmíte** aplikace upravovat ani sdílet upravené verze, ani je použít
+k jakémukoli komerčnímu účelu.
+
+**Vaše sady patří vám.** Licence se vztahuje na tři aplikace a na tuto
+dokumentaci. Sady, které vytvoříte generátorem, obsahují vaše vlastní
+obrázky a licence se na ně nevztahuje.
+
+Webové fonty (Fraunces, Manrope, JetBrains Mono) mají vlastní licence
+svých autorů — SIL Open Font License a Apache 2.0.
+
+Copyright © 2026 KarlM0. Všechna práva, která nejsou výslovně udělena,
+jsou vyhrazena.
