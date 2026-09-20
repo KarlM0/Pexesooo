@@ -259,7 +259,8 @@ Versioning and License sections.
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/KarlM0/Pexesooo/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/KarlM0/Pexesooo/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/KarlM0/Pexesooo/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/KarlM0/Pexesooo/compare/v1.7.0...v1.8.0
