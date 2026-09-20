@@ -16,7 +16,6 @@ Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concen
 | `PexesoooGenerator.html` | Nástroj pro tvorbu sad. Ze dvou složek obrázků vytvoří jeden soubor `.json`. |
 | `PexesoooPrinter.html` | Tiskárna. Ze sady vytvoří PDF připravené k tisku a vystřižení. |
 | `PexesoooFlashcards.html` | Kartičky. Učí sadu kartu po kartě. |
-| `DESIGN.md` | Sdílený vizuální jazyk (návrhové tokeny, typografie, komponenty). |
 | `README.md` | Tento soubor (anglicky). |
 
 Všechny čtyři aplikace jsou jednotlivé soubory HTML bez závislostí. Stačí je otevřít v prohlížeči.
@@ -177,7 +176,7 @@ Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI,
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.9.0",
+  "generator": "PexesoooGenerator/1.11.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
