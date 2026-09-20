@@ -70,13 +70,13 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 .btn-ghost { background:var(--surface-2); border:1px solid var(--border); color:var(--text); }
 .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
 .btn:disabled { opacity:0.35; cursor:not-allowed; filter:none; }
-.btn-row { display:flex; gap:12px; margin-top:4px; }
+.btn-row { display:flex; gap:12px; }
 
 /* Toggle switches + switch rows (Part 2) */
-.switch-row { display:flex; align-items:center; justify-content:space-between; gap:16px;
-  border-top:1px solid var(--border-soft); padding:11px 0; }
-.switch-row .sl { font-family:'Manrope'; font-weight:600; font-size:13.5px; }
-.switch-row .sd { font-family:'Manrope'; font-size:11.5px; color:var(--text-faint); }
+.switch-row { display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-soft); padding:11px 0; gap:14px; }
+.switch-row:first-of-type { border-top:none; }
+.switch-label { font-family:'Manrope'; font-weight:600; font-size:13.5px; }
+.switch-desc { font-family:'Manrope'; font-size:11.5px; color:var(--text-faint); }
 .toggle { flex-shrink:0; width:42px; height:24px; border-radius:999px; background:var(--surface-2);
   border:1px solid var(--border); position:relative; cursor:pointer; transition:0.18s; }
 .toggle .knob { position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%;
@@ -110,7 +110,7 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 .preview .pcount { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin-top:6px; }
 .samples { display:flex; gap:14px; margin-top:12px; flex-wrap:wrap; }
 .sample-pair { display:flex; gap:6px; align-items:center; background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:6px; }
-.mini { width:42px; height:42px; border-radius:6px; object-fit:cover; background:var(--surface-2); display:block; }
+.mini { width:42px; height:42px; border-radius:6px; object-fit:cover; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:9px; text-align:center; padding:3px; color:var(--text-dim); overflow:hidden; line-height:1.1; }
 .preview-back { flex-shrink:0; text-align:center; }
 .preview-back img { width:120px; height:120px; border-radius:var(--radius-sm); object-fit:cover; border:1px solid var(--border); display:block; }
 .preview-back .cap { font-family:'Manrope'; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); margin-top:6px; }
@@ -193,7 +193,7 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 
 /* Animations (Part 1) */
 @keyframes rise { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
-.rise { animation:rise 0.35s ease both; }
+.rise { animation:rise 0.35s ease backwards; }
 
 /* Responsive breakpoint (Part 2) */
 @media (max-width:560px){
@@ -212,8 +212,8 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
     <div>
       <h1 id="t-title">Pexesooo Flashcards</h1>
       <div class="subtitle" id="t-subtitle">Study a set one card at a time.</div>
-      <div class="version">v1.9.0</div>
-      <div class="repo-link"><a id="t-repo" href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener noreferrer">View on GitHub</a></div>
+      <div class="version">PexesoooFlashcards v1.10.0</div>
+      <div class="repo-link"><a id="t-repo" href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener">View on GitHub</a></div>
     </div>
     <div class="header-right">
       <div class="pillgroup" id="lang">
@@ -270,8 +270,8 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
       <div class="field">
         <div class="switch-row">
           <div>
-            <div class="sl" id="t-shufflelabel">Shuffle the deck</div>
-            <div class="sd" id="t-shufflehint">Off keeps the set's own order</div>
+            <div class="switch-label" id="t-shufflelabel">Shuffle the deck</div>
+            <div class="switch-desc" id="t-shufflehint">Off keeps the set's own order</div>
           </div>
           <div class="toggle on" id="shuffleToggle"><div class="knob"></div></div>
         </div>
