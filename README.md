@@ -16,7 +16,6 @@ A self-contained, browser-based **memory matching game** (known as *pexeso* in C
 | `PexesoooGenerator.html` | The set builder. Turns two folders of images into one `.json` set. |
 | `PexesoooPrinter.html` | The printer. Turns a set into a print-ready PDF for cutting out. |
 | `PexesoooFlashcards.html` | The flashcard trainer. Studies a set one card at a time. |
-| `DESIGN.md` | Shared visual language (design tokens, typography, components). |
 | `README.md` | This file. |
 
 All four apps are single, dependency-free HTML files. Just open them in a browser.
@@ -177,7 +176,7 @@ A set is a single JSON file. Images are stored inline as base64 data URIs, so th
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.9.0",
+  "generator": "PexesoooGenerator/1.11.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
