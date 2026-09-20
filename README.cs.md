@@ -2,9 +2,9 @@
 
 # Pexesooo
 
-Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concentration* / *Pairs*), doprovodný **generátor sad** a **tiskárna**. Vytvořte si vlastní sady karet ze dvou složek obrázků, získejte jediný přenositelný soubor JSON a hrajte na obrazovce — nebo karty vytiskněte, vystřihněte a hrajte na papíře. Žádný server, žádný build, žádná instalace.
+Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concentration* / *Pairs*), doprovodný **generátor sad**, **tiskárna** a **kartičky na učení**. Vytvořte si vlastní sady karet ze dvou složek obrázků, získejte jediný přenositelný soubor JSON a hrajte na obrazovce — nebo karty vytiskněte, vystřihněte a hrajte na papíře — nebo se z téže sady učte kartu po kartě. Žádný server, žádný build, žádná instalace.
 
-> **Stav:** v1.10.0 · tři statické soubory HTML · běží offline z `file://`
+> **Stav:** v1.11.0 · čtyři statické soubory HTML · běží offline z `file://`
 
 ---
 
@@ -15,10 +15,11 @@ Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concen
 | `PexesoooGame.html` | Hra. Načte soubor sady a hraje ji pro 1–6 hráčů. |
 | `PexesoooGenerator.html` | Nástroj pro tvorbu sad. Ze dvou složek obrázků vytvoří jeden soubor `.json`. |
 | `PexesoooPrinter.html` | Tiskárna. Ze sady vytvoří PDF připravené k tisku a vystřižení. |
+| `PexesoooFlashcards.html` | Kartičky. Učí sadu kartu po kartě. |
 | `DESIGN.md` | Sdílený vizuální jazyk (návrhové tokeny, typografie, komponenty). |
 | `README.md` | Tento soubor (anglicky). |
 
-Všechny tři aplikace jsou jednotlivé soubory HTML bez závislostí. Stačí je otevřít v prohlížeči.
+Všechny čtyři aplikace jsou jednotlivé soubory HTML bez závislostí. Stačí je otevřít v prohlížeči.
 
 ---
 
@@ -29,7 +30,9 @@ Všechny tři aplikace jsou jednotlivé soubory HTML bez závislostí. Stačí j
 - **Dvojice jen z obrázků:** podporovány jsou soubory PNG, JPG a JPEG.
 - **Dvě výstupní rozlišení:** vytvořte sady **online** (200×200, menší soubory) nebo **pro tisk** (600×600, kvalitnější obrázky pro tisk). Volba platí pro obrázky karet i pro rub.
 - **Samostatné sady:** obrázky jsou vloženy přímo do JSON, takže sada je jediný soubor, který můžete sdílet, poslat e-mailem nebo uložit do repozitáře.
+- **Jedna sada, tři způsoby využití:** zahrajte si ji, vytiskněte ji, nebo se z ní učte — vše z téhož souboru `.json`.
 - **Tisk na papír:** libovolnou sadu převeďte na PDF a vystřihněte fyzické karty — **jednostranně**, **přeložením**, nebo **oboustranně (duplex)**, ve zvolené velikosti karet.
+- **Učení s kartičkami:** kartu po kartě — otočením odhalíte odpověď, označíte, co umíte, a co vám nešlo, se opakuje, dokud balíček nedojde.
 - **Náhled dvojic** před hraním — zobrazte si všechny dvojice sady najednou.
 - **1–6 hráčů** s vlastními jmény a přehledným ukazatelem tahu.
 - **Spravedlivé pořadí na tahu:** každé *Hrát znovu* posune, kdo začíná; *Spustit hru* pořadí resetuje.
@@ -111,20 +114,47 @@ Ve výsledcích můžete zvolit **Hrát znovu** (okamžitě začne nová hra se 
 
 PDF se sestaví celé ve vašem prohlížeči — bez knihovny, bez nahrávání — s obrázky karet vloženými přímo.
 
+### 4. Učení (`PexesoooFlashcards.html`)
+
+Dvojice pexesa je vlastně hotová kartička: jedna strana se ptá, druhá odpovídá. Kartičky čtou tytéž soubory sad jako hra a tiskárna — žádný zvláštní formát, žádný převod.
+
+1. Otevřete `PexesoooFlashcards.html`.
+2. Načtěte sadu úplně stejně jako ve hře — přes **Soubor** (jeden `.json`) nebo přes **Složku** (vypíšou se všechny platné sady nalezené na nejvyšší úrovni; kliknutím sadu vyberete).
+3. Zvolte, **která strana se ptá** — **A → B** (ptá se první obrázek, odpovídá druhý) nebo **B → A**. U každé volby se ukáže první dvojice vybrané sady, takže vidíte, který obrázek je který, a nemusíte si pamatovat, která složka byla A.
+4. *(Volitelně)* vypněte **Zamíchat balíček** a učte se v pořadí sady.
+5. Klikněte na **Začít se učit**.
+
+**Pravidla učení**
+
+- Vždy jedna karta. **Klepnutím na kartu** nebo stiskem **mezerníku** ji otočíte a odhalíte odpověď.
+- **Umím** kartu natrvalo odloží. **Opakovat** ji vrátí do hromádky na později.
+- Když balíček dojde, stane se z hromádky další kolo — a tak dál, dokud nejsou odloženy všechny karty. Tlačítko **Ukončit učení** skončí dřív.
+- Klávesnice: **mezerník** otáčí; po odhalení je **→** (nebo **1**) *Umím* a **←** (nebo **2**) *Opakovat*.
+- Ukazatel průběhu se plní zeleně za odložené karty a červeně za karty čekající na opakování; číslo vedle něj ukazuje kolo.
+- Sekce **Výsledky** ukáže celkový čas, kolik karet jste zvládli hned napoprvé, kolik jich potřebovalo opakování (s náhledy obou stran) a kolik jste nestihli. Odtud: **Učit se znovu**, **Projít ty, co mi nešly** (spustí učení jen s touto podmnožinou), nebo **Jiná sada**.
+
+**Poznámky**
+
+- Sada nikde nezaznamenává, která strana je otázka — jediným pořadím je volba Složky A a Složky B v generátoru. Proto se směr volí až v aplikaci, a ne v souboru.
+- U sady se **shodnými (1:1) dvojicemi** si každá karta odpovídá sama. Aplikace na to upozorní, ale nebrání v učení.
+- Rub karet se zde nepoužívá: kartička vždy ukazuje jeden ze dvou obrázků dvojice, takže sada **bez rubu** funguje úplně stejně dobře.
+
 ---
 
 ## Parametry spuštění (URL)
 
-Všechny tři aplikace čtou volitelné parametry z dotazovací části URL stránky, takže je můžete přednastavit z odkazu, záložky nebo zástupce na ploše. Fungují i z `file://` — mějte však na paměti, že je nelze přidat dvojklikem na soubor; napište nebo vložte celou URL, nebo si uložte záložku či zástupce, které je obsahují.
+Všechny čtyři aplikace čtou volitelné parametry z dotazovací části URL stránky, takže je můžete přednastavit z odkazu, záložky nebo zástupce na ploše. Fungují i z `file://` — mějte však na paměti, že je nelze přidat dvojklikem na soubor; napište nebo vložte celou URL, nebo si uložte záložku či zástupce, které je obsahují.
 
 **Názvy i hodnoty parametrů nerozlišují velikost písmen** (zde jsou psány malými písmeny). Neznámé klíče a nerozpoznané hodnoty se ignorují a ponechají běžné výchozí nastavení. Jazykové přepínací tlačítko i ovládací prvky v aplikaci fungují poté normálně — parametry nastavují pouze *počáteční* stav.
 
 | Parametr | Aplikace | Hodnoty | Účinek |
 |---|---|---|---|
-| `lang` | všechny tři | `en`, `cs` | Počáteční jazyk rozhraní. Neplatný nebo chybějící → čeština (výchozí). |
+| `lang` | všechny čtyři | `en`, `cs` | Počáteční jazyk rozhraní. Neplatný nebo chybějící → čeština (výchozí). |
 | `player` | hra | libovolný text, **lze opakovat** | Předvyplní jména hráčů. Klíč zopakujte jednou za každého hráče; počet výskytů určí počet hráčů (nejvýše 6). Prázdná hodnota ponechá dané pole prázdné (Spustit hru zůstane zakázané, dokud ho nevyplníte). |
 | `timer` | hra | `on`, `off` | Zapne nebo vypne časomíru na tah. `on` použije výchozí počet sekund. |
 | `score` | hra | `on`, `off` | Zobrazuje skóre během hry (on), nebo ho odhalí až ve výsledcích (off). |
+| `dir` | kartičky | `ab`, `ba` | Která strana dvojice se ptá. `ab` (výchozí) udělá z prvního obrázku otázku; `ba` pořadí obrátí. |
+| `shuffle` | kartičky | `on`, `off` | Zamíchá balíček (`on`, výchozí), nebo se učí v pořadí sady (`off`). |
 
 Hodnoty je v případě potřeby nutné zakódovat pro URL — mezery jako `%20` nebo `+` a písmena s diakritikou jako jejich procentně zakódované UTF-8 (například `Bo%C5%BEena` → *Božena*).
 
@@ -133,13 +163,14 @@ Hodnoty je v případě potřeby nutné zakódovat pro URL — mezery jako `%20`
 - `PexesoooGame.html?lang=en` — otevře hru v angličtině.
 - `PexesoooGame.html?player=Adam&player=Bozena&player=Cecil` — tři hráči se jmény Adam, Bozena a Cecil.
 - `PexesoooGame.html?lang=en&player=Adam&player=Bozena&timer=on&score=on` — angličtina, dva hráči, časomíra zapnutá, skóre zobrazené během hry.
+- `PexesoooFlashcards.html?dir=ba&shuffle=off` — učení, kde se ptá druhý obrázek, v pořadí sady.
 - `PexesoooGenerator.html?lang=en` a `PexesoooPrinter.html?lang=en` — otevře generátor nebo tiskárnu v angličtině.
 
 ---
 
 ## Formát souboru sady
 
-Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI, takže soubor je plně přenositelný. Všechny tři aplikace čtou a zapisují tentýž formát.
+Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI, takže soubor je plně přenositelný. Všechny čtyři aplikace čtou a zapisují tentýž formát.
 
 ```json
 {
@@ -168,7 +199,8 @@ Poznámky:
 - Každá dvojice vytváří **dvě karty**; shoda jsou dvě karty se stejným `id` dvojice.
 - Obě strany karty jsou `{ "kind": "image", "src": "data:image/…" }`.
 - `thumb.size` zaznamenává rozlišení, ve kterém byly obrázky vytvořeny — **200** (online) nebo **600** (pro tisk).
-- `back` je ve formátu **volitelný**. Chybí-li (nebo je nečitelný), hra vykreslí jako rub karet **název sady**. (Pozn.: generátor rub *vyžaduje* při tvorbě sady pro tisk a tiskárna rub *vyžaduje* pro scénáře „líce + ruby“ a duplex.)
+- `back` je ve formátu **volitelný**. Chybí-li (nebo je nečitelný), hra vykreslí jako rub karet **název sady**. (Pozn.: generátor rub *vyžaduje* při tvorbě sady pro tisk a tiskárna rub *vyžaduje* pro scénáře „líce + ruby“ a duplex. Kartičky rub nepoužívají vůbec.)
+- Formát **nezaznamenává význam stran** — nic neurčuje, že `a` je otázka a `b` odpověď. Kartičky proto čtou dvojici jako jednu kartu a směr (`a → b` nebo `b → a`) si volíte při spuštění učení.
 - `_source` udává URL projektu a je jen informativní; aplikace ho ignorují.
 - `format` musí být `"pexesooo"`. Sady vytvořené staršími verzemi generátoru (které používaly `"pexeso"`) nejsou kompatibilní.
 
@@ -176,10 +208,11 @@ Poznámky:
 
 ## Vzhled
 
-Všechny tři aplikace sledují sdílený tmavý vizuální jazyk definovaný v `DESIGN.md` (vlastní vlastnosti CSS, tři písma — Fraunces / Manrope / JetBrains Mono — a malá knihovna komponent). Několik prvků jsou záměrná, zdokumentovaná rozšíření tohoto systému:
+Všechny čtyři aplikace sledují sdílený tmavý vizuální jazyk definovaný v `DESIGN.md` (vlastní vlastnosti CSS, tři písma — Fraunces / Manrope / JetBrains Mono — a malá knihovna komponent). Několik prvků jsou záměrná, zdokumentovaná rozšíření tohoto systému:
 
 - **Otočení karty** — zdrženlivé 0,3s plynulé `rotateY`, uvedená výjimka ze základního pravidla pohybu „jediná vstupní animace“.
 - **Dvojice výběru souboru / složky, seznam sad, přepínače rozlišení / voleb, pruh hráčů na tahu, mřížka náhledu dvojic, pole posunu rubu, odkaz na repozitář a indikátor načítání** — odvozené ze základních tokenů tam, kde knihovna komponent nemá existující vzor.
+- **Balíček kartiček** — karta ze hry zvětšená na jedinou kartu uprostřed a přeznačená podle nového významu: klidová strana je obrázek otázky (nikoli sdílený rub) a otočená strana je odpověď, která má akcentový rámeček, aby odhalená strana působila jako aktivní stav. Vedle toho **přepínač směru** (přepínač voleb z generátoru, doplněný o živé náhledy první dvojice sady) a **dvousegmentový ukazatel průběhu** (odložené karty / karty čekající na opakování).
 - **Tištěný výstup PDF** (rozvržení karet, rohové značky pro střih, čáry pro přeložení) je papír, nikoli rozhraní aplikace, takže je záměrně mimo systém tokenů.
 
 Tyto prvky jsou v kódu označeny jako kandidáti na zařazení do `DESIGN.md`.
@@ -188,7 +221,7 @@ Tyto prvky jsou v kódu označeny jako kandidáti na zařazení do `DESIGN.md`.
 
 ## Zabezpečení
 
-Všechny tři aplikace jsou navrženy tak, aby běžely výhradně v prohlížeči bez zapojení serveru. Několik opatření omezuje dopad škodlivého souboru sady:
+Všechny čtyři aplikace jsou navrženy tak, aby běžely výhradně v prohlížeči bez zapojení serveru. Několik opatření omezuje dopad škodlivého souboru sady:
 
 - **Content Security Policy** — značka `<meta>` s CSP blokuje veškeré odchozí síťové připojení stránky, omezuje obrázky na URI `data:` a `blob:` a fonty na Google Fonts.
 - **Bezpečné vykreslování obrázků** — obrázky karet se vždy nastavují přes vlastnost DOM (`img.src = …`), nikdy se nevkládají do `innerHTML`, což brání útokům vkládáním atributů z podvržených souborů sad.
@@ -205,9 +238,10 @@ Načítejte pouze soubory sad z důvěryhodných zdrojů.
 - Obrázky **HEIC** (běžné na iPhonech) prohlížeče **nepodporují** — před tvorbou sady je převeďte na JPG/PNG.
 - Orientace obrázku: generátor při překódování aplikuje orientaci z EXIF, ale ověřte to na otočené fotce z telefonu ve svém prohlížeči.
 - **Tisk:** přesné chování duplexu závisí na vaší tiskárně/ovladači; pomocí **zkušební strany** a **Posunu rubu** dolaďte zarovnání líce a rubu a sladťte vazbu duplexu (delší vs kratší hrana) se zvoleným scénářem.
-- **Žádné ukládání** — není zde uložení/pokračování; nastavení, průběh hry i hodnota posunu rubu v tiskárně existují jen v aktuální záložce.
+- **Kartičky:** karty nesou jen obrázky, takže balíček „slovíčko a překlad“ vyžaduje, aby byla slova při tvorbě sady vykreslena jako obrázky. Mezi sezeními není žádné rozložené opakování — hromádka na opakování žije jen v rámci jednoho sezení.
+- **Žádné ukládání** — není zde uložení/pokračování; nastavení, průběh hry, sezení s kartičkami i hodnota posunu rubu v tiskárně existují jen v aktuální záložce.
 - **Offline:** aplikace fungují z `file://`; bez internetu se webové fonty nahradí systémovými (rozvržení a chování to neovlivní).
-- Výběr složky ve hře a v tiskárně prohledává jen **nejvyšší úroveň** zvolené složky; soubory JSON v podsložkách se ignorují.
+- Výběr složky ve hře, v tiskárně i v kartičkách prohledává jen **nejvyšší úroveň** zvolené složky; soubory JSON v podsložkách se ignorují.
 
 ---
 
@@ -219,24 +253,23 @@ Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zař
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
+- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.11.0`, `PexesoooGenerator v1.11.0`, `PexesoooPrinter v1.11.0`, `PexesoooFlashcards v1.11.0`).
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
 
 ---
 
 ## Licence
 
-Pexesooo je poskytováno pod licencí
-[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+Pexesooo je poskytováno pod licencí [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 
 **Můžete** aplikace a tuto dokumentaci stahovat, používat a v nezměněné
 podobě sdílet — včetně škol, knihoven a dalšího nekomerčního použití —
-pokud uvedete zdroj (https://github.com/KarlM0/Pexesooo/).
+pokud uvedete zdroj (<https://github.com/KarlM0/Pexesooo/>).
 
 **Nesmíte** aplikace upravovat ani sdílet upravené verze, ani je použít
 k jakémukoli komerčnímu účelu.
 
-**Vaše sady patří vám.** Licence se vztahuje na tři aplikace a na tuto
+**Vaše sady patří vám.** Licence se vztahuje na čtyři aplikace a na tuto
 dokumentaci. Sady, které vytvoříte generátorem, obsahují vaše vlastní
 obrázky a licence se na ně nevztahuje.
 

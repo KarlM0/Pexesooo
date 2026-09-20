@@ -2,9 +2,9 @@
 
 # Pexesooo
 
-A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English), a companion **set generator**, and a **printer**. Build your own card sets from two folders of images, get a single portable JSON file, and play on screen — or print the cards, cut them out, and play on paper. No server, no build step, no install.
+A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English), a companion **set generator**, a **printer**, and a **flashcard trainer**. Build your own card sets from two folders of images, get a single portable JSON file, and play on screen — print the cards, cut them out, and play on paper — or study the same set one card at a time. No server, no build step, no install.
 
-> **Status:** v1.10.0 · three static HTML files · runs offline from `file://`
+> **Status:** v1.11.0 · four static HTML files · run offline from `file://`
 
 ---
 
@@ -15,10 +15,11 @@ A self-contained, browser-based **memory matching game** (known as *pexeso* in C
 | `PexesoooGame.html` | The game. Loads a set file and plays it for 1–6 players. |
 | `PexesoooGenerator.html` | The set builder. Turns two folders of images into one `.json` set. |
 | `PexesoooPrinter.html` | The printer. Turns a set into a print-ready PDF for cutting out. |
+| `PexesoooFlashcards.html` | The flashcard trainer. Studies a set one card at a time. |
 | `DESIGN.md` | Shared visual language (design tokens, typography, components). |
 | `README.md` | This file. |
 
-All three apps are single, dependency-free HTML files. Just open them in a browser.
+All four apps are single, dependency-free HTML files. Just open them in a browser.
 
 ---
 
@@ -29,7 +30,9 @@ All three apps are single, dependency-free HTML files. Just open them in a brows
 - **Image-only card pairs:** PNG, JPG, and JPEG files are supported.
 - **Two output resolutions:** build **online** sets (200×200, smaller files) or **printer-friendly** sets (600×600, higher-quality images for printing). The choice applies to the card images and the card back.
 - **Self-contained sets:** images are embedded in the JSON, so a set is one file you can share, e-mail, or commit to a repo.
+- **One set, three ways to use it:** play it, print it, or study it — all from the same `.json` file.
 - **Print to paper:** turn any set into a PDF and cut out physical cards — **single-sided**, **fold-over**, or **true double-sided (duplex)**, at your chosen card size.
+- **Study as flashcards:** one card at a time — flip to reveal the answer, mark what you knew, and repeat what you missed until the deck is clear.
 - **Preview the pairs** before playing — see every pair of a set laid out at a glance.
 - **1–6 players** with custom names and a clear turn indicator.
 - **Fair starting order:** each *Play again* rotates which player starts; *Start game* resets the rotation.
@@ -111,20 +114,47 @@ In the results you can choose **Play again** (immediately restarts with the same
 
 The PDF is built entirely in your browser — no library, no upload — with the card images embedded directly.
 
+### 4. Study (`PexesoooFlashcards.html`)
+
+A pexeso pair is already a flashcard: one side asks, the other answers. The flashcard trainer reads the same set files as the game and the printer — no separate format, no conversion.
+
+1. Open `PexesoooFlashcards.html`.
+2. Load a set exactly as in the game — by **File** (a single `.json`) or by **Folder** (every valid set found at the top level is listed; click one to select it).
+3. Choose **which side asks** — **A → B** (the first image asks, the second answers) or **B → A**. Each option shows the selected set's own first pair, so you can see which image is which rather than having to remember which folder was A.
+4. *(Optional)* turn **Shuffle the deck** off to study in the set's own order.
+5. Click **Start studying**.
+
+**Study rules**
+
+- One card at a time. **Tap the card** or press **Space** to flip it and reveal the answer.
+- **Knew it** retires the card for good. **Repeat** drops it into a leftover pile.
+- When the deck runs out, the leftover pile becomes the next round — and so on until every card has been retired. **End session** stops early.
+- Keyboard: **Space** flips; after the reveal, **→** (or **1**) is *Knew it* and **←** (or **2**) is *Repeat*.
+- The progress bar fills green for retired cards and red for cards waiting on a repeat; the counter beside it shows the round.
+- The **Results** section shows the total time, how many cards you got right first time, how many needed a repeat (with thumbnails of both sides), and how many you didn't get to. From there: **Study again**, **Study the ones I missed** (restarts with just that subset), or **Different set**.
+
+**Notes**
+
+- A set records nothing about which side is the question — the generator's Folder A / Folder B choice is the only ordering — which is why the direction is chosen in the app rather than baked into the file.
+- A set of **1:1 (identical) pairs** makes every card answer itself. The app shows an advisory when it detects one, but doesn't block it.
+- The set's card back isn't used here: a flashcard always shows one of the pair's two images, so a set **without a card back** works exactly as well.
+
 ---
 
 ## Launch parameters (URL)
 
-All three apps read optional parameters from the page URL's query string, so you can pre-configure them from a link, a bookmark, or a desktop shortcut. These work from `file://` too — but note they can't be added by double-clicking the file; type or paste the full URL, or save a bookmark/shortcut that includes them.
+All four apps read optional parameters from the page URL's query string, so you can pre-configure them from a link, a bookmark, or a desktop shortcut. These work from `file://` too — but note they can't be added by double-clicking the file; type or paste the full URL, or save a bookmark/shortcut that includes them.
 
 Parameter **names and values are case-insensitive** (they are written lowercase here). Unknown keys and unrecognised values are ignored, leaving the normal defaults in place. The language pill and the in-app controls still work as usual afterwards — the parameters only set the *initial* state.
 
 | Parameter | Apps | Values | Effect |
 |---|---|---|---|
-| `lang` | all three | `en`, `cs` | Initial UI language. Invalid or absent → Czech (the default). |
+| `lang` | all four | `en`, `cs` | Initial UI language. Invalid or absent → Czech (the default). |
 | `player` | game | any text, **repeatable** | Pre-fills player names. Repeat the key once per player; the number of occurrences sets the player count (capped at 6). An empty value keeps that slot blank (Start stays disabled until it is filled). |
 | `timer` | game | `on`, `off` | Turns the per-turn timer on or off. `on` uses the default seconds. |
 | `score` | game | `on`, `off` | Shows the score during play (on) or reveals it only in the results (off). |
+| `dir` | flashcards | `ab`, `ba` | Which side of a pair asks. `ab` (the default) makes the first image the prompt; `ba` reverses it. |
+| `shuffle` | flashcards | `on`, `off` | Shuffles the deck (`on`, the default) or studies the set in its own order (`off`). |
 
 Values must be URL-encoded where needed — spaces as `%20` or `+`, and accented letters as their percent-encoded UTF-8 (for example `Bo%C5%BEena` → *Božena*).
 
@@ -133,13 +163,14 @@ Values must be URL-encoded where needed — spaces as `%20` or `+`, and accented
 - `PexesoooGame.html?lang=en` — open the game in English.
 - `PexesoooGame.html?player=Adam&player=Bozena&player=Cecil` — three players named Adam, Bozena, and Cecil.
 - `PexesoooGame.html?lang=en&player=Adam&player=Bozena&timer=on&score=on` — English, two players, timer on, score shown during play.
+- `PexesoooFlashcards.html?dir=ba&shuffle=off` — study with the second image asking, in the set's own order.
 - `PexesoooGenerator.html?lang=en` and `PexesoooPrinter.html?lang=en` — open the generator or the printer in English.
 
 ---
 
 ## Set file format
 
-A set is a single JSON file. Images are stored inline as base64 data URIs, so the file is fully portable. All three apps read and write this same format.
+A set is a single JSON file. Images are stored inline as base64 data URIs, so the file is fully portable. All four apps read and write this same format.
 
 ```json
 {
@@ -168,7 +199,8 @@ Notes:
 - Each pair produces **two cards**; a match is two cards with the same pair `id`.
 - Both card sides are `{ "kind": "image", "src": "data:image/…" }`.
 - `thumb.size` records the resolution the images were produced at — **200** (online) or **600** (printer-friendly).
-- `back` is **optional** in the format. If absent (or unreadable), the game renders the **set name** as the card back. (Note: the generator *requires* a back when producing a printer-friendly set, and the printer *requires* a back for its faces+backs and duplex scenarios.)
+- `back` is **optional** in the format. If absent (or unreadable), the game renders the **set name** as the card back. (Note: the generator *requires* a back when producing a printer-friendly set, and the printer *requires* a back for its faces+backs and duplex scenarios. The flashcard trainer never uses it.)
+- The format records **no side semantics** — nothing marks `a` as the question and `b` as the answer. The flashcard trainer therefore reads a pair as one card and lets you choose the direction (`a → b` or `b → a`) when you start a session.
 - `_source` identifies the project URL and is informational only; the apps ignore it.
 - `format` must be `"pexesooo"`. Sets produced by earlier versions of the generator (which used `"pexeso"`) are not compatible.
 
@@ -176,10 +208,11 @@ Notes:
 
 ## Design
 
-All three apps follow a shared dark-theme design language defined in `DESIGN.md` (CSS custom properties, three typefaces — Fraunces / Manrope / JetBrains Mono — and a small component library). A few elements are deliberate, documented extensions of that system:
+All four apps follow a shared dark-theme design language defined in `DESIGN.md` (CSS custom properties, three typefaces — Fraunces / Manrope / JetBrains Mono — and a small component library). A few elements are deliberate, documented extensions of that system:
 
 - **Card flip** — a restrained 0.3s eased `rotateY`, a stated exception to the base "single entrance animation" motion rule.
 - **File / folder picker pair, set list, resolution / option selectors, player turn-strip, pair-preview grid, back-offset inputs, repo link, and the loading indicator** — derived from the base tokens where the component library has no existing pattern.
+- **Flashcard deck** — the game's card component enlarged to a single centred card and re-labelled for its new meaning: the resting face is the prompt image (not a shared card back) and the flipped face is the answer, which carries an accent border so the revealed side reads as the active state. Alongside it, the **direction selector** (the generator's segmented option selector, extended with live thumbnails of the set's first pair) and the **two-segment progress bar** (retired cards / cards waiting on a repeat).
 - **Printed PDF output** (card layout, corner cut marks, fold lines) is paper, not app chrome, so it is intentionally outside the token system.
 
 These are flagged in the source as candidates for inclusion in `DESIGN.md`.
@@ -188,7 +221,7 @@ These are flagged in the source as candidates for inclusion in `DESIGN.md`.
 
 ## Security
 
-All three apps are designed to run entirely in the browser with no server involvement. A few measures are in place to limit the impact of a malicious set file:
+All four apps are designed to run entirely in the browser with no server involvement. A few measures are in place to limit the impact of a malicious set file:
 
 - **Content Security Policy** — a `<meta>` CSP tag blocks all outbound network connections from the page, restricts images to `data:` and `blob:` URIs, and limits fonts to Google Fonts.
 - **Safe image rendering** — card images are always set via DOM property assignment (`img.src = …`), never interpolated into `innerHTML`, preventing attribute injection attacks from crafted set files.
@@ -205,9 +238,10 @@ Only load set files from sources you trust.
 - **HEIC** images (common on iPhones) are **not** supported by browsers — convert to JPG/PNG first before building a set.
 - Image orientation: the generator applies EXIF orientation when re-encoding, but verify with a rotated phone photo on your browser.
 - **Printing:** the exact behavior of duplex depends on your printer/driver; use the printer's **test page** and **Back offset** to get front/back registration right, and match the duplex binding (long vs short edge) to the chosen scenario.
-- **No persistence** — there's no save/resume; settings, game progress, and the printer's back-offset value live only in the current tab.
+- **Flashcards:** cards carry images only, so a word-and-translation deck needs the words rendered as images when the set is built. There is no spaced repetition across sessions — the leftover pile lives within one session.
+- **No persistence** — there's no save/resume; settings, game progress, flashcard sessions, and the printer's back-offset value live only in the current tab.
 - **Offline:** the apps work from `file://`; without internet the web fonts fall back to system fonts (layout and behavior are unaffected).
-- The folder picker in the game and the printer scans only the **top level** of the chosen folder; JSON files in subfolders are ignored.
+- The folder picker in the game, the printer, and the flashcard trainer scans only the **top level** of the chosen folder; JSON files in subfolders are ignored.
 
 ---
 
@@ -219,25 +253,24 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`PexesoooGame v1.9.0`, `PexesoooGenerator v1.9.0`, `PexesoooPrinter v1.9.0`).
+- App version is shown in each app's header (`PexesoooGame v1.11.0`, `PexesoooGenerator v1.11.0`, `PexesoooPrinter v1.11.0`, `PexesoooFlashcards v1.11.0`).
 - The set file records the generator version in its `generator` field and the schema version in `version`.
 
 ---
 
 ## License
 
-Pexesooo is licensed under
-[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+Pexesooo is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 
 **You may** download, use, and share the apps and this documentation
 unmodified — including in schools, libraries, and other non-commercial
 settings — as long as you credit the source
-(https://github.com/KarlM0/Pexesooo/).
+(<https://github.com/KarlM0/Pexesooo/>).
 
 **You may not** modify the apps or share modified versions, or use them
 for any commercial purpose.
 
-**Your sets are yours.** The license covers the three apps and the
+**Your sets are yours.** The license covers the four apps and the
 documentation. Sets you build with the generator contain your own images
 and are not covered by it.
 
