@@ -4,7 +4,7 @@
 
 A self-contained, browser-based **memory matching game** (known as *pexeso* in Czech and Slovak, *Concentration* / *Pairs* in English), a companion **set generator**, a **printer**, and a **flashcard trainer**. Build your own card sets from two folders of images, get a single portable JSON file, and play on screen — print the cards, cut them out, and play on paper — or study the same set one card at a time. No server, no build step, no install.
 
-> **Status:** v1.11.0 · four static HTML files · run offline from `file://`
+> **Status:** v1.12.0 · four static HTML files · run offline from `file://`
 
 ---
 
@@ -14,7 +14,7 @@ A self-contained, browser-based **memory matching game** (known as *pexeso* in C
 |---|---|
 | `PexesoooGame.html` | The game. Loads a set file and plays it for 1–6 players. |
 | `PexesoooGenerator.html` | The set builder. Turns two folders of images into one `.json` set. |
-| `PexesoooPrinter.html` | The printer. Turns a set into a print-ready PDF for cutting out. |
+| `PexesoooPrinter.html` | The printer. Turns a set into a print-ready PDF for cutting out — memory-game cards or two-sided flashcards. |
 | `PexesoooFlashcards.html` | The flashcard trainer. Studies a set one card at a time. |
 | `README.md` | This file. |
 
@@ -30,7 +30,7 @@ All four apps are single, dependency-free HTML files. Just open them in a browse
 - **Two output resolutions:** build **online** sets (200×200, smaller files) or **printer-friendly** sets (600×600, higher-quality images for printing). The choice applies to the card images and the card back.
 - **Self-contained sets:** images are embedded in the JSON, so a set is one file you can share, e-mail, or commit to a repo.
 - **One set, three ways to use it:** play it, print it, or study it — all from the same `.json` file.
-- **Print to paper:** turn any set into a PDF and cut out physical cards — **single-sided**, **fold-over**, or **true double-sided (duplex)**, at your chosen card size.
+- **Print to paper:** turn any set into a PDF and cut out physical cards — as a **memory game** or as **two-sided flashcards** — **single-sided**, **fold-over**, or **true double-sided (duplex)**, at your chosen card size.
 - **Study as flashcards:** one card at a time — flip to reveal the answer, mark what you knew, and repeat what you missed until the deck is clear.
 - **Preview the pairs** before playing — see every pair of a set laid out at a glance.
 - **1–6 players** with custom names and a clear turn indicator.
@@ -92,22 +92,33 @@ In the results you can choose **Play again** (immediately restarts with the same
 2. Load a set exactly as in the game — by **File** (a single `.json`) or by **Folder** (the printer lists every valid set found at the top level). A full preview of each set is shown; click one to select it.
 3. *(Optional)* open the **Preview** section to see all of the set's pairs laid out — each pair's two cards side by side, with the pair's file name below — the same view as the game's Preview.
 4. Under **Print options**, choose:
-   - **What to print** — one of the four scenarios below.
+   - **What to print** — **Memory game** (two cards per pair, with the set's shared back) or **Flashcards** (one two-sided card per pair: the prompt on the front, the answer on the back).
+   - *(flashcards only)* **Which side asks** — **A → B** (the first image is the prompt) or **B → A**. Each option shows the selected set's own first pair, exactly as in the flashcard trainer.
+   - **How to print** — one of the scenarios below; the choice offered depends on what you print.
    - **Card size** — **40 / 45 / 50 / 60 mm** (square; default **50 mm**).
    - **Page size** — **A4** or **US Letter**.
    - *(duplex only)* **Back offset** — an optional **X / Y** nudge in millimetres to correct your printer's front/back alignment (see the duplex note below).
-5. Click **Generate PDF**. The file downloads locally, named `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf` (a non-zero back offset adds an `__x<X>_y<Y>mm` segment).
+5. Click **Generate PDF**. The file downloads locally, named `Pexesooo__<Name>__<thumb.size>px__<cardSize>mm__<PageSize>__<scenario>[__x<X>_y<Y>mm].pdf`. For a memory game `<scenario>` is `faces`, `foldcards`, `duplexLE` or `duplexSE`; for flashcards it is `flashfold`, `flashduplexLE` or `flashduplexSE` followed by the direction (`_AB` or `_BA`), e.g. `flashduplexLE_BA`. A non-zero back offset adds an `__x<X>_y<Y>mm` segment.
 
-**Print scenarios**
+**Print scenarios — memory game**
 
 - **Card images only** — every card face is printed at the chosen size, with corner cut marks. Card backs are ignored.
 - **Card faces + backs** — each card prints as a **fold-over strip**: the face plus the set's shared back (rotated so it reads upright once folded). Print, cut out each strip, fold along the dashed line, and glue the halves back-to-back.
 - **Duplex — long edge** — faces and backs on alternating pages for **double-sided printing with long-edge binding**; the backs are laid out so they register behind the faces after the flip.
 - **Duplex — short edge** — the same, arranged for **short-edge binding**.
 
+**Print scenarios — flashcards**
+
+- **Prompt + answer** — each flashcard prints as a **fold-over strip**: the prompt plus its own answer (rotated so it reads upright once folded). Print, cut out each strip, fold along the dashed line, and glue the halves back-to-back.
+- **Duplex — long edge** — prompts and answers on alternating pages for **double-sided printing with long-edge binding**; each answer registers behind its own prompt after the flip.
+- **Duplex — short edge** — the same, arranged for **short-edge binding**.
+
+A flashcard deck has half as many cards as the memory game made from the same set — one per pair instead of two.
+
 **Notes**
 
-- The card back is the whole point of the faces+backs and duplex scenarios, so a set **without a card back** can only be printed with **Card images only** — the other three are disabled until the set has a back.
+- In a memory game the card back is the whole point of the faces+backs and duplex scenarios, so a set **without a card back** can only be printed with **Card images only** — the other three are disabled until the set has a back. Flashcards never use the shared back — a card's reverse is the pair's other image — so a set without a card back prints as flashcards in every scenario.
+- A set of **1:1 (identical) pairs** would give flashcards with the same image on both sides. In flashcard mode the printer shows an advisory, but doesn't block printing.
 - Images below **600 × 600 px** print fine but may look soft; the app shows an advisory. Build **printer-friendly (600×600)** sets in the generator for the best print quality.
 - For duplex, **run a single test page first** and check that the backs line up behind the faces. Make sure your printer's duplex setting matches the scenario (**long-edge** vs **short-edge** binding). If the backs are consistently off, dial the misalignment into **Back offset** (**X** = right, **Y** = up, in mm) and reprint.
 
@@ -137,6 +148,7 @@ A pexeso pair is already a flashcard: one side asks, the other answers. The flas
 - A set records nothing about which side is the question — the generator's Folder A / Folder B choice is the only ordering — which is why the direction is chosen in the app rather than baked into the file.
 - A set of **1:1 (identical) pairs** makes every card answer itself. The app shows an advisory when it detects one, but doesn't block it.
 - The set's card back isn't used here: a flashcard always shows one of the pair's two images, so a set **without a card back** works exactly as well.
+- Prefer paper? The printer's **Flashcards** mode prints the same set as two-sided cards — see *Print a set* above.
 
 ---
 
@@ -149,10 +161,11 @@ Parameter **names and values are case-insensitive** (they are written lowercase 
 | Parameter | Apps | Values | Effect |
 |---|---|---|---|
 | `lang` | all four | `en`, `cs` | Initial UI language. Invalid or absent → Czech (the default). |
+| `mode` | printer | `memory`, `flashcards` | Initial print mode: a memory game (`memory`, the default) or flashcards (`flashcards`). |
 | `player` | game | any text, **repeatable** | Pre-fills player names. Repeat the key once per player; the number of occurrences sets the player count (capped at 6). An empty value keeps that slot blank (Start stays disabled until it is filled). |
 | `timer` | game | `on`, `off` | Turns the per-turn timer on or off. `on` uses the default seconds. |
 | `score` | game | `on`, `off` | Shows the score during play (on) or reveals it only in the results (off). |
-| `dir` | flashcards | `ab`, `ba` | Which side of a pair asks. `ab` (the default) makes the first image the prompt; `ba` reverses it. |
+| `dir` | flashcards, printer | `ab`, `ba` | Which side of a pair asks. `ab` (the default) makes the first image the prompt; `ba` reverses it. In the printer it sets which image goes on the front of each flashcard. |
 | `shuffle` | flashcards | `on`, `off` | Shuffles the deck (`on`, the default) or studies the set in its own order (`off`). |
 
 Values must be URL-encoded where needed — spaces as `%20` or `+`, and accented letters as their percent-encoded UTF-8 (for example `Bo%C5%BEena` → *Božena*).
@@ -163,6 +176,7 @@ Values must be URL-encoded where needed — spaces as `%20` or `+`, and accented
 - `PexesoooGame.html?player=Adam&player=Bozena&player=Cecil` — three players named Adam, Bozena, and Cecil.
 - `PexesoooGame.html?lang=en&player=Adam&player=Bozena&timer=on&score=on` — English, two players, timer on, score shown during play.
 - `PexesoooFlashcards.html?dir=ba&shuffle=off` — study with the second image asking, in the set's own order.
+- `PexesoooPrinter.html?mode=flashcards&dir=ba` — open the printer ready to print flashcards, with the second image as the prompt.
 - `PexesoooGenerator.html?lang=en` and `PexesoooPrinter.html?lang=en` — open the generator or the printer in English.
 
 ---
@@ -176,7 +190,7 @@ A set is a single JSON file. Images are stored inline as base64 data URIs, so th
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.11.0",
+  "generator": "PexesoooGenerator/1.12.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -198,8 +212,8 @@ Notes:
 - Each pair produces **two cards**; a match is two cards with the same pair `id`.
 - Both card sides are `{ "kind": "image", "src": "data:image/…" }`.
 - `thumb.size` records the resolution the images were produced at — **200** (online) or **600** (printer-friendly).
-- `back` is **optional** in the format. If absent (or unreadable), the game renders the **set name** as the card back. (Note: the generator *requires* a back when producing a printer-friendly set, and the printer *requires* a back for its faces+backs and duplex scenarios. The flashcard trainer never uses it.)
-- The format records **no side semantics** — nothing marks `a` as the question and `b` as the answer. The flashcard trainer therefore reads a pair as one card and lets you choose the direction (`a → b` or `b → a`) when you start a session.
+- `back` is **optional** in the format. If absent (or unreadable), the game renders the **set name** as the card back. (Note: the generator *requires* a back when producing a printer-friendly set, and the printer *requires* a back for its memory-game faces+backs and duplex scenarios. Flashcards — studied or printed — never use it.)
+- The format records **no side semantics** — nothing marks `a` as the question and `b` as the answer. The flashcard trainer and the printer's flashcard mode therefore read a pair as one card and let you choose the direction (`a → b` or `b → a`) before studying or printing.
 - `_source` identifies the project URL and is informational only; the apps ignore it.
 - `format` must be `"pexesooo"`. Sets produced by earlier versions of the generator (which used `"pexeso"`) are not compatible.
 
@@ -211,7 +225,7 @@ All four apps follow a shared dark-theme design language defined in `DESIGN.md` 
 
 - **Card flip** — a restrained 0.3s eased `rotateY`, a stated exception to the base "single entrance animation" motion rule.
 - **File / folder picker pair, set list, resolution / option selectors, player turn-strip, pair-preview grid, back-offset inputs, repo link, and the loading indicator** — derived from the base tokens where the component library has no existing pattern.
-- **Flashcard deck** — the game's card component enlarged to a single centred card and re-labelled for its new meaning: the resting face is the prompt image (not a shared card back) and the flipped face is the answer, which carries an accent border so the revealed side reads as the active state. Alongside it, the **direction selector** (the generator's segmented option selector, extended with live thumbnails of the set's first pair) and the **two-segment progress bar** (retired cards / cards waiting on a repeat).
+- **Flashcard deck** — the game's card component enlarged to a single centred card and re-labelled for its new meaning: the resting face is the prompt image (not a shared card back) and the flipped face is the answer, which carries an accent border so the revealed side reads as the active state. Alongside it, the **direction selector** (the generator's segmented option selector, extended with live thumbnails of the set's first pair, also used by the printer's flashcard mode) and the **two-segment progress bar** (retired cards / cards waiting on a repeat).
 - **Printed PDF output** (card layout, corner cut marks, fold lines) is paper, not app chrome, so it is intentionally outside the token system.
 
 These are flagged in the source as candidates for inclusion in `DESIGN.md`.
@@ -252,7 +266,8 @@ Everything happens in your browser. Your images never leave your device; the app
 
 ## Versioning
 
-- App version is shown in each app's header (`PexesoooGame v1.11.0`, `PexesoooGenerator v1.11.0`, `PexesoooPrinter v1.11.0`, `PexesoooFlashcards v1.11.0`).
+- App version is shown in each app's header (`PexesoooGame v1.12.0`, `PexesoooGenerator v1.12.0`, `PexesoooPrinter v1.12.0`, `PexesoooFlashcards v1.12.0`).
+- Each app keeps its version in a single `APP_VERSION` constant at the top of its script; the header — and, in the generator, the `generator` field stamped into every set — is derived from it. All four apps share one version and are bumped together.
 - The set file records the generator version in its `generator` field and the schema version in `version`.
 
 ---

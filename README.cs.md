@@ -4,7 +4,7 @@
 
 Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concentration* / *Pairs*), doprovodný **generátor sad**, **tiskárna** a **kartičky na učení**. Vytvořte si vlastní sady karet ze dvou složek obrázků, získejte jediný přenositelný soubor JSON a hrajte na obrazovce — nebo karty vytiskněte, vystřihněte a hrajte na papíře — nebo se z téže sady učte kartu po kartě. Žádný server, žádný build, žádná instalace.
 
-> **Stav:** v1.11.0 · čtyři statické soubory HTML · běží offline z `file://`
+> **Stav:** v1.12.0 · čtyři statické soubory HTML · běží offline z `file://`
 
 ---
 
@@ -14,7 +14,7 @@ Samostatná **pexesová hra** běžící v prohlížeči (v angličtině *Concen
 |---|---|
 | `PexesoooGame.html` | Hra. Načte soubor sady a hraje ji pro 1–6 hráčů. |
 | `PexesoooGenerator.html` | Nástroj pro tvorbu sad. Ze dvou složek obrázků vytvoří jeden soubor `.json`. |
-| `PexesoooPrinter.html` | Tiskárna. Ze sady vytvoří PDF připravené k tisku a vystřižení. |
+| `PexesoooPrinter.html` | Tiskárna. Ze sady vytvoří PDF připravené k tisku a vystřižení — karty pexesa nebo oboustranné kartičky. |
 | `PexesoooFlashcards.html` | Kartičky. Učí sadu kartu po kartě. |
 | `README.md` | Tento soubor (anglicky). |
 
@@ -30,7 +30,7 @@ Všechny čtyři aplikace jsou jednotlivé soubory HTML bez závislostí. Stač�
 - **Dvě výstupní rozlišení:** vytvořte sady **online** (200×200, menší soubory) nebo **pro tisk** (600×600, kvalitnější obrázky pro tisk). Volba platí pro obrázky karet i pro rub.
 - **Samostatné sady:** obrázky jsou vloženy přímo do JSON, takže sada je jediný soubor, který můžete sdílet, poslat e-mailem nebo uložit do repozitáře.
 - **Jedna sada, tři způsoby využití:** zahrajte si ji, vytiskněte ji, nebo se z ní učte — vše z téhož souboru `.json`.
-- **Tisk na papír:** libovolnou sadu převeďte na PDF a vystřihněte fyzické karty — **jednostranně**, **přeložením**, nebo **oboustranně (duplex)**, ve zvolené velikosti karet.
+- **Tisk na papír:** libovolnou sadu převeďte na PDF a vystřihněte fyzické karty — jako **pexeso**, nebo jako **oboustranné kartičky** — **jednostranně**, **přeložením**, nebo **oboustranně (duplex)**, ve zvolené velikosti karet.
 - **Učení s kartičkami:** kartu po kartě — otočením odhalíte odpověď, označíte, co umíte, a co vám nešlo, se opakuje, dokud balíček nedojde.
 - **Náhled dvojic** před hraním — zobrazte si všechny dvojice sady najednou.
 - **1–6 hráčů** s vlastními jmény a přehledným ukazatelem tahu.
@@ -92,22 +92,33 @@ Ve výsledcích můžete zvolit **Hrát znovu** (okamžitě začne nová hra se 
 2. Načtěte sadu úplně stejně jako ve hře — přes **Soubor** (jeden `.json`) nebo přes **Složku** (tiskárna vypíše všechny platné sady nalezené na nejvyšší úrovni). U každé sady se zobrazí úplný náhled; kliknutím ji vyberete.
 3. *(Volitelně)* otevřete sekci **Náhled** a zobrazte si všechny dvojice sady — obě karty každé dvojice vedle sebe, s názvem souboru dvojice pod nimi — stejné zobrazení jako Náhled ve hře.
 4. V sekci **Možnosti tisku** zvolte:
-   - **Co tisknout** — jeden ze čtyř níže uvedených scénářů.
+   - **Co tisknout** — **Pexeso** (dvě karty na dvojici se společným rubem sady), nebo **Kartičky** (jedna oboustranná karta na dvojici: otázka na líci, odpověď na rubu).
+   - *(jen kartičky)* **Která strana se ptá** — **A → B** (otázkou je první obrázek), nebo **B → A**. Každá volba ukazuje první dvojici vybrané sady, stejně jako v aplikaci Kartičky.
+   - **Jak tisknout** — jeden z níže uvedených scénářů; nabídka závisí na tom, co tisknete.
    - **Velikost karty** — **40 / 45 / 50 / 60 mm** (čtverec; výchozí **50 mm**).
    - **Velikost stránky** — **A4** nebo **US Letter**.
    - *(pouze duplex)* **Posun rubu** — volitelný posun **X / Y** v milimetrech pro korekci zarovnání líce a rubu vaší tiskárny (viz poznámka k duplexu níže).
-5. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<NazevSady>__<Rozliseni>px__<Velikost>mm__<VelikostStranky>__<Scenar>[__x<X>_y<Y>mm].pdf` (nenulový posun rubu přidá segment `__x<X>_y<Y>mm`).
+5. Klikněte na **Generovat PDF**. Soubor se stáhne lokálně, s názvem `Pexesooo__<NazevSady>__<Rozliseni>px__<Velikost>mm__<VelikostStranky>__<Scenar>[__x<X>_y<Y>mm].pdf`. U pexesa je `<Scenar>` jeden z `faces`, `foldcards`, `duplexLE` a `duplexSE`; u kartiček jeden z `flashfold`, `flashduplexLE` a `flashduplexSE`, doplněný o směr (`_AB` nebo `_BA`), např. `flashduplexLE_BA`. Nenulový posun rubu přidá segment `__x<X>_y<Y>mm`.
 
-**Scénáře tisku**
+**Scénáře tisku — pexeso**
 
 - **Jen obrázky karet** — vytiskne se každý líc karty ve zvolené velikosti, s rohovými značkami pro střih. Ruby karet se ignorují.
 - **Líce + ruby karet** — každá karta se vytiskne jako **proužek k přeložení**: líc plus sdílený rub sady (otočený tak, aby byl po přeložení správně čitelný). Vytiskněte, vystřihněte každý proužek, přeložte podél čárkované čáry a slepte poloviny zády k sobě.
 - **Duplex — delší hrana** — líce a ruby na střídajících se stranách pro **oboustranný tisk s vazbou po delší hraně**; ruby jsou rozmístěny tak, aby po otočení seděly za líci.
 - **Duplex — kratší hrana** — totéž, uspořádané pro **vazbu po kratší hraně**.
 
+**Scénáře tisku — kartičky**
+
+- **Otázka + odpověď** — každá kartička se vytiskne jako **proužek k přeložení**: otázka plus její vlastní odpověď (otočená tak, aby byla po přeložení správně čitelná). Vytiskněte, vystřihněte každý proužek, přeložte podél čárkované čáry a slepte poloviny zády k sobě.
+- **Duplex — delší hrana** — otázky a odpovědi na střídajících se stranách pro **oboustranný tisk s vazbou po delší hraně**; každá odpověď po otočení sedí přesně za svou otázkou.
+- **Duplex — kratší hrana** — totéž, uspořádané pro **vazbu po kratší hraně**.
+
+Balíček kartiček má poloviční počet karet než pexeso z téže sady — jednu kartu na dvojici místo dvou.
+
 **Poznámky**
 
-- Rub karet je smyslem scénářů „líce + ruby“ a duplexu, takže sadu **bez rubu** lze vytisknout jen scénářem **Jen obrázky karet** — zbývající tři jsou zakázané, dokud sada nemá rub.
+- U pexesa je rub karet smyslem scénářů „líce + ruby“ a duplexu, takže sadu **bez rubu** lze jako pexeso vytisknout jen scénářem **Jen obrázky karet** — zbývající tři jsou zakázané, dokud sada nemá rub. Kartičky sdílený rub nepoužívají — rubem kartičky je druhý obrázek dvojice — takže sada bez rubu se jako kartičky vytiskne ve všech scénářích.
+- Sada ze **shodných (1:1) dvojic** by dala kartičky se stejným obrázkem na obou stranách. V režimu kartiček zobrazí tiskárna upozornění, tisk ale nezakáže.
 - Obrázky menší než **600 × 600 px** se vytisknou v pořádku, ale mohou být měkké; aplikace zobrazí upozornění. Pro nejlepší kvalitu tisku vytvořte v generátoru sady **pro tisk (600×600)**.
 - U duplexu **nejdřív vytiskněte jednu zkušební stranu** a zkontrolujte, že ruby sedí za líci. Ověřte, že nastavení duplexu vaší tiskárny odpovídá scénáři (vazba po **delší** vs **kratší** hraně). Pokud jsou ruby soustavně posunuté, zadejte odchylku do pole **Posun rubu** (**X** = doprava, **Y** = nahoru, v mm) a vytiskněte znovu.
 
@@ -137,6 +148,7 @@ Dvojice pexesa je vlastně hotová kartička: jedna strana se ptá, druhá odpov
 - Sada nikde nezaznamenává, která strana je otázka — jediným pořadím je volba Složky A a Složky B v generátoru. Proto se směr volí až v aplikaci, a ne v souboru.
 - U sady se **shodnými (1:1) dvojicemi** si každá karta odpovídá sama. Aplikace na to upozorní, ale nebrání v učení.
 - Rub karet se zde nepoužívá: kartička vždy ukazuje jeden ze dvou obrázků dvojice, takže sada **bez rubu** funguje úplně stejně dobře.
+- Raději na papíře? Režim **Kartičky** v tiskárně vytiskne tutéž sadu jako oboustranné karty — viz *Tisk sady* výše.
 
 ---
 
@@ -149,10 +161,11 @@ Všechny čtyři aplikace čtou volitelné parametry z dotazovací části URL s
 | Parametr | Aplikace | Hodnoty | Účinek |
 |---|---|---|---|
 | `lang` | všechny čtyři | `en`, `cs` | Počáteční jazyk rozhraní. Neplatný nebo chybějící → čeština (výchozí). |
+| `mode` | tiskárna | `memory`, `flashcards` | Počáteční režim tisku: pexeso (`memory`, výchozí), nebo kartičky (`flashcards`). |
 | `player` | hra | libovolný text, **lze opakovat** | Předvyplní jména hráčů. Klíč zopakujte jednou za každého hráče; počet výskytů určí počet hráčů (nejvýše 6). Prázdná hodnota ponechá dané pole prázdné (Spustit hru zůstane zakázané, dokud ho nevyplníte). |
 | `timer` | hra | `on`, `off` | Zapne nebo vypne časomíru na tah. `on` použije výchozí počet sekund. |
 | `score` | hra | `on`, `off` | Zobrazuje skóre během hry (on), nebo ho odhalí až ve výsledcích (off). |
-| `dir` | kartičky | `ab`, `ba` | Která strana dvojice se ptá. `ab` (výchozí) udělá z prvního obrázku otázku; `ba` pořadí obrátí. |
+| `dir` | kartičky, tiskárna | `ab`, `ba` | Která strana dvojice se ptá. `ab` (výchozí) udělá z prvního obrázku otázku; `ba` pořadí obrátí. V tiskárně určuje, který obrázek se tiskne na líc každé kartičky. |
 | `shuffle` | kartičky | `on`, `off` | Zamíchá balíček (`on`, výchozí), nebo se učí v pořadí sady (`off`). |
 
 Hodnoty je v případě potřeby nutné zakódovat pro URL — mezery jako `%20` nebo `+` a písmena s diakritikou jako jejich procentně zakódované UTF-8 (například `Bo%C5%BEena` → *Božena*).
@@ -163,6 +176,7 @@ Hodnoty je v případě potřeby nutné zakódovat pro URL — mezery jako `%20`
 - `PexesoooGame.html?player=Adam&player=Bozena&player=Cecil` — tři hráči se jmény Adam, Bozena a Cecil.
 - `PexesoooGame.html?lang=en&player=Adam&player=Bozena&timer=on&score=on` — angličtina, dva hráči, časomíra zapnutá, skóre zobrazené během hry.
 - `PexesoooFlashcards.html?dir=ba&shuffle=off` — učení, kde se ptá druhý obrázek, v pořadí sady.
+- `PexesoooPrinter.html?mode=flashcards&dir=ba` — otevře tiskárnu připravenou k tisku kartiček, s druhým obrázkem jako otázkou.
 - `PexesoooGenerator.html?lang=en` a `PexesoooPrinter.html?lang=en` — otevře generátor nebo tiskárnu v angličtině.
 
 ---
@@ -176,7 +190,7 @@ Sada je jediný soubor JSON. Obrázky jsou uloženy inline jako base64 data URI,
   "_source": "https://github.com/KarlM0/Pexesooo/",
   "format": "pexesooo",
   "version": 1,
-  "generator": "PexesoooGenerator/1.11.0",
+  "generator": "PexesoooGenerator/1.12.0",
   "createdAt": "2026-06-06T12:00:00Z",
   "name": "World Flags",
   "description": "Match each flag to its country name",
@@ -198,8 +212,8 @@ Poznámky:
 - Každá dvojice vytváří **dvě karty**; shoda jsou dvě karty se stejným `id` dvojice.
 - Obě strany karty jsou `{ "kind": "image", "src": "data:image/…" }`.
 - `thumb.size` zaznamenává rozlišení, ve kterém byly obrázky vytvořeny — **200** (online) nebo **600** (pro tisk).
-- `back` je ve formátu **volitelný**. Chybí-li (nebo je nečitelný), hra vykreslí jako rub karet **název sady**. (Pozn.: generátor rub *vyžaduje* při tvorbě sady pro tisk a tiskárna rub *vyžaduje* pro scénáře „líce + ruby“ a duplex. Kartičky rub nepoužívají vůbec.)
-- Formát **nezaznamenává význam stran** — nic neurčuje, že `a` je otázka a `b` odpověď. Kartičky proto čtou dvojici jako jednu kartu a směr (`a → b` nebo `b → a`) si volíte při spuštění učení.
+- `back` je ve formátu **volitelný**. Chybí-li (nebo je nečitelný), hra vykreslí jako rub karet **název sady**. (Pozn.: generátor rub *vyžaduje* při tvorbě sady pro tisk a tiskárna rub *vyžaduje* pro scénáře pexesa „líce + ruby“ a duplex. Kartičky — na obrazovce ani vytištěné — rub nepoužívají vůbec.)
+- Formát **nezaznamenává význam stran** — nic neurčuje, že `a` je otázka a `b` odpověď. Kartičky i režim kartiček v tiskárně proto čtou dvojici jako jednu kartu a směr (`a → b` nebo `b → a`) si volíte před učením nebo tiskem.
 - `_source` udává URL projektu a je jen informativní; aplikace ho ignorují.
 - `format` musí být `"pexesooo"`. Sady vytvořené staršími verzemi generátoru (které používaly `"pexeso"`) nejsou kompatibilní.
 
@@ -211,7 +225,7 @@ Všechny čtyři aplikace sledují sdílený tmavý vizuální jazyk definovaný
 
 - **Otočení karty** — zdrženlivé 0,3s plynulé `rotateY`, uvedená výjimka ze základního pravidla pohybu „jediná vstupní animace“.
 - **Dvojice výběru souboru / složky, seznam sad, přepínače rozlišení / voleb, pruh hráčů na tahu, mřížka náhledu dvojic, pole posunu rubu, odkaz na repozitář a indikátor načítání** — odvozené ze základních tokenů tam, kde knihovna komponent nemá existující vzor.
-- **Balíček kartiček** — karta ze hry zvětšená na jedinou kartu uprostřed a přeznačená podle nového významu: klidová strana je obrázek otázky (nikoli sdílený rub) a otočená strana je odpověď, která má akcentový rámeček, aby odhalená strana působila jako aktivní stav. Vedle toho **přepínač směru** (přepínač voleb z generátoru, doplněný o živé náhledy první dvojice sady) a **dvousegmentový ukazatel průběhu** (odložené karty / karty čekající na opakování).
+- **Balíček kartiček** — karta ze hry zvětšená na jedinou kartu uprostřed a přeznačená podle nového významu: klidová strana je obrázek otázky (nikoli sdílený rub) a otočená strana je odpověď, která má akcentový rámeček, aby odhalená strana působila jako aktivní stav. Vedle toho **přepínač směru** (přepínač voleb z generátoru, doplněný o živé náhledy první dvojice sady; používá ho i režim kartiček v tiskárně) a **dvousegmentový ukazatel průběhu** (odložené karty / karty čekající na opakování).
 - **Tištěný výstup PDF** (rozvržení karet, rohové značky pro střih, čáry pro přeložení) je papír, nikoli rozhraní aplikace, takže je záměrně mimo systém tokenů.
 
 Tyto prvky jsou v kódu označeny jako kandidáti na zařazení do `DESIGN.md`.
@@ -252,7 +266,8 @@ Vše se děje ve vašem prohlížeči. Vaše obrázky nikdy neopustí vaše zař
 
 ## Verzování
 
-- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.11.0`, `PexesoooGenerator v1.11.0`, `PexesoooPrinter v1.11.0`, `PexesoooFlashcards v1.11.0`).
+- Verze aplikace je zobrazena v záhlaví každé aplikace (`PexesoooGame v1.12.0`, `PexesoooGenerator v1.12.0`, `PexesoooPrinter v1.12.0`, `PexesoooFlashcards v1.12.0`).
+- Každá aplikace má svou verzi v jediné konstantě `APP_VERSION` na začátku skriptu; odvozuje se z ní záhlaví a v generátoru i pole `generator` zapsané do každé sady. Všechny čtyři aplikace sdílejí jednu verzi a zvyšuje se u nich současně.
 - Soubor sady zaznamenává verzi generátoru v poli `generator` a verzi schématu v poli `version`.
 
 ---

@@ -10,7 +10,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add credits field to the generator.
 - Display credits field in the set selection as alt text.
 - Add hashes to the README files.
-- Add flashcards options to the Printer app.
+
+## [1.12.0] - 2026-09-21
+
+### Added
+
+- **`PexesoooPrinter.html`: flashcard printing.** Print options now start with
+**What to print / Co tisknout** — **Memory game / Pexeso** (the existing behaviour,
+and the default) or **Flashcards / Kartičky**. In flashcard mode each pair prints as
+**one two-sided card**: the prompt on the front, its own answer on the back. The
+set's shared card back is not used.
+  - **Direction selector** — **A → B** or **B → A**, shown only in flashcard mode,
+reused verbatim from the flashcard trainer (including the live first-pair
+thumbnails), so the prompt side is chosen by looking rather than by remembering
+which folder was A.
+  - **Three flashcard scenarios** — **Prompt + answer** (a fold-over strip per card),
+**Duplex — long edge** and **Duplex — short edge**. They share the memory game's
+fold-over and duplex geometry, back-offset calibration and cut marks; only the image
+on the reverse differs. Memory game keeps its four scenarios, and each mode
+remembers its own last choice when you switch between them.
+  - **No card back required** — the memory game's hard block for sets without a
+back does not apply to flashcards, which print in every scenario.
+  - **Identical-pairs advisory** — a set of 1:1 pairs would print the same image on
+both sides of every card; flashcard mode shows a warning (not a block), adapted
+from the flashcard trainer's.
+  - **Flashcard-specific** estimate line (one card per pair), card-size note and
+instructions, in Czech and English.
+  - **Filenames** — flashcard PDFs use `flashfold`, `flashduplexLE` or
+`flashduplexSE` plus the direction, e.g.
+`Pexesooo__<Name>__600px__50mm__A4__flashduplexLE_BA.pdf`; the back-offset segment
+is appended as before. Memory-game filenames are unchanged.
+  - **Launch parameters** — `mode=memory|flashcards` and `dir=ab|ba`
+(case-insensitive; invalid values ignored).
+- **All apps: `APP_VERSION` constant** — each app now holds its version in a single
+constant at the top of its script. The header shows the app name from the HTML with
+` v<APP_VERSION>` appended, and the generator's `generator` field is built from it
+(`"PexesoooGenerator/" + APP_VERSION`), so the displayed and stamped versions can no
+longer drift apart within a file. All four apps still share one version and are
+bumped together; a shared `version.js` was deliberately not used, as it would break
+the self-contained single-file rule and require loosening the CSP.
+
+### Changed
+
+- **`PexesoooPrinter.html`**
+  - The scenario field is now labelled **How to print / Jak tisknout**; **What to
+print / Co tisknout** labels the new mode selector.
+  - The three per-scenario PDF builders now share one list of card units
+(front image, reverse image). Memory-game output is **byte-identical** to 1.11.0 in
+all four scenarios.
+- **All apps** display **v1.12.0**; the generator identifier in produced sets is now
+`PexesoooGenerator/1.12.0`. The set schema is unchanged (`version` stays `1`) —
+sets remain backward compatible.
+- **Docs** — `README.md` and `README.cs.md` document the printer's flashcard mode
+(mode and direction selectors, flashcard scenarios, filename suffixes, the no-back
+rule and the identical-pairs advisory), the new `mode` launch parameter and the
+printer's use of `dir`, and the `APP_VERSION` constant in the Versioning section.
+
+### Fixed
+
+- **`README.cs.md`** — the set-file example showed the generator version as
+`PexesoooGenerator/1..0`; it now reads `PexesoooGenerator/1.12.0`.
 
 ## [1.11.0] - 2026-09-20
 
@@ -259,7 +318,8 @@ Versioning and License sections.
 - Shared **`DESIGN.md`** visual language; a restrained card-flip animation as a documented motion exception, plus derived components (file picker, review grid, player turn-strip) flagged for inclusion.
 - Fully **client-side and offline-capable**: no server, no build, no network calls beyond loading web fonts.
 
-[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/KarlM0/Pexesooo/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/KarlM0/Pexesooo/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/KarlM0/Pexesooo/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/KarlM0/Pexesooo/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/KarlM0/Pexesooo/compare/v1.8.0...v1.9.0

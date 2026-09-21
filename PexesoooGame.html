@@ -209,7 +209,7 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
     <div>
       <h1 id="t-title">Pexesooo Game</h1>
       <div class="subtitle" id="t-subtitle">A memory game for 1–6 players.</div>
-      <div class="version">PexesoooGame v1.11.0</div>
+      <div class="version" id="appVersion">PexesoooGame</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -314,6 +314,15 @@ input:disabled { opacity:0.4; cursor:not-allowed; }
 
 <script>
 "use strict";
+
+/* APP_VERSION — the single source of this app's version within this file. It is shown in the
+   header (appended to the app name below). All four Pexesooo apps share one version: when
+   releasing, bump APP_VERSION in PexesoooGame, PexesoooGenerator, PexesoooPrinter and
+   PexesoooFlashcards together. A shared version.js is deliberately not used — it would break the
+   single-file / self-contained rule and require loosening the CSP (script-src 'self'). */
+const APP_VERSION = "1.12.0";
+document.getElementById("appVersion").textContent += " v" + APP_VERSION;
+
 
 /* ---------------- i18n ---------------- */
 const STR = {

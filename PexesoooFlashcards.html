@@ -212,7 +212,7 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
     <div>
       <h1 id="t-title">Pexesooo Flashcards</h1>
       <div class="subtitle" id="t-subtitle">Study a set one card at a time.</div>
-      <div class="version">PexesoooFlashcards v1.11.0</div>
+      <div class="version" id="appVersion">PexesoooFlashcards</div>
       <div class="repo-link"><a id="t-repo" href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -333,6 +333,15 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 
 <script>
 "use strict";
+
+/* APP_VERSION — the single source of this app's version within this file. It is shown in the
+   header (appended to the app name below). All four Pexesooo apps share one version: when
+   releasing, bump APP_VERSION in PexesoooGame, PexesoooGenerator, PexesoooPrinter and
+   PexesoooFlashcards together. A shared version.js is deliberately not used — it would break the
+   single-file / self-contained rule and require loosening the CSP (script-src 'self'). */
+const APP_VERSION = "1.12.0";
+document.getElementById("appVersion").textContent += " v" + APP_VERSION;
+
 
 /* ============================================================================
    Pexesooo Flashcards — deck-mode study app.

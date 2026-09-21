@@ -146,7 +146,7 @@ textarea:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Generator</h1>
       <div class="subtitle" id="t-subtitle">Build a self-contained memory-game set from two folders.</div>
-      <div class="version">PexesoooGenerator v1.11.0</div>
+      <div class="version" id="appVersion">PexesoooGenerator</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -241,6 +241,16 @@ textarea:focus { outline:none; border-color:var(--accent); }
 
 <script>
 "use strict";
+
+/* APP_VERSION — the single source of this app's version within this file. It is shown in the
+   header (appended to the app name below) and stamped into
+   every generated set's `generator` field. All four Pexesooo apps share one version: when
+   releasing, bump APP_VERSION in PexesoooGame, PexesoooGenerator, PexesoooPrinter and
+   PexesoooFlashcards together. A shared version.js is deliberately not used — it would break the
+   single-file / self-contained rule and require loosening the CSP (script-src 'self'). */
+const APP_VERSION = "1.12.0";
+document.getElementById("appVersion").textContent += " v" + APP_VERSION;
+
 
 /* ---------- i18n ---------- */
 const STR = {
@@ -681,7 +691,7 @@ document.getElementById("genBtn").addEventListener("click", ()=>{
 
   const data = {
     _source: "https://github.com/KarlM0/Pexesooo/",
-    format:"pexesooo", version:1, generator:"PexesoooGenerator/1.11.0",
+    format:"pexesooo", version:1, generator:"PexesoooGenerator/" + APP_VERSION,
     createdAt:new Date().toISOString(),
     name: nameEl.value.trim(), description: descEl.value.trim(),
     thumb:{ size:size, fit:"cover", type:"image/jpeg" },

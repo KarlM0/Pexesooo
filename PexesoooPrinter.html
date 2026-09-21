@@ -139,6 +139,27 @@ h1 { font-family:'Fraunces',serif; font-weight:600; font-size:30px; letter-spaci
 #pageGroup .otitle, #cardGroup .otitle { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:14px; letter-spacing:0.02em; }
 /* four-across variant (card-size selector) */
 .optgroup.four { grid-template-columns:repeat(4,1fr); }
+/* DERIVED — flashcard scenario selector: three options in the same 2-up grid; the fold-over option
+   spans the full row so the two duplex options sit side by side below it, mirroring the memory-game
+   grid where the duplex pair also forms the bottom row. Built from the .optgroup pattern above. */
+#flashScenarioGroup .opt:first-child { grid-column:1 / -1; }
+
+/* DERIVED — direction selector (reused verbatim from PexesoooFlashcards.html; FLAG: candidate for
+   DESIGN.md). The segmented option selector extended with a live thumbnail of the set's first pair,
+   so the user can see which image becomes the prompt side of every printed flashcard. */
+.dirgroup { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.diropt { border:1.5px solid var(--border); background:var(--surface-2); border-radius:var(--radius-sm);
+  padding:12px 14px; cursor:pointer; transition:0.16s; text-align:left; font-family:inherit; }
+.diropt:hover { border-color:var(--accent); }
+.diropt.active { border-color:var(--accent); background:var(--accent-deep); }
+.diropt .dtitle { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:14px; color:var(--text); letter-spacing:0.02em; }
+.diropt.active .dtitle { color:var(--accent); }
+.diropt .dhint { font-family:'Manrope'; font-weight:600; font-size:11.5px; color:var(--text-dim); margin-top:4px; }
+.diropt.active .dhint { color:var(--text); }
+.dirthumbs { display:flex; align-items:center; gap:8px; margin-top:9px; }
+.dirthumbs .arrow { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-faint); }
+.diropt.active .dirthumbs .arrow { color:var(--accent); }
+.dirthumbs .slotph { width:42px; height:42px; border-radius:6px; background:var(--surface); border:1px dashed var(--border); }
 
 .estimate { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim); margin:4px 0 16px; }
 .note { font-size:12px; color:var(--text-faint); margin-top:10px; line-height:1.5; }
@@ -161,6 +182,7 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
   .picker-row { grid-template-columns:1fr; }
   .optgroup { grid-template-columns:1fr; }
   .optgroup.four { grid-template-columns:1fr 1fr; }
+  .dirgroup { grid-template-columns:1fr; }
   .preview { flex-direction:column; }
   .preview-back img { width:96px; height:96px; }
 }
@@ -173,7 +195,7 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
     <div>
       <h1 id="t-title">Pexesooo Printer</h1>
       <div class="subtitle" id="t-subtitle">Print a set's cards to a PDF for cutting out.</div>
-      <div class="version">PexesoooPrinter v1.11.0</div>
+      <div class="version" id="appVersion">PexesoooPrinter</div>
       <div class="repo-link"><a href="https://github.com/KarlM0/Pexesooo/" target="_blank" rel="noopener" id="t-repo">View on GitHub</a></div>
     </div>
     <div class="header-right">
@@ -234,7 +256,37 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
       <div id="warnHost"></div>
 
       <div class="field">
-        <label class="label" id="t-scenario">What to print</label>
+        <label class="label" id="t-mode">What to print</label>
+        <!-- DERIVED — option selector (see .optgroup). Print mode: memory game or flashcards. -->
+        <div class="optgroup" id="modeGroup">
+          <button type="button" class="opt active" data-mode="memory">
+            <div class="otitle" id="t-mode1-title">Memory game</div>
+            <div class="ohint" id="t-mode1-hint">Two cards per pair, with the set's shared back.</div>
+          </button>
+          <button type="button" class="opt" data-mode="flashcards">
+            <div class="otitle" id="t-mode2-title">Flashcards</div>
+            <div class="ohint" id="t-mode2-hint">One card per pair: prompt on the front, answer on the back.</div>
+          </button>
+        </div>
+      </div>
+      <!-- Flashcard direction (shown only in flashcard mode). -->
+      <div class="field hidden" id="dirField">
+        <label class="label" id="t-dirlabel">Which side asks</label>
+        <div class="dirgroup" id="dirGroup">
+          <button type="button" class="diropt active" data-dir="ab">
+            <div class="dtitle">A → B</div>
+            <div class="dhint" id="t-dirab">First image asks, second answers</div>
+            <div class="dirthumbs" id="thumbsAB"></div>
+          </button>
+          <button type="button" class="diropt" data-dir="ba">
+            <div class="dtitle">B → A</div>
+            <div class="dhint" id="t-dirba">Second image asks, first answers</div>
+            <div class="dirthumbs" id="thumbsBA"></div>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" id="t-scenario">How to print</label>
         <!-- DERIVED — option selector (see .optgroup). Four scenarios, 2×2. -->
         <div class="optgroup" id="scenarioGroup">
           <button type="button" class="opt active" data-scenario="images">
@@ -252,6 +304,21 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
           <button type="button" class="opt" data-scenario="duplexShort">
             <div class="otitle" id="t-scn4-title">Duplex — short edge</div>
             <div class="ohint" id="t-scn4-hint">Two-sided · short-edge binding</div>
+          </button>
+        </div>
+        <!-- DERIVED — flashcard scenarios (see #flashScenarioGroup). Shown instead of the memory grid in flashcard mode. -->
+        <div class="optgroup hidden" id="flashScenarioGroup">
+          <button type="button" class="opt active" data-scenario="fold">
+            <div class="otitle" id="t-fscn1-title">Prompt + answer</div>
+            <div class="ohint" id="t-fscn1-hint">Fold-over strip per card: the prompt plus its answer.</div>
+          </button>
+          <button type="button" class="opt" data-scenario="duplexLong">
+            <div class="otitle" id="t-fscn2-title">Duplex — long edge</div>
+            <div class="ohint" id="t-fscn2-hint">Two-sided · long-edge binding</div>
+          </button>
+          <button type="button" class="opt" data-scenario="duplexShort">
+            <div class="otitle" id="t-fscn3-title">Duplex — short edge</div>
+            <div class="ohint" id="t-fscn3-hint">Two-sided · short-edge binding</div>
           </button>
         </div>
       </div>
@@ -304,6 +371,15 @@ input[type=number]:focus { outline:none; border-color:var(--accent); }
 <script>
 "use strict";
 
+/* APP_VERSION — the single source of this app's version within this file. It is shown in the
+   header (appended to the app name below). All four Pexesooo apps share one version: when
+   releasing, bump APP_VERSION in PexesoooGame, PexesoooGenerator, PexesoooPrinter and
+   PexesoooFlashcards together. A shared version.js is deliberately not used — it would break the
+   single-file / self-contained rule and require loosening the CSP (script-src 'self'). */
+const APP_VERSION = "1.12.0";
+document.getElementById("appVersion").textContent += " v" + APP_VERSION;
+
+
 /* =====================================================================
    i18n — CS default, EN toggle. All user-visible strings live here.
    Technical strings (A4, 210 × 297 mm, version) are not translated.
@@ -315,11 +391,20 @@ const STR = {
     badFile:"That file isn't a valid Pexesooo set.",
     badFolder:"No valid Pexesooo sets found in that folder.",
     loadingFolder:"Reading folder…",
-    print:"Print options", scenario:"What to print", cardSize:"Card size",
+    print:"Print options", mode:"What to print", scenario:"How to print", cardSize:"Card size",
     scn1Title:"Card images only", scn1Hint:"Every card face is printed; card backs are ignored.",
     scn2Title:"Card faces + backs", scn2Hint:"Fold-over strip per card: face plus the shared back.",
     scn3Title:"Duplex — long edge", scn3Hint:"Two-sided · long-edge binding",
     scn4Title:"Duplex — short edge", scn4Hint:"Two-sided · short-edge binding",
+    mode1Title:"Memory game", mode1Hint:"Two cards per pair, with the set's shared back.",
+    mode2Title:"Flashcards", mode2Hint:"One card per pair: prompt on the front, answer on the back.",
+    fscn1Title:"Prompt + answer", fscn1Hint:"Fold-over strip per card: the prompt plus its answer.",
+    dirlabel:"Which side asks", dirAB:"First image asks, second answers", dirBA:"Second image asks, first answers",
+    cardNoteFlashFold:"Each flashcard prints as a {s} × {d} mm fold-over strip (prompt + answer), folded to {s} × {s} mm. Nothing leaves your device.",
+    cardNoteFlashDuplex:"Prompts and answers on alternating pages at {s} × {s} mm with cut marks; print double-sided. Nothing leaves your device.",
+    estimateFlash:"{cards} flashcards ({p} pairs) · {pages} {size} page(s)",
+    estimateFlashDuplex:"{cards} flashcards ({p} pairs) · {sheets} {size} sheets, double-sided",
+    identical:"Both sides of every pair look identical, so each printed flashcard would show the same image on both sides. Build a set from two different folders to print useful flashcards.",
     pageSize:"Page size", letter:"US Letter",
     offset:"Back offset (mm)", offsetHint:"+X moves the back right, +Y up (faces side). Nudge until backs sit behind faces.",
     generate:"Generate PDF", generating:"Building PDF…",
@@ -343,11 +428,20 @@ const STR = {
     badFile:"Tento soubor není platná sada Pexesooo.",
     badFolder:"Ve vybrané složce nejsou žádné platné sady Pexesooo.",
     loadingFolder:"Čtení složky…",
-    print:"Možnosti tisku", scenario:"Co tisknout", cardSize:"Velikost karty",
+    print:"Možnosti tisku", mode:"Co tisknout", scenario:"Jak tisknout", cardSize:"Velikost karty",
     scn1Title:"Jen obrázky karet", scn1Hint:"Vytiskne se každá karta; ruby se ignorují.",
     scn2Title:"Líce + ruby karet", scn2Hint:"Přeložka na kartu: líc a společný rub.",
     scn3Title:"Duplex — delší hrana", scn3Hint:"Oboustranně · vazba na delší hraně",
     scn4Title:"Duplex — kratší hrana", scn4Hint:"Oboustranně · vazba na kratší hraně",
+    mode1Title:"Pexeso", mode1Hint:"Dvě karty na dvojici se společným rubem sady.",
+    mode2Title:"Kartičky", mode2Hint:"Jedna karta na dvojici: otázka na líci, odpověď na rubu.",
+    fscn1Title:"Otázka + odpověď", fscn1Hint:"Přeložka na kartu: otázka a její odpověď.",
+    dirlabel:"Která strana se ptá", dirAB:"Ptá se první obrázek, odpovídá druhý", dirBA:"Ptá se druhý obrázek, odpovídá první",
+    cardNoteFlashFold:"Každá kartička se tiskne jako přeložka {s} × {d} mm (otázka + odpověď), přeložená na {s} × {s} mm. Nic neopouští vaše zařízení.",
+    cardNoteFlashDuplex:"Otázky a odpovědi na střídavých stránkách v rozměru {s} × {s} mm se značkami střihu; tiskněte oboustranně. Nic neopouští vaše zařízení.",
+    estimateFlash:"{cards} kartiček ({p} dvojic) · {pages} stránek {size}",
+    estimateFlashDuplex:"{cards} kartiček ({p} dvojic) · {sheets} listů {size}, oboustranně",
+    identical:"Obě strany každé dvojice vypadají stejně, takže by každá vytištěná kartička měla na obou stranách stejný obrázek. Pro užitečné kartičky vytvořte sadu ze dvou různých složek.",
     pageSize:"Velikost stránky", letter:"US Letter",
     offset:"Posun rubu (mm)", offsetHint:"+X posune rub doprava, +Y nahoru (strana líců). Posouvejte, dokud ruby nesednou za líce.",
     generate:"Vytvořit PDF", generating:"Vytváření PDF…",
@@ -377,6 +471,13 @@ function applyLang(){
   txt("t-scn2-title","scn2Title"); txt("t-scn2-hint","scn2Hint");
   txt("t-scn3-title","scn3Title"); txt("t-scn3-hint","scn3Hint");
   txt("t-scn4-title","scn4Title"); txt("t-scn4-hint","scn4Hint");
+  txt("t-mode","mode");
+  txt("t-mode1-title","mode1Title"); txt("t-mode1-hint","mode1Hint");
+  txt("t-mode2-title","mode2Title"); txt("t-mode2-hint","mode2Hint");
+  txt("t-fscn1-title","fscn1Title"); txt("t-fscn1-hint","fscn1Hint");
+  txt("t-fscn2-title","scn3Title");  txt("t-fscn2-hint","scn3Hint");
+  txt("t-fscn3-title","scn4Title");  txt("t-fscn3-hint","scn4Hint");
+  txt("t-dirlabel","dirlabel"); txt("t-dirab","dirAB"); txt("t-dirba","dirBA");
   txt("t-pagesize","pageSize"); txt("t-letter","letter");
   txt("t-preview","preview");
   txt("t-offset","offset"); txt("t-offsethint","offsetHint");
@@ -646,7 +747,11 @@ function hidePreviewCard(){
    PRINT OPTIONS
    ===================================================================== */
 let pageMode = "a4";
-let scenarioMode = "images";   // "images" | "faceback" | "duplexLong" | "duplexShort"
+let printMode = "memory";       // "memory" | "flashcards"
+let scenarioMemory = "images";  // memory game: "images" | "faceback" | "duplexLong" | "duplexShort"
+let scenarioFlash = "fold";     // flashcards:  "fold" | "duplexLong" | "duplexShort"
+let scenarioMode = scenarioMemory; // effective scenario of the current print mode (kept in sync by setPrintMode)
+let direction = "ab";           // flashcards: "ab" = side A is the prompt (front), "ba" = the reverse
 let cardMode = 50;             // card edge in mm; one of CARD_SIZES
 let offsetX = 0, offsetY = 0;  // duplex back-page calibration, mm (faces-side frame: +X right, +Y up)
 
@@ -682,11 +787,77 @@ function hidePrint(){
 function onSetSelected(){
   if (!setData){ hidePrint(); return; }
   showPrint();
+  renderDirThumbs();
   refreshOptions();
   populatePreview();
 }
 
 function hasBack(){ return !!(setData.back && setData.back.kind === "image"); }
+
+/* Scenario predicates, shared by gating, notes, estimate, layout and generation.
+   The fold-over geometry ("faceback" in memory mode, "fold" in flashcard mode) and the two duplex
+   paths are the same in both modes; only the image on the reverse side differs:
+   memory -> the set's shared back (required), flashcards -> the pair's own other image. */
+function isFlash(){ return printMode === "flashcards"; }
+function isDuplexScn(){ return scenarioMode === "duplexLong" || scenarioMode === "duplexShort"; }
+function isFoldScn(){ return scenarioMode === "faceback" || scenarioMode === "fold"; }
+function needsSharedBack(){ return !isFlash() && (isFoldScn() || isDuplexScn()); }
+function cardCount(){ return isFlash() ? setData.pairs.length : setData.pairs.length * 2; }
+
+/* Advisory (reused from PexesoooFlashcards.html): a set built by pointing both generator folders at
+   the same folder has 1:1 identical pairs — valid pexeso, but every flashcard would carry the same
+   image on both sides. Heuristic, sampled over the first few pairs. */
+function looksIdentical(d){
+  if (!d) return false;
+  const n = Math.min(8, d.pairs.length);
+  for (let i=0;i<n;i++){
+    const p = d.pairs[i];
+    if (p.a.src.length !== p.b.src.length || p.a.src !== p.b.src) return false;
+  }
+  return true;
+}
+
+/* Direction thumbnails (reused from PexesoooFlashcards.html) — the set's first pair inside each
+   option, so the user sees which image lands on the front of every printed flashcard.
+   SECURITY: images via makeSafeImg (DOM property). */
+function renderDirThumbs(){
+  const hostAB = document.getElementById("thumbsAB");
+  const hostBA = document.getElementById("thumbsBA");
+  [hostAB, hostBA].forEach(h => h.innerHTML = "");
+  const mk = (host, first, second) => {
+    if (!setData){
+      const p1 = document.createElement("div"); p1.className = "slotph";
+      const ar = document.createElement("div"); ar.className = "arrow"; ar.textContent = "→";
+      const p2 = document.createElement("div"); p2.className = "slotph";
+      host.append(p1, ar, p2); return;
+    }
+    const p = setData.pairs[0];
+    host.appendChild(makeSafeImg(first === "a" ? p.a.src : p.b.src, "mini", ""));
+    const ar = document.createElement("div"); ar.className = "arrow"; ar.textContent = "→";
+    host.appendChild(ar);
+    host.appendChild(makeSafeImg(second === "a" ? p.a.src : p.b.src, "mini", ""));
+  };
+  mk(hostAB, "a", "b");
+  mk(hostBA, "b", "a");
+}
+
+/* Switch print mode: swap the scenario grid, show/hide the direction selector, restore the mode's
+   own last-chosen scenario, and re-run gating. Shared by the mode buttons and ?mode=. */
+function setPrintMode(m){
+  if (m !== "memory" && m !== "flashcards") return;
+  printMode = m;
+  scenarioMode = isFlash() ? scenarioFlash : scenarioMemory;
+  document.querySelectorAll("#modeGroup .opt").forEach(x=>x.classList.toggle("active", x.dataset.mode===m));
+  document.getElementById("scenarioGroup").classList.toggle("hidden", isFlash());
+  document.getElementById("flashScenarioGroup").classList.toggle("hidden", !isFlash());
+  document.getElementById("dirField").classList.toggle("hidden", !isFlash());
+  if (setData) refreshOptions();
+}
+function setDirection(d){
+  if (d !== "ab" && d !== "ba") return;
+  direction = d;
+  document.querySelectorAll("#dirGroup .diropt").forEach(x=>x.classList.toggle("active", x.dataset.dir===d));
+}
 
 /* Low-res signal. Prefer thumb.size (resolution of record, per README) when present — O(1).
    Otherwise measure decoded pixel size from image headers. The generator produces faces and
@@ -725,24 +896,28 @@ function refreshOptions(){
   document.getElementById("genStatus").innerHTML = "";
 
   const noBack = !hasBack();
-  const isDuplex = (scenarioMode === "duplexLong" || scenarioMode === "duplexShort");
-  const needsBack = (scenarioMode === "faceback" || isDuplex);
+  const isDuplex = isDuplexScn();
+  const needsBack = needsSharedBack();   // memory mode only; flashcards use each pair's own other image
   const blocked = needsBack && noBack;
 
   if (blocked){
-    // Missing back is a hard block for any scenario that prints a back (a physical back is the point).
+    // Missing back is a hard block for any memory scenario that prints the shared back.
     host.appendChild(makeNotice("bad", "⛔", L().backRequired));
   } else {
+    // Flashcards print only a and b, which facesLowRes already covers.
     const low = needsBack ? (facesLowRes() || backLowRes()) : facesLowRes();
     if (low) host.appendChild(makeNotice("warn", "⚠", L().lowRes));
+    if (isFlash() && looksIdentical(setData)) host.appendChild(makeNotice("warn", "⚠", L().identical));
     if (scenarioMode === "images" && noBack) host.appendChild(makeNotice("info", "ℹ", L().noBack));
-    if (scenarioMode === "faceback") host.appendChild(makeNotice("info", "✂", L().foldSteps));
+    if (isFoldScn()) host.appendChild(makeNotice("info", "✂", L().foldSteps));
     if (scenarioMode === "duplexLong")  host.appendChild(makeNotice("info", "🖨", L().duplexStepsLong));
     if (scenarioMode === "duplexShort") host.appendChild(makeNotice("info", "🖨", L().duplexStepsShort));
   }
 
   // Card note reflects the chosen card size ({s} = edge, {d} = 2× edge for the fold-over strip).
-  const noteKey = scenarioMode === "faceback" ? "cardNoteFold" : isDuplex ? "cardNoteDuplex" : "cardNote";
+  const noteKey = isFlash()
+    ? (isFoldScn() ? "cardNoteFlashFold" : "cardNoteFlashDuplex")
+    : (isFoldScn() ? "cardNoteFold" : isDuplex ? "cardNoteDuplex" : "cardNote");
   document.getElementById("t-cardnote").textContent =
     L()[noteKey].replace(/\{s\}/g, cardMode).replace(/\{d\}/g, cardMode*2);
 
@@ -762,19 +937,21 @@ function computeLayout(pw, ph, cellW, cellH){
   return { margin, gutter, cols, rows, perPage:cols*rows,
     startX:(pw-gridW)/2, topY:(ph+gridH)/2 };
 }
-function cellSize(){ return scenarioMode === "faceback" ? { w:CARD, h:2*CARD } : { w:CARD, h:CARD }; }
+function cellSize(){ return isFoldScn() ? { w:CARD, h:2*CARD } : { w:CARD, h:CARD }; }
 function updateEstimate(){
   if (!setData) return;
   const pg = PAGE[pageMode], cs = cellSize();
   const layout = computeLayout(pg.w, pg.h, cs.w, cs.h);
-  const cards = setData.pairs.length * 2;
+  const cards = cardCount();
   const units = Math.max(1, Math.ceil(cards / layout.perPage)); // face pages, = physical sheets
-  if (scenarioMode === "duplexLong" || scenarioMode === "duplexShort"){
-    document.getElementById("estimate").textContent = L().estimateDuplex
+  const kDuplex = isFlash() ? "estimateFlashDuplex" : "estimateDuplex";
+  const kPlain  = isFlash() ? "estimateFlash" : "estimate";
+  if (isDuplexScn()){
+    document.getElementById("estimate").textContent = L()[kDuplex]
       .replace("{cards}", cards).replace("{p}", setData.pairs.length)
       .replace("{sheets}", units).replace("{size}", pg.label);
   } else {
-    document.getElementById("estimate").textContent = L().estimate
+    document.getElementById("estimate").textContent = L()[kPlain]
       .replace("{cards}", cards).replace("{p}", setData.pairs.length)
       .replace("{pages}", units).replace("{size}", pg.label);
   }
@@ -789,9 +966,23 @@ document.getElementById("cardGroup").addEventListener("click", e=>{
 });
 document.getElementById("scenarioGroup").addEventListener("click", e=>{
   const b = e.target.closest(".opt"); if(!b) return;
-  scenarioMode = b.dataset.scenario;
+  scenarioMemory = scenarioMode = b.dataset.scenario;
   document.querySelectorAll("#scenarioGroup .opt").forEach(x=>x.classList.toggle("active", x===b));
   refreshOptions();
+});
+document.getElementById("flashScenarioGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".opt"); if(!b) return;
+  scenarioFlash = scenarioMode = b.dataset.scenario;
+  document.querySelectorAll("#flashScenarioGroup .opt").forEach(x=>x.classList.toggle("active", x===b));
+  refreshOptions();
+});
+document.getElementById("modeGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".opt"); if(!b) return;
+  setPrintMode(b.dataset.mode);
+});
+document.getElementById("dirGroup").addEventListener("click", e=>{
+  const b = e.target.closest(".diropt"); if(!b) return;
+  setDirection(b.dataset.dir);
 });
 document.getElementById("pageGroup").addEventListener("click", e=>{
   const b = e.target.closest(".opt"); if(!b) return;
@@ -997,6 +1188,9 @@ function buildPDF(model){
 const ILLEGAL = /[<>:"/\\|?*\x00-\x1f]/g;
 function cleanName(s){ return (s||"").replace(ILLEGAL,"").replace(/^[.\s]+|[.\s]+$/g,"").replace(/\s+/g,"_") || "set"; }
 const SUFFIX = { images:"faces", faceback:"foldcards", duplexLong:"duplexLE", duplexShort:"duplexSE" };
+/* Flashcard scenarios get their own suffixes plus the direction, e.g. "flashfold_AB". Memory-game
+   filenames are unchanged. */
+const SUFFIX_FLASH = { fold:"flashfold", duplexLong:"flashduplexLE", duplexShort:"flashduplexSE" };
 
 /* pagination helper: split card defs into pages of perPage, assigning row-major cellIndex. */
 function paginate(defs, perPage){
@@ -1028,8 +1222,8 @@ function setResolution(){
 document.getElementById("genBtn").addEventListener("click", generate);
 async function generate(){
   if (!setData) return;
-  const isDuplex = (scenarioMode === "duplexLong" || scenarioMode === "duplexShort");
-  const needsBack = (scenarioMode === "faceback" || isDuplex);
+  const isDuplex = isDuplexScn();
+  const needsBack = needsSharedBack();
   if (needsBack && !hasBack()) return;   // guarded by gating, but be safe
 
   const btn = document.getElementById("genBtn");
@@ -1054,33 +1248,37 @@ async function generate(){
     const perPage = layout.perPage;
     let pages = [];
 
-    if (scenarioMode === "images"){
-      // one square card per face; backs ignored
-      const defs = [];
+    /* Card units: one per printed card. faceIdx is the front; backIdx the reverse (or null).
+         memory game  -> two units per pair (a, b), each backed by the set's shared back
+         flashcards   -> one unit per pair: prompt on the front, answer on the back (per direction) */
+    const units = [];
+    if (isFlash()){
       for (const p of setData.pairs){
-        for (const s of [p.a, p.b]){
-          const idx = await imgIndexFor(s.src);
-          defs.push({ items:[{ imgIndex:idx, dx:0, dy:0, w:CARD, h:CARD, rot:0 }], foldY:null });
-        }
+        const prompt = direction === "ab" ? p.a : p.b;
+        const answer = direction === "ab" ? p.b : p.a;
+        units.push({ faceIdx: await imgIndexFor(prompt.src), backIdx: await imgIndexFor(answer.src) });
       }
+    } else {
+      const sharedBack = needsBack ? await imgIndexFor(setData.back.src) : null;
+      for (const p of setData.pairs){
+        for (const sd of [p.a, p.b]) units.push({ faceIdx: await imgIndexFor(sd.src), backIdx: sharedBack });
+      }
+    }
+
+    if (scenarioMode === "images"){
+      // memory only: one square card per face; backs ignored
+      const defs = units.map(u => ({ items:[{ imgIndex:u.faceIdx, dx:0, dy:0, w:CARD, h:CARD, rot:0 }], foldY:null }));
       pages = paginate(defs, perPage);
 
-    } else if (scenarioMode === "faceback"){
-      // fold-over strip per face: face upright (bottom half) + shared back rotated 180° (top half)
-      const backIdx = await imgIndexFor(setData.back.src);
-      const defs = [];
-      for (const p of setData.pairs){
-        for (const s of [p.a, p.b]){
-          const faceIdx = await imgIndexFor(s.src);
-          defs.push({
-            items:[
-              { imgIndex:faceIdx, dx:0, dy:0,    w:CARD, h:CARD, rot:0   },  // face, bottom half
-              { imgIndex:backIdx, dx:0, dy:CARD, w:CARD, h:CARD, rot:180 }   // shared back, top half, rotated
-            ],
-            foldY: CARD   // crease at mid-strip
-          });
-        }
-      }
+    } else if (isFoldScn()){
+      // fold-over strip per card: face upright (bottom half) + reverse rotated 180° (top half)
+      const defs = units.map(u => ({
+        items:[
+          { imgIndex:u.faceIdx, dx:0, dy:0,    w:CARD, h:CARD, rot:0   },  // face / prompt, bottom half
+          { imgIndex:u.backIdx, dx:0, dy:CARD, w:CARD, h:CARD, rot:180 }   // shared back / answer, top half, rotated
+        ],
+        foldY: CARD   // crease at mid-strip
+      }));
       pages = paginate(defs, perPage);
 
     } else {
@@ -1088,6 +1286,8 @@ async function generate(){
       // behind faces after the physical flip.
       //   long-edge binding  -> mirror horizontally (X), back upright
       //   short-edge binding -> mirror vertically (Y), back rotated 180°
+      // Each back cell carries its own unit's backIdx, so a per-card reverse (flashcard answer) and
+      // a constant one (memory shared back) use the same path.
       const shortEdge = (scenarioMode === "duplexShort");
       // Effective faces-side offset = built-in printer baseline + user's manual offset.
       const baseline = shortEdge ? DUPLEX_BASELINE_CONSTANT_SHORT : DUPLEX_BASELINE_CONSTANT_LONG;
@@ -1097,20 +1297,15 @@ async function generate(){
       //   short-edge (horizontal-axis flip): dxPdf = +eff, dyPdf = -eff
       const backOffX = (shortEdge ? effX : -effX) * MM;
       const backOffY = (shortEdge ? -effY : effY) * MM;
-      const backIdx = await imgIndexFor(setData.back.src);
-      const faceIdxs = [];
-      for (const p of setData.pairs){
-        for (const s of [p.a, p.b]) faceIdxs.push(await imgIndexFor(s.src));
-      }
-      for (let i=0;i<faceIdxs.length;i+=perPage){
-        const chunk = faceIdxs.slice(i, i+perPage);
-        const front = chunk.map((fi, j)=>({
+      for (let i=0;i<units.length;i+=perPage){
+        const chunk = units.slice(i, i+perPage);
+        const front = chunk.map((u, j)=>({
           cellIndex:j, mirrorX:false, mirrorY:false,
-          items:[{ imgIndex:fi, dx:0, dy:0, w:CARD, h:CARD, rot:0 }], foldY:null
+          items:[{ imgIndex:u.faceIdx, dx:0, dy:0, w:CARD, h:CARD, rot:0 }], foldY:null
         }));
-        const back = chunk.map((_, j)=>({
+        const back = chunk.map((u, j)=>({
           cellIndex:j, mirrorX:!shortEdge, mirrorY:shortEdge, offX:backOffX, offY:backOffY,
-          items:[{ imgIndex:backIdx, dx:0, dy:0, w:CARD, h:CARD, rot: shortEdge?180:0 }], foldY:null
+          items:[{ imgIndex:u.backIdx, dx:0, dy:0, w:CARD, h:CARD, rot: shortEdge?180:0 }], foldY:null
         }));
         pages.push(front, back);   // sheet = front page then its reverse
       }
@@ -1124,7 +1319,8 @@ async function generate(){
     a.href = url;
     const offSeg = (isDuplex && (offsetX !== 0 || offsetY !== 0)) ? ("__x" + offsetX + "_y" + offsetY + "mm") : "";
     a.download = "Pexesooo__" + cleanName(setData.name) + "__" + setResolution() + "px__" + cardMode + "mm" + "__" + PAGE[pageMode].label.replace(/\s+/g,"")
-        + "__" + SUFFIX[scenarioMode] + offSeg + ".pdf";
+        + "__" + (isFlash() ? SUFFIX_FLASH[scenarioMode] + "_" + direction.toUpperCase() : SUFFIX[scenarioMode])
+        + offSeg + ".pdf";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 1000);
 
@@ -1132,26 +1328,31 @@ async function generate(){
   } catch(e){
     status.innerHTML = `<div class="error-banner">${L().genError}</div>`;
   }
-  btn.disabled = (needsBack && !hasBack());
+  btn.disabled = (needsSharedBack() && !hasBack());
 }
 
 /* ---------------- launch parameters ---------------- */
 /* Optional URL parameter, read from window.location.search (populated on file:// URLs too).
    Key is case-insensitive; documented lowercase. Unknown keys and unrecognised values are ignored.
-     lang=en|cs   initial UI language (invalid/absent → Czech default) */
+     lang=en|cs              initial UI language (invalid/absent → Czech default)
+     mode=memory|flashcards  initial print mode (default memory)
+     dir=ab|ba               flashcards: which side is the prompt / front (default ab) */
 function initFromURL(){
   let params;
   try { params = new URLSearchParams(window.location.search); }
   catch(e){ return; }
-  for (const [k,v] of params){
-    if (k.toLowerCase() === "lang"){
-      const s = (v||"").trim().toLowerCase();
-      if (s === "en" || s === "cs") lang = s;
-      break; // first lang wins
-    }
-  }
+  // First occurrence of each key wins; unrecognised values are ignored.
+  const get = key => {
+    for (const [k,v] of params) if (k.toLowerCase() === key) return (v||"").trim().toLowerCase();
+    return null;
+  };
+  const lv = get("lang");
+  if (lv === "en" || lv === "cs") lang = lv;
+  setPrintMode(get("mode"));   // ignores null / invalid values
+  setDirection(get("dir"));
 }
 
+renderDirThumbs();   // placeholders until a set is selected
 initFromURL();
 setLang(lang);   // syncs pill state + calls applyLang()
 </script>
